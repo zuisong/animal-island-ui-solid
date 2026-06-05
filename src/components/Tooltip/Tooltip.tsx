@@ -1,6 +1,5 @@
-import React, { useState, useRef, useCallback, useEffect, useId } from 'react';
+import { JSX, createSignal, splitProps, mergeProps, Show, onCleanup, createUniqueId } from 'solid-js';
 import styles from './tooltip.module.less';
-import classNames from 'classnames';
 
 export type TooltipPlacement =
     | 'top'
@@ -27,36 +26,36 @@ const ISLAND_CLIP_PATH =
 const ISLAND_BG = 'rgb(247, 243, 223)';
 const ISLAND_STROKE = '#c4b89e';
 
-const IslandClipDef: React.FC<{ id: string }> = ({ id }) => (
-    <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden>
-        <clipPath id={id} clipPathUnits="objectBoundingBox">
+const IslandClipDef = (props: { id: string }) => (
+    <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
+        <clipPath id={props.id} clipPathUnits="objectBoundingBox">
             <path d={ISLAND_CLIP_PATH} />
         </clipPath>
     </svg>
 );
 
 /** SVG 沿有机路径 fill + stroke，边框贴合不规则轮廓 */
-const IslandShapeSvg: React.FC = () => (
+const IslandShapeSvg = () => (
     <svg
-        className={styles.islandSvg}
+        class={styles.islandSvg}
         viewBox="0 0 1 1"
         preserveAspectRatio="none"
-        aria-hidden
+        aria-hidden="true"
     >
         <path
             d={ISLAND_CLIP_PATH}
             fill={ISLAND_BG}
             stroke={ISLAND_STROKE}
-            strokeWidth={2}
-            vectorEffect="non-scaling-stroke"
-            strokeLinejoin="round"
+            stroke-width="2"
+            vector-effect="non-scaling-stroke"
+            stroke-linejoin="round"
         />
     </svg>
 );
 
 export interface TooltipProps {
     /** 提示内容，支持多行（可用 \n 或 <br/> 换行） */
-    title: React.ReactNode;
+    title: JSX.Element;
     /** 位置 */
     placement?: TooltipPlacement;
     /** 触发方式 */
@@ -66,109 +65,104 @@ export interface TooltipProps {
     /** 是否显示边框（含箭头描边）；island 开启后 SVG 沿有机路径描边 */
     bordered?: boolean;
     /** 子元素（触发器） */
-    children: React.ReactElement;
+    children: JSX.Element;
     /** 自定义类名 */
-    className?: string;
+    class?: string;
+    /** 自定义类名列表 */
+    classList?: { [key: string]: boolean | undefined };
     /** 自定义样式 */
-    style?: React.CSSProperties;
+    style?: JSX.CSSProperties;
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({
-    title,
-    placement = 'top',
-    trigger = 'hover',
-    variant = 'default',
-    bordered = true,
-    children,
-    className,
-    style,
-}) => {
-    const [visible, setVisible] = useState(false);
-    const timerRef = useRef<ReturnType<typeof setTimeout>>();
-    const clipId = `animal-tooltip-clip-${useId().replace(/:/g, '')}`;
+export const Tooltip = (props: TooltipProps) => {
+    const merged = mergeProps(
+        {
+            placement: 'top' as TooltipPlacement,
+            trigger: 'hover' as TooltipTrigger,
+            variant: 'default' as TooltipVariant,
+            bordered: true,
+        },
+        props
+    );
+    const [local, rest] = splitProps(merged, [
+        'title',
+        'placement',
+        'trigger',
+        'variant',
+        'bordered',
+        'children',
+        'class',
+        'classList',
+        'style',
+    ]);
 
-    const show = useCallback(() => {
-        clearTimeout(timerRef.current);
+    const [visible, setVisible] = createSignal(false);
+    let timer: any;
+    const clipId = `animal-tooltip-clip-${createUniqueId().replace(/-/g, '')}`;
+
+    const show = () => {
+        clearTimeout(timer);
         setVisible(true);
-    }, []);
+    };
 
-    const hide = useCallback(() => {
-        timerRef.current = setTimeout(() => setVisible(false), 100);
-    }, []);
+    const hide = () => {
+        timer = setTimeout(() => setVisible(false), 100);
+    };
 
-    useEffect(() => () => clearTimeout(timerRef.current), []);
+    onCleanup(() => clearTimeout(timer));
 
-    const child = React.Children.only(children);
-
-    const triggerProps: Record<string, unknown> = {};
-
-    if (trigger === 'hover') {
-        triggerProps.onMouseEnter = (e: React.MouseEvent) => {
-            show();
-            (child.props as any).onMouseEnter?.(e);
-        };
-        triggerProps.onMouseLeave = (e: React.MouseEvent) => {
-            hide();
-            (child.props as any).onMouseLeave?.(e);
-        };
-    } else if (trigger === 'focus') {
-        triggerProps.onFocus = (e: React.FocusEvent) => {
-            show();
-            (child.props as any).onFocus?.(e);
-        };
-        triggerProps.onBlur = (e: React.FocusEvent) => {
-            hide();
-            (child.props as any).onBlur?.(e);
-        };
-    } else if (trigger === 'click') {
-        triggerProps.onClick = (e: React.MouseEvent) => {
-            setVisible((v) => !v);
-            (child.props as any).onClick?.(e);
-        };
-    }
-
-    const placementClass = styles[placement.replace(/-/g, '_')];
-    const isIsland = variant === 'island';
+    const placementClass = () => styles[local.placement.replace(/-/g, '_')];
+    const isIsland = () => local.variant === 'island';
 
     return (
         <div
-            className={classNames(styles.tooltipWrapper, className)}
-            style={style}
+            class={local.class}
+            classList={{
+                [styles.tooltipWrapper]: true,
+                ...local.classList,
+            }}
+            style={local.style}
         >
-            {React.cloneElement(child, triggerProps)}
             <div
-                className={classNames(
-                    styles.tooltip,
-                    placementClass,
-                    isIsland && styles.island,
-                    bordered ? styles.bordered : styles.borderless,
-                    { [styles.visible]: visible }
-                )}
-                role="tooltip"
-                aria-hidden={!visible}
-                onMouseEnter={trigger === 'hover' ? show : undefined}
-                onMouseLeave={trigger === 'hover' ? hide : undefined}
+                class={styles.triggerWrapper}
+                onMouseEnter={local.trigger === 'hover' ? show : undefined}
+                onMouseLeave={local.trigger === 'hover' ? hide : undefined}
+                onFocusIn={local.trigger === 'focus' ? show : undefined}
+                onFocusOut={local.trigger === 'focus' ? hide : undefined}
+                onClick={local.trigger === 'click' ? () => setVisible(!visible()) : undefined}
             >
-                {isIsland ? (
-                    <>
-                        <div className={styles.islandBody}>
-                            <IslandClipDef id={clipId} />
-                            {bordered && <IslandShapeSvg />}
-                            <div
-                                className={styles.islandContent}
-                                style={{ clipPath: `url(#${clipId})` }}
-                            >
-                                <div className={styles.content}>{title}</div>
-                            </div>
+                {local.children}
+            </div>
+            <div
+                class={styles.tooltip}
+                classList={{
+                    [placementClass()]: true,
+                    [styles.island]: isIsland(),
+                    [styles.bordered]: local.bordered,
+                    [styles.borderless]: !local.bordered,
+                    [styles.visible]: visible(),
+                }}
+                role="tooltip"
+                aria-hidden={!visible()}
+                onMouseEnter={local.trigger === 'hover' ? show : undefined}
+                onMouseLeave={local.trigger === 'hover' ? hide : undefined}
+            >
+                <Show
+                    when={isIsland()}
+                    fallback={<div class={styles.content}>{local.title}</div>}
+                >
+                    <div class={styles.islandBody}>
+                        <IslandClipDef id={clipId} />
+                        <Show when={local.bordered}>
+                            <IslandShapeSvg />
+                        </Show>
+                        <div class={styles.islandContent} style={{ 'clip-path': `url(#${clipId})` }}>
+                            <div class={styles.content}>{local.title}</div>
                         </div>
-                        <span className={styles.tail} aria-hidden />
-                    </>
-                ) : (
-                    <div className={styles.content}>{title}</div>
-                )}
+                    </div>
+                    <span class={styles.tail} aria-hidden="true" />
+                </Show>
             </div>
         </div>
     );
 };
-
-Tooltip.displayName = 'Tooltip';

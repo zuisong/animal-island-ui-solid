@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Button, Input, Switch, Modal, Card, Collapse, Divider, Typewriter, Tabs, Cursor, Title, TitleColor } from '../src';
+import { JSX, createSignal, createMemo, Suspense, lazy, Show } from 'solid-js';
+import { Button, Input, Switch, Modal, Card, Collapse, Divider, Typewriter, Tabs, Cursor, Title } from '../src';
+import type { TitleColor } from '../src';
 import {
     labelStyle,
     sectionStyle,
@@ -11,6 +12,7 @@ import {
     CodeBlock,
     demoDashedBoxStyle,
 } from './tools';
+import SelectDemo from './components/Select';
 import TimeDemo from './components/Time';
 import PhoneDemo from './components/Phone';
 import FooterDemo from './components/Footer';
@@ -25,39 +27,36 @@ import LoadingDemo from './components/Loading/LoadingDemo';
 import TableDemo from './components/Table/TableDemo';
 import WeddingInvitationDemo from './components/WeddingInvitation/WeddingInvitationDemo';
 import WalletDemo from './components/Wallet/WalletDemo';
-import type { TabItem } from '../src';
 
 // ============================================
 // Styles
 // ============================================
 const S = {
     pageDesc: {
-        fontSize: 14,
+        'font-size': '14px',
         color: '#794f27',
-        marginBottom: 20,
-    } as React.CSSProperties,
+        'margin-bottom': '20px',
+    } as JSX.CSSProperties,
     row: {
         display: 'flex',
-        gap: 16,
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-    } as React.CSSProperties,
+        gap: '16px',
+        'flex-wrap': 'wrap',
+        'align-items': 'flex-start',
+    } as JSX.CSSProperties,
     col: {
         display: 'flex',
-        flexDirection: 'column',
-        gap: 12,
-    } as React.CSSProperties,
+        'flex-direction': 'column',
+        gap: '12px',
+    } as JSX.CSSProperties,
     demoBox: {
-        padding: 16,
-        borderRadius: 18,
-        fontWeight: 500,
-        marginBottom: 20,
-    } as React.CSSProperties,
+        padding: '16px',
+        'border-radius': '18px',
+        'font-weight': 500,
+        'margin-bottom': '20px',
+    } as JSX.CSSProperties,
 };
 
-// ============================================
-// API data
-// ============================================
+// ... API data ...
 const BUTTON_API: ApiRow[] = [
     {
         prop: 'type',
@@ -96,18 +95,18 @@ const BUTTON_API: ApiRow[] = [
         type: 'boolean',
         defaultVal: 'false',
     },
-    { prop: 'icon', desc: '图标', type: 'ReactNode', defaultVal: '-' },
+    { prop: 'icon', desc: '图标', type: 'JSX.Element', defaultVal: '-' },
     {
         prop: 'htmlType',
         desc: '原生 button type',
         type: `'submit' | 'reset' | 'button'`,
         defaultVal: "'button'",
     },
-    { prop: 'children', desc: '按钮内容', type: 'ReactNode', defaultVal: '-' },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'children', desc: '按钮内容', type: 'JSX.Element', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
     {
         prop: '...',
-        desc: '继承 React.ButtonHTMLAttributes',
+        desc: '继承 JSX.ButtonHTMLAttributes',
         type: 'HTMLButtonElement',
         defaultVal: '-',
     },
@@ -120,8 +119,8 @@ const INPUT_API: ApiRow[] = [
         type: `'small' | 'middle' | 'large'`,
         defaultVal: "'middle'",
     },
-    { prop: 'prefix', desc: '前缀图标', type: 'ReactNode', defaultVal: '-' },
-    { prop: 'suffix', desc: '后缀图标', type: 'ReactNode', defaultVal: '-' },
+    { prop: 'prefix', desc: '前缀图标', type: 'JSX.Element', defaultVal: '-' },
+    { prop: 'suffix', desc: '后缀图标', type: 'JSX.Element', defaultVal: '-' },
     {
         prop: 'allowClear',
         desc: '允许清除',
@@ -141,15 +140,15 @@ const INPUT_API: ApiRow[] = [
         defaultVal: 'false',
     },
     {
-        prop: 'onChange',
+        prop: 'onInput',
         desc: '值变化回调',
-        type: 'ChangeEventHandler<HTMLInputElement>',
+        type: 'JSX.InputEventHandler<HTMLInputElement, InputEvent>',
         defaultVal: '-',
     },
     { prop: 'onClear', desc: '清除回调', type: '() => void', defaultVal: '-' },
     {
         prop: '...',
-        desc: '继承 React.InputHTMLAttributes',
+        desc: '继承 JSX.InputHTMLAttributes',
         type: 'HTMLInputElement',
         defaultVal: '-',
     },
@@ -179,13 +178,13 @@ const SWITCH_API: ApiRow[] = [
     {
         prop: 'checkedChildren',
         desc: '选中时文案',
-        type: 'ReactNode',
+        type: 'JSX.Element',
         defaultVal: '-',
     },
     {
         prop: 'unCheckedChildren',
         desc: '未选中时文案',
-        type: 'ReactNode',
+        type: 'JSX.Element',
         defaultVal: '-',
     },
     {
@@ -194,7 +193,7 @@ const SWITCH_API: ApiRow[] = [
         type: '(checked: boolean) => void',
         defaultVal: '-',
     },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
 ];
 
 const MODAL_API: ApiRow[] = [
@@ -205,7 +204,7 @@ const MODAL_API: ApiRow[] = [
         defaultVal: '-',
         required: true,
     },
-    { prop: 'title', desc: '标题', type: 'ReactNode', defaultVal: '-' },
+    { prop: 'title', desc: '标题', type: 'JSX.Element', defaultVal: '-' },
     { prop: 'width', desc: '宽度', type: 'number | string', defaultVal: '520' },
     {
         prop: 'maskClosable',
@@ -216,7 +215,7 @@ const MODAL_API: ApiRow[] = [
     {
         prop: 'footer',
         desc: '底部按钮区域，传 null 则不显示',
-        type: 'ReactNode | null',
+        type: 'JSX.Element | null',
         defaultVal: '默认按钮',
     },
     { prop: 'onClose', desc: '关闭回调', type: '() => void', defaultVal: '-' },
@@ -224,11 +223,11 @@ const MODAL_API: ApiRow[] = [
     {
         prop: 'children',
         desc: '自定义内容',
-        type: 'ReactNode',
+        type: 'JSX.Element',
         defaultVal: '-',
     },
     {
-        prop: 'className',
+        prop: 'class',
         desc: '自定义类名',
         type: 'string',
         defaultVal: '-',
@@ -269,12 +268,12 @@ const CARD_API: ApiRow[] = [
     {
         prop: 'children',
         desc: '自定义内容',
-        type: 'ReactNode',
+        type: 'JSX.Element',
         defaultVal: '-',
     },
     {
         prop: '...',
-        desc: '继承 React.HTMLAttributes',
+        desc: '继承 JSX.HTMLAttributes',
         type: 'HTMLDivElement',
         defaultVal: '-',
     },
@@ -284,14 +283,14 @@ const COLLAPSE_API: ApiRow[] = [
     {
         prop: 'question',
         desc: '问题标题',
-        type: 'ReactNode',
+        type: 'JSX.Element',
         defaultVal: '-',
         required: true,
     },
     {
         prop: 'answer',
         desc: '答案内容',
-        type: 'ReactNode',
+        type: 'JSX.Element',
         defaultVal: '-',
         required: true,
     },
@@ -307,11 +306,11 @@ const COLLAPSE_API: ApiRow[] = [
         type: 'boolean',
         defaultVal: 'false',
     },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
     {
         prop: 'style',
         desc: '自定义样式',
-        type: 'CSSProperties',
+        type: 'JSX.CSSProperties',
         defaultVal: '-',
     },
 ];
@@ -323,12 +322,12 @@ const CURSOR_API: ApiRow[] = [
         type: 'boolean',
         defaultVal: 'true',
     },
-    { prop: 'children', desc: '子元素', type: 'ReactNode', defaultVal: '-' },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'children', desc: '子元素', type: 'JSX.Element', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
     {
         prop: 'style',
         desc: '自定义样式',
-        type: 'CSSProperties',
+        type: 'JSX.CSSProperties',
         defaultVal: '-',
     },
 ];
@@ -340,11 +339,11 @@ const DIVIDER_API: ApiRow[] = [
         type: `'line-brown' | 'line-teal' | 'line-white' | 'line-yellow' | 'wave-yellow'`,
         defaultVal: "'line-brown'",
     },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
     {
         prop: 'style',
         desc: '自定义样式',
-        type: 'CSSProperties',
+        type: 'JSX.CSSProperties',
         defaultVal: '-',
     },
 ];
@@ -352,7 +351,7 @@ const DIVIDER_API: ApiRow[] = [
 // ============================================
 // Demo sections
 // ============================================
-const ButtonDemo: React.FC = () => (
+const ButtonDemo = () => (
     <div style={sectionStyle}>
         <div style={sectionTitleStyle}>
             Button <span style={tagStyle}>6 types</span>
@@ -404,7 +403,7 @@ const ButtonDemo: React.FC = () => (
                 </Button>
             </div>
             <div style={labelStyle}>block 块级按钮</div>
-            <div style={{ maxWidth: 360 }}>
+            <div style={{ 'max-width': '360px' }}>
                 <Button type="primary" block>
                     Block Button
                 </Button>
@@ -427,8 +426,7 @@ const ButtonDemo: React.FC = () => (
             </div>
         </div>
         <CodeBlock
-            code={`import React from 'react';
-import { Button } from 'animal-island-ui';
+            code={`import { Button } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
@@ -465,8 +463,8 @@ export default App;`}
     </div>
 );
 
-const InputDemo: React.FC = () => {
-    const [inputValue, setInputValue] = useState('');
+const InputDemo = () => {
+    const [inputValue, setInputValue] = createSignal('');
     return (
         <div style={sectionStyle}>
             <div style={sectionTitleStyle}>
@@ -474,50 +472,50 @@ const InputDemo: React.FC = () => {
             </div>
             <div style={demoBodyStyle}>
                 <div style={labelStyle}>shadow 阴影控制</div>
-                <div style={{ ...(S.col as any), maxWidth: 360, gap: 12 }}>
+                <div style={{ ...S.col, 'max-width': '360px', gap: '12px' }}>
                     <Input placeholder="No shadow (default)" />
                     <Input placeholder="With shadow" shadow={true} />
                 </div>
                 <div style={labelStyle}>基础用法</div>
-                <div style={{ ...(S.col as any), maxWidth: 360, gap: 12 }}>
+                <div style={{ ...S.col, 'max-width': '360px', gap: '12px' }}>
                     <Input placeholder="Basic input" />
                     <Input
                         placeholder="With clear"
                         allowClear
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
+                        value={inputValue()}
+                        onInput={(e) => setInputValue(e.target.value)}
                         onClear={() => setInputValue('')}
                     />
                     <Input placeholder="Prefix & Suffix" prefix="🔍" suffix="⏎" />
                 </div>
                 <div style={labelStyle}>size 尺寸</div>
-                <div style={{ ...(S.col as any), maxWidth: 360, gap: 12 }}>
+                <div style={{ ...S.col, 'max-width': '360px', gap: '12px' }}>
                     <Input placeholder="Small" size="small" />
                     <Input placeholder="Middle (default)" size="middle" />
                     <Input placeholder="Large" size="large" />
                 </div>
                 <div style={labelStyle}>status 校验状态</div>
-                <div style={{ ...(S.col as any), maxWidth: 360, gap: 12 }}>
+                <div style={{ ...S.col, 'max-width': '360px', gap: '12px' }}>
                     <Input placeholder="Error status" status="error" />
                     <Input placeholder="Warning status" status="warning" />
                 </div>
                 <div style={labelStyle}>disabled 禁用</div>
-                <div style={{ ...(S.col as any), maxWidth: 360, gap: 12 }}>
+                <div style={{ ...S.col, 'max-width': '360px', gap: '12px' }}>
                     <Input placeholder="Disabled" disabled />
                 </div>
             </div>
             <CodeBlock
-                code={`import React, { useState } from 'react';
-import { Input } from 'animal-island-ui';
+                code={`import { createSignal } from 'solid-js';
+import { Input } from 'animal-island-ui-solid';
 
 const App = () => {
-    const [val, setVal] = useState('');
+    const [val, setVal] = createSignal('');
     return (
         <div>
             {/* 基础输入框 */}
             <Input placeholder="Basic input" />
             {/* 带清除按钮 */}
-            <Input placeholder="With clear" allowClear value={val} onChange={e => setVal(e.target.value)} />
+            <Input placeholder="With clear" allowClear value={val()} onInput={e => setVal(e.target.value)} />
             {/* 前后缀 */}
             <Input placeholder="Prefix" prefix="🔍" suffix="⏎" />
             {/* 小尺寸 */}
@@ -541,8 +539,8 @@ export default App;`}
     );
 };
 
-const SwitchDemo: React.FC = () => {
-    const [switchChecked, setSwitchChecked] = useState(false);
+const SwitchDemo = () => {
+    const [switchChecked, setSwitchChecked] = createSignal(false);
     return (
         <div style={sectionStyle}>
             <div style={sectionTitleStyle}>
@@ -550,35 +548,35 @@ const SwitchDemo: React.FC = () => {
             </div>
             <div style={demoBodyStyle}>
                 <div style={labelStyle}>基础用法</div>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                    <Switch checked={switchChecked} onChange={setSwitchChecked} />
-                    <span style={{ fontSize: 13 }}>{switchChecked ? 'ON' : 'OFF'}</span>
+                <div style={{ display: 'flex', gap: '16px', 'align-items': 'center' }}>
+                    <Switch checked={switchChecked()} onChange={setSwitchChecked} />
+                    <span style={{ 'font-size': '13px' }}>{switchChecked() ? 'ON' : 'OFF'}</span>
                 </div>
                 <div style={labelStyle}>checkedChildren / unCheckedChildren 自定义文案</div>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '16px', 'align-items': 'center' }}>
                     <Switch defaultChecked checkedChildren="开" unCheckedChildren="关" />
                 </div>
                 <div style={labelStyle}>size 尺寸</div>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '16px', 'align-items': 'center' }}>
                     <Switch defaultChecked />
                     <Switch size="small" defaultChecked />
                 </div>
                 <div style={labelStyle}>disabled / loading 状态</div>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '16px', 'align-items': 'center' }}>
                     <Switch disabled />
                     <Switch loading defaultChecked />
                 </div>
             </div>
             <CodeBlock
-                code={`import React, { useState } from 'react';
-import { Switch } from 'animal-island-ui';
+                code={`import { createSignal } from 'solid-js';
+import { Switch } from 'animal-island-ui-solid';
 
 const App = () => {
-    const [checked, setChecked] = useState(false);
+    const [checked, setChecked] = createSignal(false);
     return (
         <div>
             {/* 受控模式 */}
-            <Switch checked={checked} onChange={setChecked} />
+            <Switch checked={checked()} onChange={setChecked} />
             {/* 自定义文案 */}
             <Switch defaultChecked checkedChildren="开" unCheckedChildren="关" />
             {/* 小尺寸 */}
@@ -594,7 +592,7 @@ export default App;`}
     );
 };
 
-const CardDemo: React.FC = () => (
+const CardDemo = () => (
     <div style={sectionStyle}>
         <div style={sectionTitleStyle}>
             Card <span style={tagStyle}>2 types</span> <span style={tagStyle}>13 colors</span> <span style={tagStyle}>14 patterns</span>
@@ -607,7 +605,7 @@ const CardDemo: React.FC = () => (
                 <Card>
                     <p>基础卡片</p>
                 </Card>
-                <Card style={{ maxWidth: 560, width: '100%' }}>
+                <Card style={{ 'max-width': '560px', width: '100%' }}>
                     <p>
                         在Nintendo 3DS《Animal Island: New Leaf》和《Animal Island: Happy Home
                         Designer》中製作的「我的設計」QR
@@ -620,67 +618,37 @@ const CardDemo: React.FC = () => (
                 <Card type="dashed">
                     <p>虚线边框卡片</p>
                 </Card>
-                <Card type="dashed" style={{ maxWidth: 360, width: '100%' }}>
+                <Card type="dashed" style={{ 'max-width': '360px', width: '100%' }}>
                     <p>欢迎来到无人岛！虚线边框适合用于轻量提示或次要信息展示。</p>
                 </Card>
             </div>
         </div>
         {/* ---- pattern ---- */}
-        <div style={{...demoBodyStyle, gap: 24}}>
+        <div style={{...demoBodyStyle, gap: '24px'}}>
             <div style={labelStyle}>pattern — 风格花纹</div>
             <div style={S.row}>
-                <Card pattern="default" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>default</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>默认奶油色</div>
-                </Card>
-                <Card pattern="app-pink" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>app-pink</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>应用粉</div>
-                </Card>
-                <Card pattern="purple" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>purple</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>紫色</div>
-                </Card>
-                <Card pattern="app-blue" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>app-blue</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>应用蓝</div>
-                </Card>
-                <Card pattern="app-yellow" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>app-yellow</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>应用黄</div>
-                </Card>
-                <Card pattern="app-orange" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>app-orange</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>应用橙</div>
-                </Card>
-                <Card pattern="app-teal" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>app-teal</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>应用青</div>
-                </Card>
-                <Card pattern="app-green" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>app-green</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>应用绿</div>
-                </Card>
-                <Card pattern="app-red" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>app-red</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>应用红</div>
-                </Card>
-                <Card pattern="lime-green" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>lime-green</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>青柠绿</div>
-                </Card>
-                <Card pattern="yellow-green" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>yellow-green</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>黄绿色</div>
-                </Card>
-                <Card pattern="brown" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>brown</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>棕色</div>
-                </Card>
-                <Card pattern="warm-peach-pink" style={{ width: 170 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>warm-peach-pink</div>
-                    <div style={{ fontSize: 12, opacity: 0.85 }}>暖桃粉</div>
-                </Card>
+                <For each={([
+                    ['default', '默认奶油色'],
+                    ['app-pink', '应用粉'],
+                    ['purple', '紫色'],
+                    ['app-blue', '应用蓝'],
+                    ['app-yellow', '应用黄'],
+                    ['app-orange', '应用橙'],
+                    ['app-teal', '应用青'],
+                    ['app-green', '应用绿'],
+                    ['app-red', '应用红'],
+                    ['lime-green', '青柠绿'],
+                    ['yellow-green', '黄绿色'],
+                    ['brown', '棕色'],
+                    ['warm-peach-pink', '暖桃粉']
+                ] as const)}>
+                    {([pattern, label]) => (
+                        <Card pattern={pattern} style={{ width: '170px' }}>
+                            <div style={{ 'font-weight': 700, 'font-size': '14px', 'margin-bottom': '4px' }}>{pattern}</div>
+                            <div style={{ 'font-size': '12px', opacity: 0.85 }}>{label}</div>
+                        </Card>
+                    )}
+                </For>
             </div>
         </div>
 
@@ -690,66 +658,62 @@ const CardDemo: React.FC = () => (
             <div
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                    gap: 16,
-                    marginBottom: 24,
+                    'grid-template-columns': 'repeat(auto-fill, minmax(140px, 1fr))',
+                    gap: '16px',
+                    'margin-bottom': '24px',
                 }}
             >
-                {(
-                    [
-                        ['default', 'Default', '默认奶油色'],
-                        ['app-pink', 'App Pink', '应用粉'],
-                        ['purple', 'Purple', '紫色'],
-                        ['app-blue', 'App Blue', '应用蓝'],
-                        ['app-yellow', 'App Yellow', '应用黄'],
-                        ['app-orange', 'App Orange', '应用橙'],
-                        ['app-teal', 'App Teal', '应用青'],
-                        ['app-green', 'App Green', '应用绿'],
-                        ['app-red', 'App Red', '应用红'],
-                        ['lime-green', 'Lime Green', '青柠绿'],
-                        ['yellow-green', 'Yellow-Green', '黄绿色'],
-                        ['brown', 'Brown', '棕色'],
-                        ['warm-peach-pink', 'Warm Peach Pink', '暖桃粉'],
-                    ] as const
-                ).map(([color, en, cn]) => (
-                    <Card key={color} color={color as any} style={{ padding: '16px 20px' }}>
-                        <div
-                            style={{
-                                fontWeight: 700,
-                                fontSize: 14,
-                                marginBottom: 4,
-                            }}
-                        >
-                            {en}
-                        </div>
-                        <div style={{ fontSize: 12, opacity: 0.85 }}>{cn}</div>
-                    </Card>
-                ))}
+                <For each={([
+                    ['default', 'Default', '默认奶油色'],
+                    ['app-pink', 'App Pink', '应用粉'],
+                    ['purple', 'Purple', '紫色'],
+                    ['app-blue', 'App Blue', '应用蓝'],
+                    ['app-yellow', 'App Yellow', '应用黄'],
+                    ['app-orange', 'App Orange', '应用橙'],
+                    ['app-teal', 'App Teal', '应用青'],
+                    ['app-green', 'App Green', '应用绿'],
+                    ['app-red', 'App Red', '应用红'],
+                    ['lime-green', 'Lime Green', '青柠绿'],
+                    ['yellow-green', 'Yellow-Green', '黄绿色'],
+                    ['brown', 'Brown', '棕色'],
+                    ['warm-peach-pink', 'Warm Peach Pink', '暖桃粉'],
+                ] as const)}>
+                    {([color, en, cn]) => (
+                        <Card color={color as any} style={{ padding: '16px 20px' }}>
+                            <div
+                                style={{
+                                    'font-weight': 700,
+                                    'font-size': '14px',
+                                    'margin-bottom': '4px',
+                                }}
+                            >
+                                {en}
+                            </div>
+                            <div style={{ 'font-size': '12px', opacity: 0.85 }}>{cn}</div>
+                        </Card>
+                    )}
+                </For>
             </div>
         </div>
         <CodeBlock
-            code={`import React from 'react';
-import { Card } from 'animal-island-ui';
+            code={`import { Card } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
         <div>
             {/* 基础卡片 */}
-            <Card style={{ width: 260 }}>
+            <Card style={{ width: '260px' }}>
                 基础卡片
             </Card>
 
             {/* 虚线卡片 */}
-            <Card type="dashed" style={{ width: 260 }}>
+            <Card type="dashed" style={{ width: '260px' }}>
                 虚线卡片
             </Card>
 
             {/* 颜色变体 */}
             <Card color="app-blue">
                 蓝色卡片
-            </Card>
-            <Card color="warm-peach-pink">
-                暖桃粉卡片
             </Card>
 
             {/* 花纹 */}
@@ -766,14 +730,14 @@ export default App;`}
     </div>
 );
 
-const CollapseDemo: React.FC = () => (
+const CollapseDemo = () => (
     <div style={sectionStyle}>
         <div style={sectionTitleStyle}>
             Collapse <span style={tagStyle}>FAQ</span>
         </div>
         <div style={demoBodyStyle}>
             <div style={labelStyle}>基础用法</div>
-            <div style={{ maxWidth: 720 }}>
+            <div style={{ 'max-width': '720px' }}>
                 <Collapse question="1個島嶼可以登錄多少名用戶?" answer={<p>1座島嶼最多可以容納8位居民（用戶）。</p>} />
                 <Collapse
                     question="可以多少人一起玩?"
@@ -781,7 +745,7 @@ const CollapseDemo: React.FC = () => (
                 />
             </div>
             <div style={labelStyle}>defaultExpanded 默认展开</div>
-            <div style={{ maxWidth: 720 }}>
+            <div style={{ 'max-width': '720px' }}>
                 <Collapse
                     question="这个问题默认展开"
                     answer={<p>答案已经展示出来了！可以点击收起。</p>}
@@ -789,13 +753,12 @@ const CollapseDemo: React.FC = () => (
                 />
             </div>
             <div style={labelStyle}>disabled 禁用状态</div>
-            <div style={{ maxWidth: 720 }}>
+            <div style={{ 'max-width': '720px' }}>
                 <Collapse question="这个问题已被禁用（无法展开）" answer={<p>这段文字不应该被看到。</p>} disabled />
             </div>
         </div>
         <CodeBlock
-            code={`import React from 'react';
-import { Collapse } from 'animal-island-ui';
+            code={`import { Collapse } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
@@ -816,7 +779,7 @@ export default App;`}
     </div>
 );
 
-const CursorDemo: React.FC = () => (
+const CursorDemo = () => (
     <div style={sectionStyle}>
         <div style={sectionTitleStyle}>
             Cursor <span style={tagStyle}>光标</span>
@@ -828,7 +791,7 @@ const CursorDemo: React.FC = () => (
         <div style={demoBodyStyle}>
             <div style={labelStyle}>forceAll=true（默认）：全覆盖</div>
             <Cursor>
-                <div style={{ ...demoDashedBoxStyle, padding: 24, textAlign: 'center' }}>
+                <div style={{ ...demoDashedBoxStyle, padding: '24px', 'text-align': 'center' }}>
                     鼠标移入此区域将显示自定义光标
                 </div>
             </Cursor>
@@ -837,20 +800,20 @@ const CursorDemo: React.FC = () => (
                 <div
                     style={{
                         ...demoDashedBoxStyle,
-                        padding: 24,
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: 12,
+                        padding: '24px',
+                        'flex-direction': 'column',
+                        'align-items': 'center',
+                        gap: '12px',
                     }}
                 >
                     <div>鼠标移入此区域，交互元素恢复语义光标</div>
                     <div
                         style={{
                             display: 'flex',
-                            gap: 16,
-                            flexWrap: 'wrap',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                            gap: '16px',
+                            'flex-wrap': 'wrap',
+                            'align-items': 'center',
+                            'justify-content': 'center',
                         }}
                     >
                         <a href="#" onClick={(e) => e.preventDefault()}>
@@ -861,14 +824,13 @@ const CursorDemo: React.FC = () => (
                             禁用 (not-allowed)
                         </button>
                         <input type="text" placeholder="输入框 (text)" style={{ padding: '4px 8px' }} />
-                        <span style={{ userSelect: 'text' }}>可选中文本 (默认)</span>
+                        <span style={{ 'user-select': 'text' }}>可选中文本 (默认)</span>
                     </div>
                 </div>
             </Cursor>
         </div>
         <CodeBlock
-            code={`import React from 'react';
-import { Cursor } from 'animal-island-ui';
+            code={`import { Cursor } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
@@ -894,11 +856,11 @@ export default App;`}
     </div>
 );
 
-const ModalDemo: React.FC = () => {
-    const [modalOpen, setModalOpen] = useState(false);
-    const [titleModalOpen, setTitleModalOpen] = useState(false);
-    const [customFooterOpen, setCustomFooterOpen] = useState(false);
-    const [noTypewriterOpen, setNoTypewriterOpen] = useState(false);
+const ModalDemo = () => {
+    const [modalOpen, setModalOpen] = createSignal(false);
+    const [titleModalOpen, setTitleModalOpen] = createSignal(false);
+    const [customFooterOpen, setCustomFooterOpen] = createSignal(false);
+    const [noTypewriterOpen, setNoTypewriterOpen] = createSignal(false);
     return (
         <div style={sectionStyle}>
             <div style={sectionTitleStyle}>
@@ -922,15 +884,15 @@ const ModalDemo: React.FC = () => {
                     </Button>
                 </div>
             </div>
-            <Modal open={modalOpen} onClose={() => setModalOpen(false)} onOk={() => setModalOpen(false)}>
+            <Modal open={modalOpen()} onClose={() => setModalOpen(false)} onOk={() => setModalOpen(false)}>
                 <div
                     style={{
-                        textAlign: 'center',
+                        'text-align': 'center',
                         width: '100%',
                         display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: 8,
+                        'flex-direction': 'column',
+                        'align-items': 'center',
+                        gap: '8px',
                     }}
                 >
                     <span>
@@ -940,7 +902,7 @@ const ModalDemo: React.FC = () => {
                 </div>
             </Modal>
             <Modal
-                open={titleModalOpen}
+                open={titleModalOpen()}
                 title="博物馆捐赠"
                 onClose={() => setTitleModalOpen(false)}
                 onOk={() => setTitleModalOpen(false)}
@@ -948,7 +910,7 @@ const ModalDemo: React.FC = () => {
                 是否愿意将这条鱼捐赠给博物馆呢？傅达会好好照顾它的！这可是博物馆的新展品哦~
             </Modal>
             <Modal
-                open={customFooterOpen}
+                open={customFooterOpen()}
                 title="确认操作"
                 onClose={() => setCustomFooterOpen(false)}
                 footer={
@@ -963,7 +925,7 @@ const ModalDemo: React.FC = () => {
                 确定要让这位居民搬走吗？这个操作不可撤销。
             </Modal>
             <Modal
-                open={noTypewriterOpen}
+                open={noTypewriterOpen()}
                 title="天气预报"
                 onClose={() => setNoTypewriterOpen(false)}
                 onOk={() => setNoTypewriterOpen(false)}
@@ -972,36 +934,16 @@ const ModalDemo: React.FC = () => {
                 明天天气晴朗，气温 20-28°C，适合外出活动！
             </Modal>
             <CodeBlock
-                code={`import React, { useState } from 'react';
-import { Button, Modal } from 'animal-island-ui';
+                code={`import { createSignal } from 'solid-js';
+import { Button, Modal } from 'animal-island-ui-solid';
 
 const App = () => {
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = createSignal(false);
     return (
         <div>
             <Button type="primary" onClick={() => setOpen(true)}>打开 Modal</Button>
-            <Modal open={open} onClose={() => setOpen(false)} onOk={() => setOpen(false)}>
+            <Modal open={open()} onClose={() => setOpen(false)} onOk={() => setOpen(false)}>
                 Modal 内容
-            </Modal>
-
-            {/* 带标题 */}
-            <Modal open={open} title="标题" onClose={() => setOpen(false)}>
-                内容
-            </Modal>
-
-            {/* 自定义 Footer */}
-            <Modal open={open} title="确认" footer={<Button>自定义按钮</Button>}>
-                内容
-            </Modal>
-
-            {/* 无 Footer */}
-            <Modal open={open} footer={null}>
-                无底部按钮
-            </Modal>
-
-            {/* 关闭打字机效果 */}
-            <Modal open={open} typewriter={false}>
-                直接显示全部内容
             </Modal>
         </div>
     );
@@ -1014,8 +956,8 @@ export default App;`}
     );
 };
 
-const TypewriterDemo: React.FC = () => {
-    const [replayKey, setReplayKey] = useState(0);
+const TypewriterDemo = () => {
+    const [replayKey, setReplayKey] = createSignal(0);
     return (
         <div style={sectionStyle}>
             <div style={sectionTitleStyle}>
@@ -1024,8 +966,8 @@ const TypewriterDemo: React.FC = () => {
             <div style={demoBodyStyle}>
                 <div>
                     <div style={labelStyle}>基础用法</div>
-                    <div style={{ ...demoDashedBoxStyle, marginBottom: 20 }}>
-                        <Typewriter trigger={replayKey}>你好，欢迎来到动物岛！今天的天气真不错呢～</Typewriter>
+                    <div style={{ ...demoDashedBoxStyle, 'margin-bottom': '20px' }}>
+                        <Typewriter trigger={replayKey()}>你好，欢迎来到动物岛！今天的天气真不错呢～</Typewriter>
                     </div>
                 </div>
 
@@ -1034,16 +976,16 @@ const TypewriterDemo: React.FC = () => {
                     <div
                         style={{
                             ...demoDashedBoxStyle,
-                            flexDirection: 'column',
-                            alignItems: 'flex-start',
-                            marginBottom: 20,
-                            gap: 8,
+                            'flex-direction': 'column',
+                            'align-items': 'flex-start',
+                            'margin-bottom': '20px',
+                            gap: '8px',
                         }}
                     >
-                        <Typewriter speed={40} trigger={replayKey}>
+                        <Typewriter speed={40} trigger={replayKey()}>
                             <div>第一行：钓到石头了！</div>
                             <div>第二行：竟然连这种都能钓起来...</div>
-                            <div style={{ color: '#FD9303', fontWeight: 700 }}>第三行：继续加油吧！</div>
+                            <div style={{ color: '#FD9303', 'font-weight': 700 }}>第三行：继续加油吧！</div>
                         </Typewriter>
                     </div>
                 </div>
@@ -1055,24 +997,17 @@ const TypewriterDemo: React.FC = () => {
                 </div>
             </div>
             <CodeBlock
-                code={`import React, { useState } from 'react';
-import { Typewriter } from 'animal-island-ui';
+                code={`import { createSignal } from 'solid-js';
+import { Typewriter } from 'animal-island-ui-solid';
 
 const App = () => {
-    const [key, setKey] = useState(0);
+    const [key, setKey] = createSignal(0);
     return (
         <>
-            <Typewriter trigger={key}>
+            <Typewriter trigger={key()}>
                 你好，欢迎来到动物岛！
             </Typewriter>
-
-            {/* 支持多行与内联样式 */}
-            <Typewriter speed={40} trigger={key}>
-                <div>第一行</div>
-                <div style={{ color: 'orange' }}>第二行</div>
-            </Typewriter>
-
-            <button onClick={() => setKey(k => k + 1)} style={{ marginBottom: 20 }}>重新播放</button>
+            <button onClick={() => setKey(k => k + 1)}>重新播放</button>
         </>
     );
 };
@@ -1087,8 +1022,8 @@ export default App;`}
 const TYPEWRITER_API: ApiRow[] = [
     {
         prop: 'children',
-        desc: '需要逐字显示的内容，支持 ReactNode',
-        type: 'ReactNode',
+        desc: '需要逐字显示的内容，支持 JSX.Element',
+        type: 'JSX.Element',
         defaultVal: '-',
     },
     {
@@ -1117,7 +1052,7 @@ const TYPEWRITER_API: ApiRow[] = [
     },
 ];
 
-const DividerDemo: React.FC = () => (
+const DividerDemo = () => (
     <div style={sectionStyle}>
         <div style={sectionTitleStyle}>
             Divider <span style={tagStyle}>9 types</span>
@@ -1127,7 +1062,7 @@ const DividerDemo: React.FC = () => (
         <div style={labelStyle}>line-teal（实线青色）</div>
         <Divider type="line-teal" />
         <div style={labelStyle}>line-white（实线白色）</div>
-        <div style={{ background: '#333', padding: 10 }}>
+        <div style={{ background: '#333', padding: '10px' }}>
             <Divider type="line-white" />
         </div>
         <div style={labelStyle}>line-yellow（实线黄色）</div>
@@ -1139,30 +1074,19 @@ const DividerDemo: React.FC = () => (
         <div style={labelStyle}>dashed-teal（虚线青色）</div>
         <Divider type="dashed-teal" />
         <div style={labelStyle}>dashed-white（虚线白色）</div>
-        <div style={{ background: '#333', padding: 10 }}>
+        <div style={{ background: '#333', padding: '10px' }}>
             <Divider type="dashed-white" />
         </div>
         <div style={labelStyle}>dashed-yellow（虚线黄色）</div>
         <Divider type="dashed-yellow" />
         <CodeBlock
-            code={`import React from 'react';
-import { Divider } from 'animal-island-ui';
+            code={`import { Divider } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
         <div>
-            {/* 实线类型 */}
             <Divider type="line-brown" />
-            <Divider type="line-teal" />
-            <Divider type="line-white" />
-            <Divider type="line-yellow" />
-            {/* 波浪线 */}
             <Divider type="wave-yellow" />
-            {/* 虚线类型 */}
-            <Divider type="dashed-brown" />
-            <Divider type="dashed-teal" />
-            <Divider type="dashed-white" />
-            <Divider type="dashed-yellow" />
         </div>
     );
 };
@@ -1174,102 +1098,7 @@ export default App;`}
 );
 
 // ============================================
-// SelectDemo
-// ============================================
-import { Select } from '../src';
-import type { SelectOption } from '../src';
-
-const SELECT_API = [
-    { prop: 'options', desc: '选项列表', type: 'SelectOption[]', defaultVal: '-', required: true },
-    { prop: 'value', desc: '当前选中值', type: 'string', defaultVal: '-', required: true },
-    { prop: 'onChange', desc: '选中变化回调', type: '(key: string) => void', defaultVal: '-', required: true },
-    { prop: 'placeholder', desc: '占位文本', type: 'string', defaultVal: '请选择' },
-    { prop: 'disabled', desc: '禁用状态', type: 'boolean', defaultVal: 'false' },
-];
-
-const SelectDemo: React.FC = () => {
-    const [value1, setValue1] = useState('fish1');
-    const [value2, setValue2] = useState('');
-    const [value3, setValue3] = useState('flower2');
-    const [value4, setValue4] = useState('');
-    const fishOptions: SelectOption[] = [
-        { key: 'fish1', label: '鲈鱼' },
-        { key: 'fish2', label: '鲷鱼' },
-        { key: 'fish3', label: '草鱼' },
-        { key: 'fish4', label: '龙睛鱼' },
-        { key: 'fish5', label: '神仙鱼' },
-    ];
-    const flowerOptions: SelectOption[] = [
-        { key: 'flower1', label: '樱花' },
-        { key: 'flower2', label: '玫瑰' },
-        { key: 'flower3', label: '向日葵' },
-        { key: 'flower4', label: '薰衣草' },
-        { key: 'flower5', label: '郁金香' },
-    ];
-    const fruitOptions: SelectOption[] = [
-        { key: 'fruit1', label: '草莓' },
-        { key: 'fruit2', label: '蓝莓' },
-        { key: 'fruit3', label: '桃子' },
-        { key: 'fruit4', label: '樱桃' },
-        { key: 'fruit5', label: '猕猴桃' },
-    ];
-
-    return (
-        <div style={sectionStyle}>
-            <div style={sectionTitleStyle}>
-                Select <span style={tagStyle}>基础用法</span>
-            </div>
-            <div style={labelStyle}>默认状态</div>
-            <div style={{ marginBottom: 8, fontSize: 13, color: '#a08060' }}>
-                当前选中:{' '}
-                <span style={{ color: '#19c8b9', fontWeight: 600 }}>
-                    {fishOptions.find((o) => o.key === value1)?.label}
-                </span>
-            </div>
-            <div style={S.demoBox}>
-                <Select options={fishOptions} value={value1} onChange={setValue1} />
-            </div>
-            <div style={labelStyle}>自定义占位文本</div>
-            <div style={demoDashedBoxStyle}>
-                <Select options={flowerOptions} value={value2} onChange={setValue2} placeholder="请选择花朵" />
-                <Select options={fruitOptions} value={value4} onChange={setValue4} placeholder="请选择水果" />
-            </div>
-            <div style={labelStyle}>禁用状态</div>
-            <div style={S.demoBox}>
-                <Select options={flowerOptions} value={value3} onChange={setValue3} disabled />
-            </div>
-            <CodeBlock
-                code={`import React, { useState } from 'react';
-import { Select } from 'animal-island-ui';
-
-const options = [
-    { key: 'option1', label: '选项一' },
-    { key: 'option2', label: '选项二' },
-];
-
-const App = () => {
-    const [value, setValue] = useState('option1');
-    return (
-        <div>
-            {/* 受控模式 */}
-            <Select options={options} value={value} onChange={setValue} />
-            {/* 占位文本 */}
-            <Select options={options} placeholder="请选择" />
-            {/* 禁用状态 */}
-            <Select options={options} disabled />
-        </div>
-    );
-};
-
-export default App;`}
-            />
-            <ApiTable rows={SELECT_API} />
-        </div>
-    );
-};
-
-// ============================================
-// Page info & mapping
+// PAGE_INFO
 // ============================================
 export const PAGE_INFO: Record<string, { title: string; desc: string }> = {
     button: {
@@ -1306,7 +1135,7 @@ export const PAGE_INFO: Record<string, { title: string; desc: string }> = {
     },
     footer: {
         title: 'Footer 底部装饰',
-        desc: '页面底部装饰图片，支持树和海两种类型',
+        desc: '页面底部装饰图片，支持 tree 和 sea 两种类型',
     },
     modal: {
         title: 'Modal 弹窗',
@@ -1314,7 +1143,7 @@ export const PAGE_INFO: Record<string, { title: string; desc: string }> = {
     },
     typewriter: {
         title: 'Typewriter 打字机',
-        desc: '打字机组件 — 按字符逐个显示文本，支持多行与 ReactNode 富内容，不改变原有样式',
+        desc: '打字机组件 — 按字符逐个显示文本，支持多行与富内容，不改变原有样式',
     },
     'divider-comp': {
         title: 'Divider 分割线',
@@ -1370,7 +1199,7 @@ export const PAGE_INFO: Record<string, { title: string; desc: string }> = {
     },
 };
 
-const PAGES: Record<string, React.FC> = {
+const PAGES: Record<string, () => JSX.Element> = {
     button: ButtonDemo,
     input: InputDemo,
     switch: SwitchDemo,
@@ -1397,41 +1226,36 @@ const PAGES: Record<string, React.FC> = {
     wallet: WalletDemo,
 };
 
-// ============================================
-// ComponentPage
-// ============================================
 const TITLE_COLORS: TitleColor[] = [
     'lime-green','default', 'app-pink', 'purple', 'app-blue', 'app-yellow', 'app-orange',
     'app-red', 'yellow-green', 'brown', 'warm-peach-pink',
 ];
 
-interface ComponentPageProps {
-    activeKey: string;
-}
+const ComponentPage = (props: { activeKey: string }) => {
+    const titleColor = createMemo(() => {
+        const key = props.activeKey;
+        return TITLE_COLORS[
+            Math.abs(key.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % TITLE_COLORS.length
+        ];
+    });
 
-const ComponentPage: React.FC<ComponentPageProps> = ({ activeKey }) => {
-    const Page = PAGES[activeKey];
-    const info = PAGE_INFO[activeKey];
-
-    // 根据 activeKey 固定映射一种颜色，切换页面时变色但同一页面不随机抖动
-    const titleColor = TITLE_COLORS[
-        Math.abs(activeKey.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % TITLE_COLORS.length
-    ];
-
-    if (!Page || !info) return null;
+    const info = () => PAGE_INFO[props.activeKey];
 
     return (
-        <>
-            <Title size="large" color={titleColor} style={{ marginBottom: 30, marginLeft: 18 }}>
-                {info.title}
+        <Show when={info() && PAGES[props.activeKey]}>
+            <Title size="large" color={titleColor()} style={{ 'margin-bottom': '30px', 'margin-left': '18px' }}>
+                {info()!.title}
             </Title>
-            <div style={{ ...S.pageDesc, minHeight: 40 }}>
-                <Typewriter key={activeKey} trigger={activeKey} speed={30}>
-                    {info.desc}
+            <div style={{ ...S.pageDesc, 'min-height': '40px' }}>
+                <Typewriter trigger={props.activeKey} speed={30}>
+                    {info()!.desc}
                 </Typewriter>
             </div>
-            <Page />
-        </>
+            {(() => {
+                const Page = PAGES[props.activeKey];
+                return <Page />;
+            })()}
+        </Show>
     );
 };
 

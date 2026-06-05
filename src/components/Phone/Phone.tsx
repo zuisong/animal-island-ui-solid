@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { JSX, createSignal, onMount, onCleanup, splitProps, For } from 'solid-js';
 import styles from './phone.module.less';
 import { Icon, IconName } from '../Icon';
 
 export interface PhoneProps {
-    className?: string;
+    class?: string;
 }
 
 interface App {
@@ -12,7 +12,7 @@ interface App {
     color: string;
     offset?: boolean;
     hasNewMessage?: boolean;
-    iconStyle?: React.CSSProperties;
+    iconStyle?: JSX.CSSProperties;
 }
 
 const apps: App[] = [
@@ -27,54 +27,62 @@ const apps: App[] = [
     { id: 'chat', iconName: 'icon-chat', color: '#D1DA49' },
 ];
 
-export const Phone: React.FC<PhoneProps> = ({ className }) => {
-    const [time, setTime] = useState(new Date());
+export const Phone = (props: PhoneProps) => {
+    const [local, rest] = splitProps(props, ['class']);
+    const [time, setTime] = createSignal(new Date());
 
-    useEffect(() => {
+    onMount(() => {
         const timer = setInterval(() => {
             setTime(new Date());
         }, 1000);
-        return () => clearInterval(timer);
-    }, []);
+        onCleanup(() => clearInterval(timer));
+    });
 
-    const hours = time.getHours();
-    const minutes = time.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours % 12 || 12;
-    const displayMinutes = minutes.toString().padStart(2, '0');
+    const displayTime = () => {
+        const t = time();
+        const hours = t.getHours();
+        const minutes = t.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        const displayMinutes = minutes.toString().padStart(2, '0');
+        return { displayHours, displayMinutes, ampm };
+    };
 
     return (
-        <div className={`${styles.phoneContainer} ${className || ''}`}>
-            <div className={styles.phone}>
-                <div className={styles.screenContent}>
-                    <div className={styles.homeScreen}>
-                        <div className={styles.dateDisplay}>
-                            <div className={styles.dateDisplayHeader}>
-                                <span className={styles.iconWifi} />
-                                <div>{displayHours}<span className={styles.blink}>:</span>{displayMinutes}{ampm}</div>
-                                <span className={styles.iconLocation} />
+        <div class={`${styles.phoneContainer} ${local.class || ''}`}>
+            <div class={styles.phone}>
+                <div class={styles.screenContent}>
+                    <div class={styles.homeScreen}>
+                        <div class={styles.dateDisplay}>
+                            <div class={styles.dateDisplayHeader}>
+                                <span class={styles.iconWifi} />
+                                <div>{displayTime().displayHours}<span class={styles.blink}>:</span>{displayTime().displayMinutes}{displayTime().ampm}</div>
+                                <span class={styles.iconLocation} />
                             </div>
-                            <div className={styles.dayText}>Welcome!</div>
+                            <div class={styles.dayText}>Welcome!</div>
                         </div>
-                        <div className={styles.appsGrid}>
-                            {apps.map((app) => (
-                                <div
-                                    key={app.id}
-                                    className={`${styles.appItem} ${app.offset ? styles.appItemOffset : ''}`}
-                                    style={{ backgroundColor: app.color }}
-                                >
-                                    {app.hasNewMessage && <span className={styles.badge} />}
-                                    <Icon
-                                        name={app.iconName}
-                                        size="100%"
-                                        className={`${styles.appIcon} ${app.offset ? styles.appIconOffset : ''}`}
-                                        style={{ backgroundSize: '70% auto', ...app.iconStyle }}
-                                    />
-                                </div>
-                            ))}
+                        <div class={styles.appsGrid}>
+                            <For each={apps}>
+                                {(app) => (
+                                    <div
+                                        class={styles.appItem}
+                                        classList={{ [styles.appItemOffset]: app.offset }}
+                                        style={{ 'background-color': app.color }}
+                                    >
+                                        {app.hasNewMessage && <span class={styles.badge} />}
+                                        <Icon
+                                            name={app.iconName}
+                                            size="100%"
+                                            class={styles.appIcon}
+                                            classList={{ [styles.appIconOffset]: app.offset }}
+                                            style={{ 'background-size': '70% auto', ...app.iconStyle }}
+                                        />
+                                    </div>
+                                )}
+                            </For>
                         </div>
-                        <div className={styles.pageIndicator}>
-                            <span className={styles.iconPage} />
+                        <div class={styles.pageIndicator}>
+                            <span class={styles.iconPage} />
                         </div>
                     </div>
                 </div>

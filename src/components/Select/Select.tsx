@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { JSX, createSignal, splitProps, mergeProps, For, createEffect, onCleanup, Show } from 'solid-js';
 import styles from './select.module.less';
 
 export type SelectOption = {
@@ -14,51 +14,48 @@ export interface SelectProps {
     disabled?: boolean;
 }
 
-export const Select: React.FC<SelectProps> = ({
-    options,
-    value,
-    onChange,
-    placeholder = '请选择',
-    disabled = false,
-}) => {
-    const [open, setOpen] = useState(false);
-    const [hoveredKey, setHoveredKey] = useState<string | null>(null);
-    const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
-    const [mounted, setMounted] = useState(false);
-    const wrapperRef = useRef<HTMLDivElement>(null);
-    const currentLabel = options.find((o) => o.key === value)?.label || placeholder;
+export const Select = (props: SelectProps) => {
+    const merged = mergeProps({ placeholder: '请选择', disabled: false }, props);
+    const [local, rest] = splitProps(merged, ['options', 'value', 'onChange', 'placeholder', 'disabled']);
 
-    useEffect(() => {
+    const [open, setOpen] = createSignal(false);
+    const [hoveredKey, setHoveredKey] = createSignal<string | null>(null);
+    const [dropdownStyle, setDropdownStyle] = createSignal<JSX.CSSProperties>({});
+    const [mounted, setMounted] = createSignal(false);
+    
+    let wrapperRef: HTMLDivElement | undefined;
+    const currentLabel = () => local.options.find((o) => o.key === local.value)?.label || local.placeholder;
+
+    createEffect(() => {
+        if (!open()) return;
         const handleClickOutside = (e: MouseEvent) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+            if (wrapperRef && !wrapperRef.contains(e.target as Node)) {
                 setOpen(false);
                 setMounted(false);
             }
         };
-        if (open) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [open]);
+        document.addEventListener('mousedown', handleClickOutside);
+        onCleanup(() => document.removeEventListener('mousedown', handleClickOutside));
+    });
 
-    useEffect(() => {
-        if (open && wrapperRef.current) {
-            const rect = wrapperRef.current.getBoundingClientRect();
+    createEffect(() => {
+        if (open() && wrapperRef) {
+            const rect = wrapperRef.getBoundingClientRect();
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
-            const dropdownHeight = options.length * 44 + 24;
+            const dropdownHeight = local.options.length * 44 + 24;
 
-            const newStyle: React.CSSProperties = {
+            const newStyle: JSX.CSSProperties = {
                 position: 'absolute',
             };
 
             if (rect.right + 200 > viewportWidth) {
                 newStyle.right = '100%';
-                newStyle.marginRight = '6px';
+                newStyle['margin-right'] = '6px';
                 newStyle.left = 'auto';
             } else {
                 newStyle.left = '100%';
-                newStyle.marginLeft = '6px';
+                newStyle['margin-left'] = '6px';
                 newStyle.right = 'auto';
             }
 
@@ -68,18 +65,11 @@ export const Select: React.FC<SelectProps> = ({
             if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
                 newStyle.top = 'auto';
                 newStyle.bottom = '100%';
-                newStyle.marginBottom = '6px';
-                delete newStyle.transform;
-            } else if (spaceBelow < dropdownHeight) {
+                newStyle['margin-bottom'] = '6px';
+            } else if (spaceBelow < dropdownHeight || rect.top < dropdownHeight) {
                 newStyle.top = '100%';
-                newStyle.marginTop = '6px';
+                newStyle['margin-top'] = '6px';
                 newStyle.bottom = 'auto';
-                delete newStyle.transform;
-            } else if (rect.top < dropdownHeight) {
-                newStyle.top = '100%';
-                newStyle.marginTop = '6px';
-                newStyle.bottom = 'auto';
-                delete newStyle.transform;
             } else {
                 newStyle.top = '50%';
                 newStyle.transform = 'translateY(-50%)';
@@ -90,13 +80,13 @@ export const Select: React.FC<SelectProps> = ({
             requestAnimationFrame(() => {
                 setMounted(true);
             });
-        } else if (!open) {
+        } else if (!open()) {
             setMounted(false);
         }
-    }, [open, options.length]);
+    });
 
     const handleSelect = (key: string) => {
-        onChange(key);
+        local.onChange(key);
         setOpen(false);
         setMounted(false);
     };
@@ -104,40 +94,45 @@ export const Select: React.FC<SelectProps> = ({
     return (
         <div
             ref={wrapperRef}
-            className={`${styles.wrapper} ${disabled ? styles.disabled : ''}`}
+            class={styles.wrapper}
+            classList={{ [styles.disabled]: local.disabled }}
         >
             <div
-                className={`${styles.trigger} ${open ? styles.open : ''}`}
-                onClick={() => !disabled && setOpen(!open)}
+                class={styles.trigger}
+                classList={{ [styles.open]: open() }}
+                onClick={() => !local.disabled && setOpen(!open())}
             >
-                <span className={value ? styles.value : styles.placeholder}>
-                    {currentLabel}
+                <span class={local.value ? styles.value : styles.placeholder}>
+                    {currentLabel()}
                 </span>
-                <span className={styles.arrow}>
+                <span class={styles.arrow}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </span>
             </div>
-            {open && mounted && (
-                <div className={styles.dropdown} style={dropdownStyle}>
-                    {options.map((option) => (
-                        <div
-                            key={option.key}
-                            className={`${styles.option} ${value === option.key ? styles.active : ''} ${hoveredKey === option.key ? styles.hovered : ''}`}
-                            onClick={() => handleSelect(option.key)}
-                            onMouseEnter={() => setHoveredKey(option.key)}
-                            onMouseLeave={() => setHoveredKey(null)}
-                        >
-                            <span className={styles.optionDot} />
-                            {option.label}
-                            {value === option.key && <div className={styles.pillBar} />}
-                        </div>
-                    ))}
+            <Show when={open() && mounted()}>
+                <div class={styles.dropdown} style={dropdownStyle()}>
+                    <For each={local.options}>
+                        {(option) => (
+                            <div
+                                class={styles.option}
+                                classList={{
+                                    [styles.active]: local.value === option.key,
+                                    [styles.hovered]: hoveredKey() === option.key
+                                }}
+                                onClick={() => handleSelect(option.key)}
+                                onMouseEnter={() => setHoveredKey(option.key)}
+                                onMouseLeave={() => setHoveredKey(null)}
+                            >
+                                <span class={styles.optionDot} />
+                                {option.label}
+                                {local.value === option.key && <div class={styles.pillBar} />}
+                            </div>
+                        )}
+                    </For>
                 </div>
-            )}
+            </Show>
         </div>
     );
 };
-
-Select.displayName = 'Select';

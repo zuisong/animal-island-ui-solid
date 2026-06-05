@@ -1,13 +1,15 @@
-import React from 'react';
+import { JSX, splitProps, mergeProps } from 'solid-js';
 import './cursor.css';
 
 export interface CursorProps {
     /** 子元素 */
-    children?: React.ReactNode;
+    children?: JSX.Element;
     /** 自定义类名 */
-    className?: string;
+    class?: string;
+    /** 自定义类名列表 */
+    classList?: { [key: string]: boolean | undefined };
     /** 自定义样式 */
-    style?: React.CSSProperties;
+    style?: JSX.CSSProperties;
     /**
      * 是否对所有后代元素强制覆盖光标。默认 `true`。
      * - `true`：全覆盖，所有后代（含 a/button 等交互元素）统一使用自定义光标
@@ -16,17 +18,22 @@ export interface CursorProps {
     forceAll?: boolean;
 }
 
-export const Cursor: React.FC<CursorProps> = ({ children, className, style, forceAll = true }) => {
-    const cls = [
-        'animal-cursor',
-        forceAll ? 'animal-cursor--force' : 'animal-cursor--scoped',
-        className,
-    ].filter(Boolean).join(' ');
+export const Cursor = (props: CursorProps) => {
+    const merged = mergeProps({ forceAll: true }, props);
+    const [local, rest] = splitProps(merged, ['children', 'class', 'classList', 'style', 'forceAll']);
+
     return (
-        <div className={cls} style={style}>
-            {children}
+        <div 
+            class={local.class}
+            classList={{
+                'animal-cursor': true,
+                'animal-cursor--force': local.forceAll,
+                'animal-cursor--scoped': !local.forceAll,
+                ...local.classList
+            }}
+            style={local.style}
+        >
+            {local.children}
         </div>
     );
 };
-
-Cursor.displayName = 'Cursor';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import { JSX, createSignal, createEffect, onCleanup, createMemo, Suspense, lazy, Show, For } from 'solid-js';
 import { Cursor, Loading } from '../src';
 import '../src/styles/index.less';
 import '@fontsource/nunito/latin-500.css';
@@ -21,20 +21,15 @@ const ComponentPage = lazy(() => import('./ComponentPage'));
 // Simple hash router
 // ============================================
 const useHash = () => {
-    const [hash, setHash] = useState(
-        () => window.location.hash.slice(1) || '/'
-    );
+    const [hash, setHash] = createSignal(window.location.hash.slice(1) || '/');
 
-    useEffect(() => {
-        const onHashChange = () =>
-            setHash(window.location.hash.slice(1) || '/');
-        window.addEventListener('hashchange', onHashChange);
-        return () => window.removeEventListener('hashchange', onHashChange);
-    }, []);
+    const onHashChange = () => setHash(window.location.hash.slice(1) || '/');
+    window.addEventListener('hashchange', onHashChange);
+    onCleanup(() => window.removeEventListener('hashchange', onHashChange));
 
-    const navigate = useCallback((path: string) => {
+    const navigate = (path: string) => {
         window.location.hash = path;
-    }, []);
+    };
 
     return { hash, navigate };
 };
@@ -101,164 +96,158 @@ const S = {
         display: 'flex',
         height: '100dvh',
         overflow: 'hidden',
-        fontFamily: "Nunito, 'Noto Sans SC', 'Zen Maru Gothic', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif",
+        'font-family': "Nunito, 'Noto Sans SC', 'Zen Maru Gothic', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif",
         background: `url(${new URL('./img/content_bg_pc.jpg', import.meta.url).href}) center / auto repeat`,
-    } as React.CSSProperties,
+    } as JSX.CSSProperties,
     sidebar: {
-        width: 220,
-        minWidth: 220,
+        width: '220px',
+        'min-width': '220px',
         background: `url(${new URL('./img/menu_bg.svg', import.meta.url).href}) center/cover no-repeat`,
         display: 'flex',
-        flexDirection: 'column',
+        'flex-direction': 'column',
         overflow: 'hidden',
-    } as React.CSSProperties,
+    } as JSX.CSSProperties,
     homeBg: {
         background: `url(${new URL('./img/home_bg.webp', import.meta.url).href}) 0 0 / auto repeat, #7DC395`,
         animation: 'bgScroll 80s linear infinite',
-    } as React.CSSProperties,
+    } as JSX.CSSProperties,
     sidebarHeader: {
         padding: '20px 16px 12px',
-        borderBottom: '1px solid #e8e2d6',
-        fontWeight: 700,
-        fontSize: 15,
+        'border-bottom': '1px solid #e8e2d6',
+        'font-weight': 700,
+        'font-size': '15px',
         color: '#725d42',
-        letterSpacing: -0.3,
+        'letter-spacing': '-0.3px',
         display: 'flex',
-        alignItems: 'center',
-    } as React.CSSProperties,
+        'align-items': 'center',
+    } as JSX.CSSProperties,
     menuList: {
         flex: 1,
         overflow: 'auto',
         padding: '8px 0',
-    } as React.CSSProperties,
+    } as JSX.CSSProperties,
     menuItem: (active: boolean) =>
         ({
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 8,
+            'align-items': 'center',
+            'justify-content': 'space-between',
+            gap: '8px',
             margin: '1px 5px',
-            height: 40,
+            height: '40px',
             padding: '0 12px',
-            fontFamily: "Nunito, 'Noto Sans SC', 'Zen Maru Gothic', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif",
-            fontStyle: 'normal',
-            fontWeight: 600,
-            fontSize: 14,
-            paddingLeft: 26,
+            'font-family': "Nunito, 'Noto Sans SC', 'Zen Maru Gothic', -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif",
+            'font-style': 'normal',
+            'font-weight': 600,
+            'font-size': '14px',
+            'padding-left': '26px',
             color: active ? '#fff' : '#8a7b66',
             background: active ? '#B7C6E5' : 'transparent',
-            borderRadius: 12,
-            borderRight: 'none',
+            'border-radius': '12px',
+            'border-right': 'none',
             transition: 'all 0.15s',
-        }) as React.CSSProperties,
+        }) as JSX.CSSProperties,
     menuBadge: (active: boolean) =>
         ({
-            flexShrink: 0,
+            'flex-shrink': 0,
             padding: '1px 7px',
-            fontSize: 9,
-            fontWeight: 800,
-            letterSpacing: 0.6,
+            'font-size': '9px',
+            'font-weight': 800,
+            'letter-spacing': '0.6px',
             color: active ? '#fc736d' : '#fff',
             background: active
                 ? '#fff'
                 : 'linear-gradient(135deg, #fc736d, #f7825a)',
-            borderRadius: 8,
-            lineHeight: '14px',
-            boxShadow: active
+            'border-radius': '8px',
+            'line-height': '14px',
+            'box-shadow': active
                 ? '0 1px 0 rgba(114, 93, 66, 0.15)'
                 : '0 1px 0 rgba(114, 93, 66, 0.25)',
             animation: 'menuBadgePulse 1.8s ease-in-out infinite',
-        }) as React.CSSProperties,
+        }) as JSX.CSSProperties,
     main: {
         flex: 1,
         overflow: 'auto',
         padding: '32px 40px',
-    } as React.CSSProperties,
+    } as JSX.CSSProperties,
 };
 
 // ============================================
 // Sidebar content (shared between desktop & mobile drawer)
 // ============================================
-const SidebarContent: React.FC<{
+const SidebarContent = (props: {
     activeKey: string;
     onNavigate: (path: string) => void;
-}> = ({ activeKey, onNavigate }) => (
+}) => (
     <>
-        <div style={S.sidebarHeader} onClick={() => onNavigate('/')}>
+        <div style={S.sidebarHeader} onClick={() => props.onNavigate('/')}>
             <img
                 src={new URL('./img/nook-phone/nook1.svg', import.meta.url).href}
-                style={{ width: 24, height: 24, marginRight: 8 }}
+                style={{ width: '24px', height: '24px', 'margin-right': '8px' }}
                 alt="nook"
             />
             集合啦！Animal
         </div>
         <nav style={S.menuList}>
-            {MENU_ITEMS.map((item) => {
-                if (item.children) {
-                    return (
-                        <div key={item.key}>
+            <For each={MENU_ITEMS}>
+                {(item) => (
+                    <Show 
+                        when={item.children} 
+                        fallback={
+                            <div
+                                style={S.menuItem(props.activeKey === item.key)}
+                                onClick={() => props.onNavigate(`/${item.key}`)}
+                            >
+                                <span style={{ color: props.activeKey === item.key ? '#fff' : '#8a7b66' }}>
+                                    {item.label}
+                                </span>
+                            </div>
+                        }
+                    >
+                        <div>
                             <div
                                 style={{
                                     padding: '12px 16px 4px',
-                                    fontSize: 11,
+                                    'font-size': '11px',
                                     color: '#a0936e',
-                                    fontWeight: 600,
-                                    letterSpacing: 0.5,
+                                    'font-weight': '600',
+                                    'letter-spacing': '0.5px',
                                 }}
                             >
                                 {item.label}
                             </div>
-                            {item.children.map((child) => (
-                                <div
-                                    key={child.key}
-                                    style={S.menuItem(activeKey === child.key)}
-                                    onClick={() => onNavigate(`/${child.key}`)}
-                                    onMouseEnter={(e) => {
-                                        if (activeKey !== child.key)
-                                            e.currentTarget.style.background = '#d6dff0';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (activeKey !== child.key)
-                                            e.currentTarget.style.background = 'transparent';
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            color: activeKey === child.key ? '#fff' : '#8a7b66',
+                            <For each={item.children}>
+                                {(child) => (
+                                    <div
+                                        style={S.menuItem(props.activeKey === child.key)}
+                                        onClick={() => props.onNavigate(`/${child.key}`)}
+                                        onMouseEnter={(e) => {
+                                            if (props.activeKey !== child.key)
+                                                e.currentTarget.style.background = '#d6dff0';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (props.activeKey !== child.key)
+                                                e.currentTarget.style.background = 'transparent';
                                         }}
                                     >
-                                        {child.label}
-                                    </span>
-                                    {child.isNew && (
-                                        <span style={S.menuBadge(activeKey === child.key)}>
-                                            NEW
+                                        <span
+                                            style={{
+                                                color: props.activeKey === child.key ? '#fff' : '#8a7b66',
+                                            }}
+                                        >
+                                            {child.label}
                                         </span>
-                                    )}
-                                </div>
-                            ))}
+                                        <Show when={child.isNew}>
+                                            <span style={S.menuBadge(props.activeKey === child.key)}>
+                                                NEW
+                                            </span>
+                                        </Show>
+                                    </div>
+                                )}
+                            </For>
                         </div>
-                    );
-                }
-                return (
-                    <div
-                        key={item.key}
-                        style={S.menuItem(activeKey === item.key)}
-                        onClick={() => onNavigate(`/${item.key}`)}
-                        onMouseEnter={(e) => {
-                            if (activeKey !== item.key)
-                                e.currentTarget.style.background = '#d6dff0';
-                        }}
-                        onMouseLeave={(e) => {
-                            if (activeKey !== item.key)
-                                e.currentTarget.style.background = 'transparent';
-                        }}
-                    >
-                        <span style={{ color: activeKey === item.key ? '#fff' : '#8a7b66' }}>
-                            {item.label}
-                        </span>
-                    </div>
-                );
-            })}
+                    </Show>
+                )}
+            </For>
         </nav>
     </>
 );
@@ -266,49 +255,41 @@ const SidebarContent: React.FC<{
 // ============================================
 // App
 // ============================================
-const App: React.FC = () => {
+const App = () => {
     const { hash, navigate } = useHash();
     const isMobile = useIsMobile();
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [loadingActive, setLoadingActive] = useState(false);
-    const [loadingMounted, setLoadingMounted] = useState(false);
-    const mainRef = React.useRef<HTMLElement>(null);
+    const [drawerOpen, setDrawerOpen] = createSignal(false);
+    const [loadingActive, setLoadingActive] = createSignal(false);
+    const [loadingMounted, setLoadingMounted] = createSignal(false);
+    let mainRef: HTMLElement | undefined;
 
-    const activeKey =
-        hash.startsWith('/') && hash.length > 1 ? hash.slice(1) : 'home';
-    const isHomePage = activeKey === 'home';
+    const activeKey = createMemo(() =>
+        hash().startsWith('/') && hash().length > 1 ? hash().slice(1) : 'home'
+    );
+    const isHomePage = () => activeKey() === 'home';
 
-    // Close drawer when switching to desktop
-    useEffect(() => {
-        if (!isMobile) setDrawerOpen(false);
-    }, [isMobile]);
+    createEffect(() => {
+        if (!isMobile()) setDrawerOpen(false);
+    });
 
-    // Close drawer when route changes + scroll main to top
-    useEffect(() => {
+    createEffect(() => {
+        activeKey(); // track changes
         setDrawerOpen(false);
-        mainRef.current?.scrollTo({ top: 0 });
-    }, [activeKey]);
+        mainRef?.scrollTo({ top: 0 });
+    });
 
-    const handleNavigate = useCallback(
-        (path: string) => {
-            navigate(path);
-            setDrawerOpen(false);
-        },
-        [navigate]
-    );
+    const handleNavigate = (path: string) => {
+        navigate(path);
+        setDrawerOpen(false);
+    };
 
-    // 首页跳转到组件页时显示 2s Loading 覆盖层
-    const handleHomeNavigate = useCallback(
-        (path: string) => {
-            setLoadingMounted(true);
-            setLoadingActive(true);
-            navigate(path);
-            // 2s 后开始关闭，再多留 1.5s 给关闭扩散动画后卸载
-            window.setTimeout(() => setLoadingActive(false), 2000);
-            window.setTimeout(() => setLoadingMounted(false), 3500);
-        },
-        [navigate]
-    );
+    const handleHomeNavigate = (path: string) => {
+        setLoadingMounted(true);
+        setLoadingActive(true);
+        navigate(path);
+        setTimeout(() => setLoadingActive(false), 2000);
+        setTimeout(() => setLoadingMounted(false), 3500);
+    };
 
     return (
         <Cursor>
@@ -322,48 +303,47 @@ const App: React.FC = () => {
                     50% { transform: scale(1.08); }
                 }
             `}</style>
-            {isHomePage ? (
-                /* Home page — full screen, no sidebar */
-                <div
-                    style={{
-                        ...S.layout,
-                        ...S.homeBg,
-                        justifyContent: 'center',
-                    }}
-                >
-                    <HomePage onNavigate={handleHomeNavigate} />
-                </div>
-            ) : (
-                /* Component page — with sidebar */
+            <Show 
+                when={!isHomePage()} 
+                fallback={
+                    <div
+                        style={{
+                            ...S.layout,
+                            ...S.homeBg,
+                            'justify-content': 'center',
+                        }}
+                    >
+                        <HomePage onNavigate={handleHomeNavigate} />
+                    </div>
+                }
+            >
                 <div style={S.layout}>
-                    {/* Desktop sidebar */}
-                    {!isMobile && (
+                    <Show when={!isMobile()}>
                         <aside style={S.sidebar}>
                             <SidebarContent
-                                activeKey={activeKey}
+                                activeKey={activeKey()}
                                 onNavigate={handleNavigate}
                             />
                         </aside>
-                    )}
+                    </Show>
 
-                    {/* Mobile top bar */}
-                    {isMobile && (
+                    <Show when={isMobile()}>
                         <div
                             style={{
                                 position: 'fixed',
                                 top: 0,
                                 left: 0,
                                 right: 0,
-                                height: 52,
+                                height: '52px',
                                 display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
+                                'align-items': 'center',
+                                'justify-content': 'space-between',
                                 padding: '0 12px',
                                 background: 'rgba(255,252,244,0.92)',
-                                backdropFilter: 'blur(8px)',
-                                borderBottom: '1px solid #e8e2d6',
-                                zIndex: 50,
-                                fontFamily: S.layout.fontFamily,
+                                'backdrop-filter': 'blur(8px)',
+                                'border-bottom': '1px solid #e8e2d6',
+                                'z-index': 50,
+                                'font-family': S.layout['font-family'] as string,
                             }}
                         >
                             <button
@@ -371,50 +351,49 @@ const App: React.FC = () => {
                                 style={{
                                     background: 'none',
                                     border: 'none',
-                                    fontSize: 20,
+                                    'font-size': '20px',
                                     color: '#725d42',
                                     padding: '4px 8px',
-                                    borderRadius: 8,
-                                    lineHeight: 1,
+                                    'border-radius': '8px',
+                                    'line-height': 1,
                                 }}
                             >
                                 ←
                             </button>
                             <span
                                 style={{
-                                    fontWeight: 700,
-                                    fontSize: 15,
+                                    'font-weight': 700,
+                                    'font-size': '15px',
                                     color: '#725d42',
                                 }}
                             >
-                                {PAGE_INFO[activeKey]?.title ?? '组件文档'}
+                                {PAGE_INFO[activeKey()]?.title ?? '组件文档'}
                             </span>
                             <button
                                 onClick={() => setDrawerOpen(true)}
                                 style={{
                                     background: 'none',
                                     border: 'none',
-                                    fontSize: 20,
+                                    'font-size': '20px',
                                     color: '#725d42',
                                     padding: '4px 8px',
-                                    borderRadius: 8,
-                                    lineHeight: 1,
+                                    'border-radius': '8px',
+                                    'line-height': 1,
                                 }}
                             >
                                 ☰
                             </button>
                         </div>
-                    )}
+                    </Show>
 
-                    {/* Mobile drawer overlay */}
-                    {isMobile && drawerOpen && (
+                    <Show when={isMobile() && drawerOpen()}>
                         <>
                             <div
                                 style={{
                                     position: 'fixed',
                                     inset: 0,
                                     background: 'rgba(0,0,0,0.35)',
-                                    zIndex: 98,
+                                    'z-index': 98,
                                 }}
                                 onClick={() => setDrawerOpen(false)}
                             />
@@ -425,68 +404,65 @@ const App: React.FC = () => {
                                     left: 0,
                                     top: 0,
                                     bottom: 0,
-                                    width: 240,
-                                    zIndex: 99,
-                                    boxShadow: '4px 0 24px rgba(0,0,0,0.15)',
+                                    width: '240px',
+                                    'z-index': 99,
+                                    'box-shadow': '4px 0 24px rgba(0,0,0,0.15)',
                                 }}
                             >
                                 <SidebarContent
-                                    activeKey={activeKey}
+                                    activeKey={activeKey()}
                                     onNavigate={handleNavigate}
                                 />
                             </aside>
                         </>
-                    )}
+                    </Show>
 
                     <main
                         ref={mainRef}
                         style={{
                             ...S.main,
                             position: 'relative',
-                            zIndex: 1,
-                            padding: isMobile ? '16px' : '32px 40px',
-                            paddingTop: isMobile ? 68 : 32,
+                            'z-index': 1,
+                            padding: isMobile() ? '16px' : '32px 40px',
+                            'padding-top': isMobile() ? '68px' : '32px',
                         }}
                     >
                         <Suspense fallback={null}>
-                            <ComponentPage activeKey={activeKey} />
+                            <ComponentPage activeKey={activeKey()} />
                         </Suspense>
                     </main>
 
-                    {!isMobile && (
+                    <Show when={!isMobile()}>
                         <img
-                            src={
-                                new URL('./img/guide-bg-line.webp', import.meta.url).href
-                            }
+                            src={new URL('./img/guide-bg-line.webp', import.meta.url).href}
                             alt=""
                             loading="lazy"
                             decoding="async"
                             style={{
                                 position: 'fixed',
-                                left: 220,
+                                left: '220px',
                                 right: 0,
                                 bottom: 0,
                                 width: 'calc(100% - 220px)',
-                                pointerEvents: 'none',
-                                zIndex: 0,
+                                'pointer-events': 'none',
+                                'z-index': 0,
                             }}
                         />
-                    )}
+                    </Show>
                 </div>
-            )}
-            {/* 首页跳转组件页的过场 Loading，全屏覆盖 */}
-            {loadingMounted && (
+            </Show>
+            <Show when={loadingMounted()}>
                 <div
                     style={{
                         position: 'fixed',
                         inset: 0,
-                        zIndex: 9999,
-                        pointerEvents: loadingActive ? 'auto' : 'none',
+                        'z-index': 9999,
+                        'pointer-events': loadingActive() ? 'auto' : 'none',
                     }}
                 >
-                    <Loading active={loadingActive} />
+                    <Loading active={loadingActive()} />
                 </div>
-            )}
+            </Show>
         </Cursor>
     );
 };

@@ -1,12 +1,11 @@
-import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import { JSX, createSignal, splitProps, For, mergeProps, createMemo, createEffect, onCleanup } from 'solid-js';
 import styles from './radio.module.less';
-import classNames from 'classnames';
 
 export type RadioSize = 'small' | 'middle' | 'large';
 
 export interface RadioOption {
     /** 选项标签 */
-    label: React.ReactNode;
+    label: JSX.Element;
     /** 选项值 */
     value: string | number;
     /** 是否禁用该选项 */
@@ -29,172 +28,165 @@ export interface RadioProps {
     /** 变化回调 */
     onChange?: (value: string | number) => void;
     /** 自定义类名 */
-    className?: string;
+    class?: string;
+    /** 自定义类名列表 */
+    classList?: { [key: string]: boolean | undefined };
     /** 自定义样式 */
-    style?: React.CSSProperties;
+    style?: JSX.CSSProperties;
 }
 
-export const Radio: React.FC<RadioProps> = ({
-    value,
-    defaultValue,
-    options,
-    size = 'middle',
-    disabled = false,
-    direction = 'horizontal',
-    onChange,
-    className,
-    style,
-}) => {
-    const [innerValue, setInnerValue] = useState<string | number | undefined>(defaultValue);
-    const isControlled = value !== undefined;
-    const checkedValue = isControlled ? value : innerValue;
+export const Radio = (props: RadioProps) => {
+    const merged = mergeProps({ size: 'middle' as RadioSize, disabled: false, direction: 'horizontal' as const }, props);
+    const [local, rest] = splitProps(merged, [
+        'value',
+        'defaultValue',
+        'options',
+        'size',
+        'disabled',
+        'direction',
+        'onChange',
+        'class',
+        'classList',
+        'style'
+    ]);
 
-    const groupRef = useRef<HTMLDivElement>(null);
+    const [innerValue, setInnerValue] = createSignal<string | number | undefined>(local.defaultValue);
+    const checkedValue = () => local.value !== undefined ? local.value : innerValue();
 
-    useEffect(() => {
-        const idx = options.findIndex((o) => o.value === checkedValue);
-        if (idx >= 0) setFocusedIndex(idx);
-    }, [checkedValue, options]);
+    let groupRef: HTMLDivElement | undefined;
 
-    // 当前聚焦的索引（用于 roving tabindex）
-    const [focusedIndex, setFocusedIndex] = useState<number>(() => {
-        const idx = options.findIndex((o) => o.value === checkedValue);
+    const [focusedIndex, setFocusedIndex] = createSignal<number>(() => {
+        const idx = local.options.findIndex((o) => o.value === checkedValue());
         return idx >= 0 ? idx : 0;
     });
 
-    // 获取所有可用（未禁用）选项的索引
-    const enabledIndices = useMemo(() => {
-        return options
+    createEffect(() => {
+        const idx = local.options.findIndex((o) => o.value === checkedValue());
+        if (idx >= 0) setFocusedIndex(idx);
+    });
+
+    const enabledIndices = createMemo(() => {
+        return local.options
             .map((opt, idx) => ({ opt, idx }))
-            .filter(({ opt }) => !disabled && !opt.disabled)
+            .filter(({ opt }) => !local.disabled && !opt.disabled)
             .map(({ idx }) => idx);
-    }, [options, disabled]);
+    });
 
-    // 找到当前可用项在 enabledIndices 中的位置
-    const currentEnabledPos = useMemo(() => {
-        return enabledIndices.indexOf(focusedIndex);
-    }, [enabledIndices, focusedIndex]);
+    const currentEnabledPos = createMemo(() => {
+        return enabledIndices().indexOf(focusedIndex());
+    });
 
-    const handleChange = useCallback(
-        (optValue: string | number, optDisabled?: boolean) => {
-            if (disabled || optDisabled) return;
-            if (!isControlled) setInnerValue(optValue);
-            onChange?.(optValue);
-        },
-        [disabled, isControlled, onChange]
-    );
+    const handleChange = (optValue: string | number, optDisabled?: boolean) => {
+        if (local.disabled || optDisabled) return;
+        if (local.value === undefined) setInnerValue(optValue);
+        local.onChange?.(optValue);
+    };
 
-    // 方向键导航：移动到下一个/上一个可用选项并选中
-    const handleKeyDown = useCallback(
-        (e: React.KeyboardEvent<HTMLDivElement>) => {
-            if (enabledIndices.length === 0) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+        const indices = enabledIndices();
+        if (indices.length === 0) return;
 
-            const isHorizontal = direction === 'horizontal';
-            let nextPos = -1;
+        const pos = currentEnabledPos();
+        let nextPos = -1;
 
-            switch (e.key) {
-                case 'ArrowRight':
-                case 'ArrowDown':
-                    e.preventDefault();
-                    nextPos = (currentEnabledPos + 1) % enabledIndices.length;
-                    break;
-                case 'ArrowLeft':
-                case 'ArrowUp':
-                    e.preventDefault();
-                    nextPos = (currentEnabledPos - 1 + enabledIndices.length) % enabledIndices.length;
-                    break;
-                case 'Home':
-                    e.preventDefault();
-                    nextPos = 0;
-                    break;
-                case 'End':
-                    e.preventDefault();
-                    nextPos = enabledIndices.length - 1;
-                    break;
-                default:
-                    return;
-            }
+        switch (e.key) {
+            case 'ArrowRight':
+            case 'ArrowDown':
+                e.preventDefault();
+                nextPos = (pos + 1) % indices.length;
+                break;
+            case 'ArrowLeft':
+            case 'ArrowUp':
+                e.preventDefault();
+                nextPos = (pos - 1 + indices.length) % indices.length;
+                break;
+            case 'Home':
+                e.preventDefault();
+                nextPos = 0;
+                break;
+            case 'End':
+                e.preventDefault();
+                nextPos = indices.length - 1;
+                break;
+            default:
+                return;
+        }
 
-            if (nextPos >= 0) {
-                const nextIdx = enabledIndices[nextPos];
-                setFocusedIndex(nextIdx);
-                handleChange(options[nextIdx].value, options[nextIdx].disabled);
+        if (nextPos >= 0) {
+            const nextIdx = indices[nextPos];
+            setFocusedIndex(nextIdx);
+            handleChange(local.options[nextIdx].value, local.options[nextIdx].disabled);
 
-                // 聚焦到对应的 radio circle
-                const circles = groupRef.current?.querySelectorAll('[data-radio-circle]');
-                (circles?.[nextIdx] as HTMLElement)?.focus();
-            }
-        },
-        [direction, enabledIndices, currentEnabledPos, options, handleChange]
-    );
+            const circles = groupRef?.querySelectorAll('[data-radio-circle]');
+            (circles?.[nextIdx] as HTMLElement)?.focus();
+        }
+    };
 
     return (
         <div
             ref={groupRef}
-            className={classNames(
-                styles.radioGroup,
-                styles[direction],
-                { [styles.groupDisabled]: disabled },
-                className
-            )}
-            style={style}
+            class={local.class}
+            classList={{
+                [styles.radioGroup]: true,
+                [styles[local.direction]]: true,
+                [styles.groupDisabled]: local.disabled,
+                ...local.classList
+            }}
+            style={local.style}
             role="radiogroup"
             onKeyDown={handleKeyDown}
         >
-            {options.map((opt, idx) => {
-                const isChecked = checkedValue === opt.value;
-                const isDisabled = disabled || opt.disabled;
-                const isFocusable = idx === focusedIndex && !isDisabled;
+            <For each={local.options}>
+                {(opt, idx) => {
+                    const isChecked = () => checkedValue() === opt.value;
+                    const isDisabled = () => local.disabled || opt.disabled;
+                    const isFocusable = () => idx() === focusedIndex() && !isDisabled();
 
-                return (
-                    <label
-                        key={String(opt.value)}
-                        className={classNames(
-                            styles.radioItem,
-                            styles[size],
-                            {
-                                [styles.checked]: isChecked,
-                                [styles.disabled]: isDisabled,
-                            }
-                        )}
-                        onClick={() => {
-                            if (!isDisabled) {
-                                setFocusedIndex(idx);
-                                handleChange(opt.value, opt.disabled);
-                            }
-                        }}
-                    >
-                        <span
-                            className={styles.circle}
-                            data-radio-circle
-                            role="radio"
-                            aria-checked={isChecked}
-                            aria-disabled={isDisabled || undefined}
-                            tabIndex={isFocusable ? 0 : -1}
-                            onFocus={() => {
-                                if (!isDisabled) setFocusedIndex(idx);
+                    return (
+                        <label
+                            class={styles.radioItem}
+                            classList={{
+                                [styles[local.size]]: true,
+                                [styles.checked]: isChecked(),
+                                [styles.disabled]: isDisabled(),
                             }}
-                            onKeyDown={(e) => {
-                                if (e.key === ' ' || e.key === 'Enter') {
-                                    e.preventDefault();
+                            onClick={() => {
+                                if (!isDisabled()) {
+                                    setFocusedIndex(idx());
                                     handleChange(opt.value, opt.disabled);
                                 }
                             }}
                         >
-                            {isChecked && (
-                                <span className={styles.checkmark}>
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 8L6 12L14 4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </span>
-                            )}
-                        </span>
-                        <span className={styles.label}>{opt.label}</span>
-                    </label>
-                );
-            })}
+                            <span
+                                class={styles.circle}
+                                data-radio-circle
+                                role="radio"
+                                aria-checked={isChecked()}
+                                aria-disabled={isDisabled() || undefined}
+                                tabIndex={isFocusable() ? 0 : -1}
+                                onFocus={() => {
+                                    if (!isDisabled()) setFocusedIndex(idx());
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === ' ' || e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleChange(opt.value, opt.disabled);
+                                    }
+                                }}
+                            >
+                                {isChecked() && (
+                                    <span class={styles.checkmark}>
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 8L6 12L14 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                )}
+                            </span>
+                            <span class={styles.label}>{opt.label}</span>
+                        </label>
+                    );
+                }}
+            </For>
         </div>
     );
 };
-
-Radio.displayName = 'Radio';

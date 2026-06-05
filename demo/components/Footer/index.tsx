@@ -1,8 +1,8 @@
-import React from 'react';
+import { JSX } from 'solid-js';
 import { Footer as FooterComponent } from '../../../src';
 import { CodeBlock, ApiTable, ApiRow, sectionStyle, sectionTitleStyle, tagStyle, demoBodyStyle, labelStyle } from '../../tools';
 
-const FooterDemo: React.FC = () => {
+const FooterDemo = () => {
 
     return (
         <div style={sectionStyle}>
@@ -10,7 +10,7 @@ const FooterDemo: React.FC = () => {
                 Footer <span style={tagStyle}>底部装饰</span>
             </div>
             <div style={labelStyle}>
-                Footer 组件 — 页面底部装饰图片，支持 sea（海）和 tree（树）两种类型。
+                Footer 组件 — 页面底部装饰图片，支持 tree（树）和 sea（海）两种类型。
             </div>
             <div style={{ ...demoBodyStyle, padding: '40px 0' }}>
                 <div style={labelStyle}>tree 类型（默认）</div>
@@ -21,8 +21,7 @@ const FooterDemo: React.FC = () => {
                 <FooterComponent type="sea" />
             </div>
             <CodeBlock 
-            code={`import React from 'react';
-import { Footer } from 'animal-island-ui';
+            code={`import { Footer } from 'animal-island-ui-solid';
 
 const App = () => (
     <div>
@@ -38,8 +37,8 @@ const App = () => (
 
 const FOOTER_API: ApiRow[] = [
     { prop: 'type', desc: 'Footer 类型', type: "'sea' | 'tree'", defaultVal: "'tree'" },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
-    { prop: 'style', desc: '自定义样式', type: 'CSSProperties', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'style', desc: '自定义样式', type: 'JSX.CSSProperties', defaultVal: '-' },
 ];
 
 export default FooterDemo;

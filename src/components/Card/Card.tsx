@@ -1,4 +1,4 @@
-import React from 'react';
+import { JSX, splitProps } from 'solid-js';
 import styles from './card.module.less';
 
 export type CardType = 'default' | 'dashed';
@@ -25,7 +25,7 @@ export type CardPattern =
     | 'app-teal' | 'app-green' | 'app-red' | 'lime-green' 
     | 'yellow-green' | 'brown' | 'warm-peach-pink';
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends JSX.HTMLAttributes<HTMLDivElement> {
     /** 卡片类型 */
     type?: CardType;
     /** 背景颜色类型 */
@@ -33,37 +33,32 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     /** 背景花纹类型 */
     pattern?: CardPattern;
     /** 自定义内容 */
-    children?: React.ReactNode;
+    children?: JSX.Element;
 }
 
-export const Card: React.FC<CardProps> = ({
-    type = 'default',
-    color = 'default',
-    pattern = 'none',
-    children,
-    className,
-    style,
-    ...rest
-}) => {
-    const cls = [
-        styles.card,
-        type === 'dashed' && styles['card-dashed'],
-        color !== 'default' && styles[`card-${color}`],
-        pattern !== 'none' && styles[`pattern-${pattern}`],
-        className,
-    ]
-        .filter(Boolean)
-        .join(' ');
+export const Card = (props: CardProps) => {
+    const [local, rest] = splitProps(props, [
+        'type',
+        'color',
+        'pattern',
+        'children',
+        'class',
+        'classList'
+    ]);
 
     return (
         <div
-            className={cls}
-            style={style}
+            class={local.class}
+            classList={{
+                [styles.card]: true,
+                [styles['card-dashed']]: local.type === 'dashed',
+                [styles[`card-${local.color}`]]: !!local.color && local.color !== 'default',
+                [styles[`pattern-${local.pattern}`]]: !!local.pattern && local.pattern !== 'none',
+                ...local.classList
+            }}
             {...rest}
         >
-            {children}
+            {local.children}
         </div>
     );
 };
-
-Card.displayName = 'Card';

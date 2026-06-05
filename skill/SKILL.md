@@ -1,11 +1,11 @@
 ---
-name: animal-island-ui-style
+name: animal-island-ui-solid-style
 description: >
-  使用 animal-island-ui 设计风格创建 React UI 界面或组件。当用户需要：
+  使用 animal-island-ui-solid 设计风格创建 SolidJS UI 界面或组件。当用户需要：
   (1) 用动物森友会风格创建 UI 页面或组件；
-  (2) 使用 animal-island-ui 组件库开发界面；
-  (3) 构建温馨自然、圆润可爱风格的 React 界面；
-  (4) 复现或扩展 animal-island-ui 的视觉语言；
+  (2) 使用 animal-island-ui-solid 组件库开发界面；
+  (3) 构建温馨自然、圆润可爱风格的 SolidJS 界面；
+  (4) 复现或扩展 animal-island-ui-solid 的视觉语言；
   (5) 提问"动物森友会风格"、"animal island 风格"、"可爱圆润风格"的 UI 时，务必使用此 skill。
 ---
 
@@ -18,7 +18,7 @@ description: >
 
 ## 概述
 
-animal-island-ui 是一套受《集合啦！动物森友会》启发的 React + TypeScript UI 组件库。
+animal-island-ui-solid 是一套受《集合啦！动物森友会》启发的 SolidJS + TypeScript UI 组件库。
 设计语言核心：**温暖大地色系 + 大圆角 pill 形 + 游戏按键立体感 + 柔和动效 + 几何 / 有机形状并存**（几何代表：Title 飘带的 swallowtail clip-path；有机代表：Modal 的 SVG blob、WeddingInvitation 的不规则虚线边框）。
 
 - 源码：`src/components/<ComponentName>/`
@@ -49,7 +49,7 @@ animal-island-ui 是一套受《集合啦！动物森友会》启发的 React + 
 | `Footer` | 底部装饰图（`sea`/`tree`） | | ✓ |
 | `Divider` | 装饰分割线，5 种风格 | | ✓ |
 | `Cursor` | 游戏手指光标包裹器 | | ✓ |
-| `Typewriter` | 打字机效果，保留 ReactNode 结构 | | ✓ |
+| `Typewriter` | 打字机效果，保留 JSX.Element 结构 | | ✓ |
 | `Tabs` | 标签页切换，叶子摆动动画可选 | ✓ | |
 | `CodeBlock` | JSX/TS 语法高亮代码块 | | ✓ |
 | `Loading` | 全屏遮罩 + SVG spinner（mint `#19c8b9`，`stroke-dasharray` 动画） | | ✓ |
@@ -1007,14 +1007,14 @@ Props：
 
 | name | type | default | 说明 |
 |---|---|---|---|
-| `children` | `ReactNode` | — | 要逐字打出的内容，**保留原有元素结构 / 换行 / 样式** |
+| `children` | `JSX.Element` | — | 要逐字打出的内容，**保留原有元素结构 / 换行 / 样式** |
 | `speed` | `number (ms)` | `90` | 每字间隔 |
 | `trigger` | `unknown` | — | 值变化即重新播放（通常传递弹窗 open 次数或递增 key） |
 | `autoPlay` | `boolean` | `true` | `false` 直接全量显示 |
 | `onDone` | `() => void` | — | 播放完成回调 |
 
 **实现要点：**
-- `countText(node)`：递归统计 ReactNode 的纯文本长度
+- `countText(node)`：递归统计 JSX.Element 的纯文本长度
 - `renderTruncated(node, state)`：按剩余字符数递归裁剪，`React.cloneElement` 保留原节点与样式
 - `useEffect` 依赖 `[total, speed, trigger, autoPlay]`，内部 `setInterval` 按步递增 `count`
 - **无样式文件**，不包裹任何额外 DOM（返回 `<>...</>`），对布局零影响
@@ -1133,7 +1133,7 @@ tab-size: 4;
 | comment  | `#6b5e50` | `/* */`、`//` |
 | string   | `#a8d4a0` | 反引号 / 单双引号、数字 |
 | keyword  | `#d4a0e0` | `import/export/const/return/async/...`、`true/false/null/undefined` |
-| react    | `#e06c75` | `React/useState/useEffect/FC/ReactNode/CSSProperties/...` |
+| react    | `#e06c75` | `React/useState/useEffect/FC/JSX.Element/CSSProperties/...` |
 | component| `#80c0e0` | 大写驼峰标识符（JSX 组件名、类型名） |
 | func     | `#61afef` | 小写标识符后跟 `(` |
 | prop     | `#e8c87a` | 标识符后跟 `=`（JSX props / 赋值） |
@@ -1715,7 +1715,7 @@ export interface MyComponentProps {
   /** 禁用 */
   disabled?: boolean
   /** 子元素 */
-  children?: React.ReactNode
+  children?: React.JSX.Element
   /** 自定义类名 */
   className?: string
   /** 自定义样式 */

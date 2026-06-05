@@ -1,4 +1,4 @@
-import React from 'react';
+import { JSX } from 'solid-js';
 import { Phone } from '../../../src';
 import {
     CodeBlock,
@@ -11,7 +11,7 @@ import {
     labelStyle,
 } from '../../tools';
 
-const PhoneDemo: React.FC = () => (
+const PhoneDemo = () => (
     <div style={sectionStyle}>
         <div style={sectionTitleStyle}>
             Phone <span style={tagStyle}>手机</span>
@@ -19,12 +19,11 @@ const PhoneDemo: React.FC = () => (
         <div style={labelStyle}>
             Phone 组件 — 手机界面组件。
         </div>
-        <div style={{ ...demoBodyStyle, transform: 'scale(0.6)', transformOrigin: 'top left', height: 473 }}>
+        <div style={{ ...demoBodyStyle, transform: 'scale(0.6)', 'transform-origin': 'top left', height: '473px' }}>
             <Phone />
         </div>
         <CodeBlock
-            code={`import React from 'react';
-import { Phone } from 'animal-island-ui';
+            code={`import { Phone } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
@@ -42,7 +41,7 @@ export default App;`}
 );
 
 const PHONE_API: ApiRow[] = [
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
 ];
 
 export default PhoneDemo;

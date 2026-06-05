@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { JSX, createSignal, splitProps, mergeProps, For, Show } from 'solid-js';
 import styles from './tabs.module.less';
 import leafIcon from '../../assets/img/icons/icon-leaf.png';
 
 export interface TabItem {
     key: string;
-    label: React.ReactNode;
-    children: React.ReactNode;
+    label: JSX.Element;
+    children: JSX.Element;
 }
 
 export interface TabsProps {
@@ -13,66 +13,82 @@ export interface TabsProps {
     defaultActiveKey?: string;
     activeKey?: string;
     onChange?: (key: string) => void;
-    className?: string;
-    style?: React.CSSProperties;
+    class?: string;
+    classList?: { [key: string]: boolean | undefined };
+    style?: JSX.CSSProperties;
     leafAnimation?: boolean;
     shadow?: boolean;
 }
 
-export const Tabs: React.FC<TabsProps> = ({
-    items,
-    defaultActiveKey,
-    activeKey,
-    onChange,
-    className,
-    style,
-    leafAnimation = true,
-    shadow = true,
-}) => {
-    const [internalActiveKey, setInternalActiveKey] = useState(
-        defaultActiveKey || items[0]?.key
+export const Tabs = (props: TabsProps) => {
+    const merged = mergeProps({ leafAnimation: true, shadow: true }, props);
+    const [local, rest] = splitProps(merged, [
+        'items',
+        'defaultActiveKey',
+        'activeKey',
+        'onChange',
+        'class',
+        'classList',
+        'style',
+        'leafAnimation',
+        'shadow',
+    ]);
+
+    const [internalActiveKey, setInternalActiveKey] = createSignal(
+        local.defaultActiveKey || local.items[0]?.key
     );
 
-    const currentActiveKey = activeKey !== undefined ? activeKey : internalActiveKey;
+    const currentActiveKey = () => (local.activeKey !== undefined ? local.activeKey : internalActiveKey());
 
     const handleTabClick = (key: string) => {
-        if (activeKey === undefined) {
+        if (local.activeKey === undefined) {
             setInternalActiveKey(key);
         }
-        onChange?.(key);
+        local.onChange?.(key);
     };
 
-    const activeItem = items.find((item) => item.key === currentActiveKey);
-
-    const cls = [styles.tabs, className].filter(Boolean).join(' ');
+    const activeItem = () => local.items.find((item) => item.key === currentActiveKey());
 
     return (
-        <div className={cls} style={style}>
-            <div className={styles.tabList}>
-                {items.map((item) => {
-                    const isActive = item.key === currentActiveKey;
-                    return (
-                        <button
-                            key={item.key}
-                            className={`${styles.tabItem} ${isActive ? styles.active : ''} ${isActive && shadow ? styles['active-shadow'] : ''}`}
-                            onClick={() => handleTabClick(item.key)}
-                        >
-                            <span className={styles.tabIcon}>
-                                {isActive ? '●' : '○'}
-                            </span>
-                            <span className={styles.tabLabel}>{item.label}</span>
-                            {isActive && <img src={leafIcon} alt="" className={`${styles.tabLeaf} ${leafAnimation ? '' : styles.tabLeafStatic}`} />}
-                        </button>
-                    );
-                })}
+        <div
+            class={local.class}
+            classList={{
+                [styles.tabs]: true,
+                ...local.classList,
+            }}
+            style={local.style}
+        >
+            <div class={styles.tabList}>
+                <For each={local.items}>
+                    {(item) => {
+                        const isActive = () => item.key === currentActiveKey();
+                        return (
+                            <button
+                                class={styles.tabItem}
+                                classList={{
+                                    [styles.active]: isActive(),
+                                    [styles['active-shadow']]: isActive() && local.shadow,
+                                }}
+                                onClick={() => handleTabClick(item.key)}
+                            >
+                                <span class={styles.tabIcon}>{isActive() ? '●' : '○'}</span>
+                                <span class={styles.tabLabel}>{item.label}</span>
+                                <Show when={isActive()}>
+                                    <img
+                                        src={leafIcon}
+                                        alt=""
+                                        class={styles.tabLeaf}
+                                        classList={{ [styles.tabLeafStatic]: !local.leafAnimation }}
+                                    />
+                                </Show>
+                            </button>
+                        );
+                    }}
+                </For>
             </div>
-            <div className={styles.tabContent}>
-                <div className={styles.tabContentInner}>
-                    {activeItem?.children}
-                </div>
+            <div class={styles.tabContent}>
+                <div class={styles.tabContentInner}>{activeItem()?.children}</div>
             </div>
         </div>
     );
 };
-
-Tabs.displayName = 'Tabs';

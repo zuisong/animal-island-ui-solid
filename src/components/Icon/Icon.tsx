@@ -1,4 +1,4 @@
-import React from 'react';
+import { JSX, splitProps, mergeProps } from 'solid-js';
 import styles from './icon.module.less';
 
 export type IconName =
@@ -45,40 +45,33 @@ export interface IconProps {
     /** 物品图标编号（1 ~ ITEM_COUNT），来自 figma "Items" 设计稿。与 name 二选一 */
     item?: number;
     size?: number | string;
-    className?: string;
-    style?: React.CSSProperties;
+    class?: string;
+    classList?: { [key: string]: boolean | undefined };
+    style?: JSX.CSSProperties;
     bounce?: boolean;
 }
 
-export const Icon: React.FC<IconProps> = ({
-    name,
-    item,
-    size = 24,
-    className,
-    style,
-    bounce = false,
-    ...rest
-}) => {
-    const itemUrl =
-        typeof item === 'number' ? ITEM_URL_MAP[item] : undefined;
+export const Icon = (props: IconProps) => {
+    const merged = mergeProps({ size: 24, bounce: false }, props);
+    const [local, rest] = splitProps(merged, ['name', 'item', 'size', 'class', 'classList', 'style', 'bounce']);
 
-    const cls = [
-        styles.icon,
-        name ? styles[name] : '',
-        bounce ? styles['icon-bounce'] : '',
-        className || '',
-    ]
-        .filter(Boolean)
-        .join(' ');
+    const itemUrl = () =>
+        typeof local.item === 'number' ? ITEM_URL_MAP[local.item] : undefined;
 
     return (
         <span
-            className={cls}
+            class={local.class}
+            classList={{
+                [styles.icon]: true,
+                [styles[local.name!]]: !!local.name,
+                [styles['icon-bounce']]: local.bounce,
+                ...local.classList
+            }}
             style={{
-                width: size,
-                height: size,
-                ...(itemUrl ? { backgroundImage: `url(${itemUrl})` } : null),
-                ...style,
+                width: typeof local.size === 'number' ? `${local.size}px` : local.size,
+                height: typeof local.size === 'number' ? `${local.size}px` : local.size,
+                ...(itemUrl() ? { 'background-image': `url(${itemUrl()})` } : null),
+                ...local.style,
             }}
             {...rest}
         />

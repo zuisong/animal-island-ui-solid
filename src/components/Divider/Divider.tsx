@@ -1,4 +1,4 @@
-import React from 'react';
+import { JSX, splitProps, mergeProps } from 'solid-js';
 import styles from './divider.module.less';
 
 export type DividerType =
@@ -16,14 +16,26 @@ export interface DividerProps {
     /** 分隔线类型 */
     type?: DividerType;
     /** 自定义类名 */
-    className?: string;
+    class?: string;
+    /** 自定义类名列表 */
+    classList?: { [key: string]: boolean | undefined };
     /** 自定义样式 */
-    style?: React.CSSProperties;
+    style?: JSX.CSSProperties;
 }
 
-export const Divider: React.FC<DividerProps> = ({ type = 'line-brown', className, style }) => {
-    const cls = [styles.divider, styles[type], className].filter(Boolean).join(' ');
-    return <div className={cls} style={style} />;
+export const Divider = (props: DividerProps) => {
+    const merged = mergeProps({ type: 'line-brown' as DividerType }, props);
+    const [local, rest] = splitProps(merged, ['type', 'class', 'classList', 'style']);
+    
+    return (
+        <div 
+            class={local.class}
+            classList={{
+                [styles.divider]: true,
+                [styles[local.type]]: true,
+                ...local.classList
+            }}
+            style={local.style} 
+        />
+    );
 };
-
-Divider.displayName = 'Divider';

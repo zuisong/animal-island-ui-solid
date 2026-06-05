@@ -1,13 +1,13 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import solid from 'vite-plugin-solid';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-    base: '/animal-island-ui/',
-    plugins: [react()],
+    base: '/animal-island-ui-solid/',
+    plugins: [solid()],
     resolve: {
         alias: {
             '@': resolve(__dirname, 'src'),
@@ -30,7 +30,7 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: {
-                    vendor: ['react', 'react-dom'],
+                    vendor: ['solid-js'],
                 },
             },
         },

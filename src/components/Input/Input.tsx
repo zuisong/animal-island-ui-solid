@@ -1,95 +1,84 @@
-import React, { useState, useCallback } from 'react';
+import { JSX, createSignal, splitProps, mergeProps } from 'solid-js';
 import styles from './input.module.less';
 
 export type InputSize = 'small' | 'middle' | 'large';
 
 export interface InputProps extends Omit<
-    React.InputHTMLAttributes<HTMLInputElement>,
+    JSX.InputHTMLAttributes<HTMLInputElement>,
     'size' | 'prefix'
 > {
     /** 输入框尺寸 */
     size?: InputSize;
     /** 前缀图标 */
-    prefix?: React.ReactNode;
+    prefix?: JSX.Element;
     /** 后缀图标 */
-    suffix?: React.ReactNode;
+    suffix?: JSX.Element;
     /** 允许清除 */
     allowClear?: boolean;
     /** 错误状态 */
     status?: 'error' | 'warning';
     /** 是否显示阴影 */
     shadow?: boolean;
-    /** 值变化回调 */
-    onChange?: React.ChangeEventHandler<HTMLInputElement>;
     /** 清除回调 */
     onClear?: () => void;
 }
 
-export const Input: React.FC<InputProps> = ({
-    size = 'middle',
-    prefix,
-    suffix,
-    allowClear = false,
-    status,
-    shadow = false,
-    disabled = false,
-    className,
-    value,
-    defaultValue,
-    onChange,
-    onClear,
-    ...rest
-}) => {
-    const [innerValue, setInnerValue] = useState(defaultValue ?? '');
-    const isControlled = value !== undefined;
-    const currentValue = isControlled ? value : innerValue;
+export const Input = (props: InputProps) => {
+    const merged = mergeProps({ size: 'middle' as InputSize, allowClear: false, shadow: false, disabled: false }, props);
+    const [local, rest] = splitProps(merged, [
+        'size',
+        'prefix',
+        'suffix',
+        'allowClear',
+        'status',
+        'shadow',
+        'disabled',
+        'class',
+        'classList',
+        'value',
+        'defaultValue',
+        'onChange',
+        'onClear',
+    ]);
 
-    const handleChange: React.ChangeEventHandler<HTMLInputElement> =
-        useCallback(
-            (e) => {
-                if (!isControlled) setInnerValue(e.target.value);
-                onChange?.(e);
-            },
-            [isControlled, onChange]
-        );
+    const [innerValue, setInnerValue] = createSignal(local.defaultValue ?? '');
+    const currentValue = () => local.value !== undefined ? local.value : innerValue();
 
-    const handleClear = useCallback(() => {
-        if (!isControlled) setInnerValue('');
-        onClear?.();
-        // 触发 onChange 模拟清空
-        const nativeEvent = new Event('input', { bubbles: true });
-        const fakeTarget = { value: '' } as HTMLInputElement;
-        onChange?.({
-            target: fakeTarget,
-            currentTarget: fakeTarget,
-            nativeEvent,
-        } as React.ChangeEvent<HTMLInputElement>);
-    }, [isControlled, onChange, onClear]);
+    const handleChange = (e: Event & { target: HTMLInputElement }) => {
+        if (local.value === undefined) setInnerValue(e.target.value);
+        if (typeof local.onChange === 'function') {
+            (local.onChange as any)(e);
+        }
+    };
 
-    const wrapperCls = [
-        styles.wrapper,
-        styles[`wrapper-${size}`],
-        status && styles[`wrapper-${status}`],
-        disabled && styles['wrapper-disabled'],
-        !shadow && styles['wrapper-no-shadow'],
-        className,
-    ]
-        .filter(Boolean)
-        .join(' ');
+    const handleClear = () => {
+        if (local.value === undefined) setInnerValue('');
+        local.onClear?.();
+    };
 
     return (
-        <span className={wrapperCls}>
-            {prefix && <span className={styles.prefix}>{prefix}</span>}
+        <span 
+            class={local.class}
+            classList={{
+                [styles.wrapper]: true,
+                [styles[`wrapper-${local.size}`]]: true,
+                [styles[`wrapper-${local.status}`]]: !!local.status,
+                [styles['wrapper-disabled']]: local.disabled,
+                [styles['wrapper-no-shadow']]: !local.shadow,
+                ...local.classList
+            }}
+        >
+            {local.prefix && <span class={styles.prefix}>{local.prefix}</span>}
             <input
-                className={styles.input}
-                disabled={disabled}
-                value={currentValue}
-                onChange={handleChange}
+                class={styles.input}
+                disabled={local.disabled}
+                value={currentValue()}
+                onInput={handleChange}
                 {...rest}
             />
-            {allowClear && currentValue && !disabled && (
+            {local.allowClear && currentValue() !== '' && !local.disabled && (
                 <span
-                    className={styles.clear}
+                    class={styles.clear}
                     onClick={handleClear}
                     role="button"
                     tabIndex={-1}
@@ -97,9 +86,7 @@ export const Input: React.FC<InputProps> = ({
                     ×
                 </span>
             )}
-            {suffix && <span className={styles.suffix}>{suffix}</span>}
+            {local.suffix && <span class={styles.suffix}>{local.suffix}</span>}
         </span>
     );
 };
-
-Input.displayName = 'Input';

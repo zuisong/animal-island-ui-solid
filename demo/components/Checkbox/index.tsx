@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { JSX, createSignal, For } from 'solid-js';
 import { Checkbox } from '../../../src';
 import {
     labelStyle,
@@ -19,8 +19,8 @@ const CHECKBOX_API: ApiRow[] = [
     { prop: 'disabled', desc: '禁用全部选项', type: 'boolean', defaultVal: 'false' },
     { prop: 'direction', desc: '排列方向', type: "'horizontal' | 'vertical'", defaultVal: "'horizontal'" },
     { prop: 'onChange', desc: '选中值变化回调', type: '(values: Array<string | number>) => void', defaultVal: '-' },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
-    { prop: 'style', desc: '自定义样式', type: 'React.CSSProperties', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'style', desc: '自定义样式', type: 'JSX.CSSProperties', defaultVal: '-' },
 ];
 
 const islandOptions = [
@@ -38,9 +38,19 @@ const critterOptions = [
     { label: '🌊 水母', value: 'jellyfish' },
 ];
 
-const CheckboxDemo: React.FC = () => {
-    const [selected1, setSelected1] = useState<Array<string | number>>(['beach', 'garden']);
-    const [selected2, setSelected2] = useState<Array<string | number>>([]);
+const CheckboxDemo = () => {
+    const [selected1, setSelected1] = createSignal<Array<string | number>>(['beach', 'garden']);
+    const [selected2, setSelected2] = createSignal<Array<string | number>>([]);
+
+    const selectedLabels = () => {
+        const current = selected1();
+        return current.length > 0
+            ? islandOptions
+                  .filter((o) => current.includes(o.value))
+                  .map((o) => o.label)
+                  .join('、')
+            : '无';
+    };
 
     return (
         <div style={sectionStyle}>
@@ -49,29 +59,24 @@ const CheckboxDemo: React.FC = () => {
             </div>
 
             <div style={labelStyle}>默认水平排列（受控）</div>
-            <div style={{ marginBottom: 8, fontSize: 13, color: '#a08060' }}>
+            <div style={{ 'margin-bottom': '8px', 'font-size': '13px', color: '#a08060' }}>
                 已选中:{' '}
-                <span style={{ color: '#19c8b9', fontWeight: 600 }}>
-                    {selected1.length > 0
-                        ? islandOptions
-                              .filter((o) => selected1.includes(o.value))
-                              .map((o) => o.label)
-                              .join('、')
-                        : '无'}
+                <span style={{ color: '#19c8b9', 'font-weight': 600 }}>
+                    {selectedLabels()}
                 </span>
             </div>
             <div style={demoBoxStyle}>
-                <Checkbox options={islandOptions} value={selected1} onChange={setSelected1} style={{ gap: 20 }} />
+                <Checkbox options={islandOptions} value={selected1()} onChange={setSelected1} style={{ gap: '20px' }} />
             </div>
 
             <div style={labelStyle}>垂直排列 + 含禁用选项</div>
             <div style={demoBoxStyle}>
                 <Checkbox
                     options={critterOptions}
-                    value={selected2}
+                    value={selected2()}
                     onChange={setSelected2}
                     direction="vertical"
-                    style={{ gap: 12 }}
+                    style={{ gap: '12px' }}
                 />
             </div>
 
@@ -96,8 +101,8 @@ const CheckboxDemo: React.FC = () => {
             </div>
 
             <CodeBlock
-                code={`import React, { useState } from 'react';
-import { Checkbox } from 'animal-island-ui';
+                code={`import { createSignal } from 'solid-js';
+import { Checkbox } from 'animal-island-ui-solid';
 
 const options = [
     { label: '🌊 海滩', value: 'beach' },
@@ -106,12 +111,13 @@ const options = [
 ];
 
 const App = () => {
+    const [values, setValues] = createSignal(['beach']);
     return (
         <div>
             {/* 非受控 */}
             <Checkbox options={options} defaultValue={['beach']} />
             {/* 受控 */}
-            <Checkbox options={options} value={values} onChange={setValues} />
+            <Checkbox options={options} value={values()} onChange={setValues} />
             {/* 垂直排列 */}
             <Checkbox options={options} direction="vertical" />
         </div>

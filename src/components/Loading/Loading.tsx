@@ -1,12 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import { JSX, onMount, createEffect, onCleanup, splitProps, mergeProps } from 'solid-js';
 import styles from './Loading.module.less';
 import { gsap } from './island/gsap.min.js';
 import { MotionPathPlugin } from './island/MotionPathPlugin.min.js';
 import { startAnimation } from './island/script.js';
 
 export interface LoadingProps {
-    className?: string;
-    style?: React.CSSProperties;
+    class?: string;
+    classList?: { [key: string]: boolean | undefined };
+    style?: JSX.CSSProperties;
     active?: boolean;
 }
 
@@ -67,37 +68,33 @@ const SVG_CONTENT = `<svg viewBox="0 0 446 540" xmlns="http://www.w3.org/2000/sv
         </g>
     </g>
     <path id="front-water" d="M357.31 457.85c-.49-8.02-19.23-9.86-34.35-8.83-7.3.5-11.12 5.67-86.93 5.67-75.82 0-101.03-6.83-109.88-6.76-7.44.06-16.96 3.64-16.96 10.44 0 6.8 20.83 14.02 121.27 14.02 100.45 0 127.48-4.35 126.85-14.54z" fill="#bae4f0"></path>
-    <g id="tri-wave1" fill="#2ec3ec">
-        <path d="M366.29 502.93a1.27 1.27 0 012.04 0l21.55 29.42a1.27 1.27 0 01-1.03 2.02h-43.27a1.27 1.27 0 01-1.01-2.02l21.72-29.42z"></path>
-        <path d="M322.56 502.93a1.27 1.27 0 012.04 0l21.55 29.42a1.27 1.27 0 01-1.02 2.02h-43.27a1.27 1.27 0 01-1.02-2.02l21.72-29.42zM410.18 502.93a1.27 1.27 0 012.04 0l21.54 29.42a1.27 1.27 0 01-1.02 2.02h-43.27a1.27 1.27 0 01-1.02-2.02l21.73-29.42z"></path>
-    </g>
-    <g mask="url(#water-mask)" id="sine-wave-group">
+    <g id="sine-wave-group">
         <use href="#wave-segment" id="wave-segment-0" x="-150"></use>
         <use href="#wave-segment" id="wave-segment-1"></use>
         <use href="#wave-segment" id="wave-segment-2" x="150"></use>
-        <use href="#wave-segment" id="wave-segment-3" x="3000"></use>
     </g>
 </g></svg>`;
 
-export const Loading: React.FC<LoadingProps> = ({ className, style, active = true }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const preContainerRef = useRef<HTMLDivElement>(null);
+export const Loading = (props: LoadingProps) => {
+    const merged = mergeProps({ active: true }, props);
+    const [local, rest] = splitProps(merged, ['class', 'classList', 'style', 'active']);
+    
+    let containerRef: HTMLDivElement | undefined;
 
-    useEffect(() => {
-        if (!containerRef.current) return;
+    onMount(() => {
         startAnimation(gsap, MotionPathPlugin);
-    }, []);
+    });
 
-    useEffect(() => {
-        if (!preContainerRef.current || !containerRef.current) return;
+    createEffect(() => {
+        if (!containerRef) return;
 
-        const container = containerRef.current;
+        const container = containerRef;
         const rect = container.getBoundingClientRect();
         // 终态半径需完全覆盖对角线（从中心到最远角），再加余量防止四角残留
         const finalR = Math.ceil(Math.hypot(rect.width, rect.height) / 2) + 50;
         const duration = Math.max(0.1, finalR / 1500);
 
-        if (active) {
+        if (local.active) {
             container.classList.remove(styles.closing);
             container.style.transition = '';
             container.style.setProperty('--mask-r', '0px');
@@ -110,21 +107,27 @@ export const Loading: React.FC<LoadingProps> = ({ className, style, active = tru
             void container.offsetHeight;
             container.style.transition = `--mask-r ${duration}s linear`;
             container.style.setProperty('--mask-r', `${finalR}px`);
-            setTimeout(() => {
-                if (containerRef.current) {
-                    containerRef.current.style.display = 'none';
+            const timer = setTimeout(() => {
+                if (containerRef) {
+                    containerRef.style.display = 'none';
                 }
             }, duration * 1000);
+            onCleanup(() => clearTimeout(timer));
         }
-    }, [active]);
+    });
 
     return (
-        <div ref={preContainerRef} className={styles.wrapper}>
-            <div ref={containerRef} className={`${styles.container} ${className || ''}`} style={style}>
-                <div dangerouslySetInnerHTML={{ __html: SVG_CONTENT }} />
-            </div>
+        <div class={styles.wrapper}>
+            <div 
+                ref={containerRef} 
+                class={local.class}
+                classList={{
+                    [styles.container]: true,
+                    ...local.classList
+                }} 
+                style={local.style}
+                innerHTML={SVG_CONTENT}
+            />
         </div>
     );
 };
-
-Loading.displayName = 'Loading';

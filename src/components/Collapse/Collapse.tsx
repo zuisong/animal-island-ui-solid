@@ -1,59 +1,65 @@
-import React, { useState } from 'react';
+import { JSX, createSignal, splitProps, mergeProps } from 'solid-js';
 import styles from './collapse.module.less';
 
 export interface CollapseProps {
     /** 问题标题 */
-    question: React.ReactNode;
+    question: JSX.Element;
     /** 答案内容 */
-    answer: React.ReactNode;
+    answer: JSX.Element;
     /** 是否默认展开 */
     defaultExpanded?: boolean;
     /** 是否禁用 */
     disabled?: boolean;
     /** 自定义类名 */
-    className?: string;
+    class?: string;
+    /** 自定义类名列表 */
+    classList?: { [key: string]: boolean | undefined };
     /** 自定义样式 */
-    style?: React.CSSProperties;
+    style?: JSX.CSSProperties;
 }
 
-export const Collapse: React.FC<CollapseProps> = ({
-    question,
-    answer,
-    defaultExpanded = false,
-    disabled = false,
-    className,
-    style,
-}) => {
-    const [expanded, setExpanded] = useState(defaultExpanded);
+export const Collapse = (props: CollapseProps) => {
+    const merged = mergeProps({ defaultExpanded: false, disabled: false }, props);
+    const [local, rest] = splitProps(merged, [
+        'question',
+        'answer',
+        'defaultExpanded',
+        'disabled',
+        'class',
+        'classList',
+        'style'
+    ]);
+
+    const [expanded, setExpanded] = createSignal(local.defaultExpanded);
 
     const handleClick = () => {
-        if (!disabled) {
-            setExpanded(!expanded);
+        if (!local.disabled) {
+            setExpanded(!expanded());
         }
     };
 
-    const cls = [
-        styles.faqCard,
-        expanded && styles.expanded,
-        disabled && styles.disabled,
-        className,
-    ]
-        .filter(Boolean)
-        .join(' ');
-
     return (
-        <div className={cls} style={style}>
+        <div 
+            class={local.class} 
+            classList={{
+                [styles.faqCard]: true,
+                [styles.expanded]: expanded(),
+                [styles.disabled]: local.disabled,
+                ...local.classList
+            }}
+            style={local.style}
+        >
             <button
-                className={styles.questionHeader}
+                class={styles.questionHeader}
                 onClick={handleClick}
-                disabled={disabled}
-                aria-expanded={expanded}
+                disabled={local.disabled}
+                aria-expanded={expanded()}
             >
-                <span className={styles.questionIcon}>
-                    {expanded ? '−' : '+'}
+                <span class={styles.questionIcon}>
+                    {expanded() ? '−' : '+'}
                 </span>
-                <span className={styles.questionText}>{question}</span>
-                <span className={styles.leafDecoration}>
+                <span class={styles.questionText}>{local.question}</span>
+                <span class={styles.leafDecoration}>
                     <svg viewBox="0 0 24 24" width="20" height="20">
                         <path
                             fill="currentColor"
@@ -62,11 +68,9 @@ export const Collapse: React.FC<CollapseProps> = ({
                     </svg>
                 </span>
             </button>
-            <div className={styles.answerWrapper}>
-                <div className={styles.answerContent}>{answer}</div>
+            <div class={styles.answerWrapper}>
+                <div class={styles.answerContent}>{local.answer}</div>
             </div>
         </div>
     );
 };
-
-Collapse.displayName = 'Collapse';

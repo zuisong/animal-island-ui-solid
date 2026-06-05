@@ -1,5 +1,4 @@
-import React from 'react';
-import classNames from 'classnames';
+import { JSX, splitProps, mergeProps } from 'solid-js';
 import styles from './title.module.less';
 
 export type TitleSize = 'small' | 'middle' | 'large';
@@ -21,15 +20,17 @@ export type TitleColor =
 
 export interface TitleProps {
     /** 标题内容 */
-    children: React.ReactNode;
+    children: JSX.Element;
     /** 尺寸 */
     size?: TitleSize;
     /** 配色，与 Card 同名色板 */
     color?: TitleColor;
     /** 自定义类名 */
-    className?: string;
+    class?: string;
+    /** 自定义类名列表 */
+    classList?: { [key: string]: boolean | undefined };
     /** 自定义样式 */
-    style?: React.CSSProperties;
+    style?: JSX.CSSProperties;
 }
 
 const SIZE_MAP: Record<TitleSize, number> = {
@@ -38,39 +39,39 @@ const SIZE_MAP: Record<TitleSize, number> = {
     large: 28,
 };
 
-const Ribbon: React.FC<{ children: React.ReactNode; fontSize: number; color?: TitleColor }> = ({
-    children,
-    fontSize,
-    color,
-}) => (
+const Ribbon = (props: { children: JSX.Element; fontSize: number; color?: TitleColor }) => (
     <span
-        className={classNames(
-            styles.ribbon,
-            color && color !== 'default' && styles[`color-${color}`],
-        )}
-        style={{ fontSize: `${fontSize}px` }}
+        class={styles.ribbon}
+        classList={{
+            [styles[`color-${props.color}`]]: !!props.color && props.color !== 'default',
+        }}
+        style={{ 'font-size': `${props.fontSize}px` }}
     >
-        <span className={classNames(styles.ribbonBack, styles.ribbonBackLeft)} aria-hidden />
-        <span className={classNames(styles.ribbonBack, styles.ribbonBackRight)} aria-hidden />
-        <span className={classNames(styles.ribbonFold, styles.ribbonFoldLeft)} aria-hidden />
-        <span className={classNames(styles.ribbonFold, styles.ribbonFoldRight)} aria-hidden />
-        <span className={styles.ribbonFront} aria-hidden />
-        <span className={styles.ribbonText}>{children}</span>
+        <span class={`${styles.ribbonBack} ${styles.ribbonBackLeft}`} aria-hidden="true" />
+        <span class={`${styles.ribbonBack} ${styles.ribbonBackRight}`} aria-hidden="true" />
+        <span class={`${styles.ribbonFold} ${styles.ribbonFoldLeft}`} aria-hidden="true" />
+        <span class={`${styles.ribbonFold} ${styles.ribbonFoldRight}`} aria-hidden="true" />
+        <span class={styles.ribbonFront} aria-hidden="true" />
+        <span class={styles.ribbonText}>{props.children}</span>
     </span>
 );
 
-export const Title: React.FC<TitleProps> = ({
-    children,
-    size = 'middle',
-    color = 'default',
-    className,
-    style,
-}) => {
+export const Title = (props: TitleProps) => {
+    const merged = mergeProps({ size: 'middle' as TitleSize, color: 'default' as TitleColor }, props);
+    const [local, rest] = splitProps(merged, ['children', 'size', 'color', 'class', 'classList', 'style']);
+
     return (
-        <span className={classNames(styles.title, className)} style={style}>
-            <Ribbon fontSize={SIZE_MAP[size]} color={color}>{children}</Ribbon>
+        <span
+            class={local.class}
+            classList={{
+                [styles.title]: true,
+                ...local.classList,
+            }}
+            style={local.style}
+        >
+            <Ribbon fontSize={SIZE_MAP[local.size]} color={local.color}>
+                {local.children}
+            </Ribbon>
         </span>
     );
 };
-
-Title.displayName = 'Title';

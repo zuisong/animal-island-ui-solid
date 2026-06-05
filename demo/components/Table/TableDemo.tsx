@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { JSX, createSignal } from 'solid-js';
 import { Table, Button } from '../../../src';
 import { CodeBlock, ApiTable, ApiRow, sectionStyle, sectionTitleStyle, tagStyle, demoBodyStyle, labelStyle } from '../../tools';
 
-const TableDemo: React.FC = () => {
-    const [striped, setStriped] = useState(true);
-    const [loading, setLoading] = useState(false);
+const TableDemo = () => {
+    const [striped, setStriped] = createSignal(true);
+    const [loading, setLoading] = createSignal(false);
 
     const columns = [
         {
@@ -43,10 +43,10 @@ const TableDemo: React.FC = () => {
                     <span style={{
                         padding: '4px 12px',
                         background: style.bg,
-                        borderRadius: 20,
+                        'border-radius': '20px',
                         color: style.color,
-                        fontWeight: 600,
-                        fontSize: 12,
+                        'font-weight': 600,
+                        'font-size': '12px',
                     }}>
                         {hobby}
                     </span>
@@ -77,12 +77,12 @@ const TableDemo: React.FC = () => {
                 数据表格组件，支持斑马纹、边框、加载状态等常用功能。
             </div>
 
-            <div style={{ marginBottom: 16, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                <Button type={striped ? 'primary' : 'default'} onClick={() => setStriped(!striped)}>
-                    斑马纹 {striped ? '✓' : '✗'}
+            <div style={{ 'margin-bottom': '16px', display: 'flex', gap: '16px', 'flex-wrap': 'wrap' }}>
+                <Button type={striped() ? 'primary' : 'default'} onClick={() => setStriped(!striped())}>
+                    斑马纹 {striped() ? '✓' : '✗'}
                 </Button>
-                <Button type="primary" onClick={handleLoading} disabled={loading}>
-                    {loading ? '加载中...' : '模拟加载'}
+                <Button type="primary" onClick={handleLoading} disabled={loading()}>
+                    {loading() ? '加载中...' : '模拟加载'}
                 </Button>
             </div>
 
@@ -90,75 +90,26 @@ const TableDemo: React.FC = () => {
                 <Table
                     columns={columns}
                     dataSource={dataSource}
-                    striped={striped}
-                    loading={loading}
+                    striped={striped()}
+                    loading={loading()}
                 />
             </div>
 
             <CodeBlock
-                code={`import React, { useState } from 'react';
-import { Table } from 'animal-island-ui';
-
-interface Person {
-    key: string;
-    name: string;
-    age: number;
-    island: string;
-    fruit: string;
-    hobby: string;
-}
+                code={`import { Table } from 'animal-island-ui-solid';
 
 const columns = [
-    {
-        title: '岛民',
-        dataIndex: 'name',
-        width: 120,
-    },
-    {
-        title: '年龄',
-        dataIndex: 'age',
-        width: 80,
-        align: 'center',
-    },
-    {
-        title: '岛屿',
-        dataIndex: 'island',
-    },
-    {
-        title: '喜欢的水果',
-        dataIndex: 'fruit',
-    },
-    {
-        title: '爱好',
-        dataIndex: 'hobby',
-        render: (value) => (
-            <span style={{
-                padding: '4px 12px',
-                background: 'rgba(25, 200, 185, 0.15)',
-                borderRadius: 20,
-                color: '#19c8b9',
-            }}>
-                {value}
-            </span>
-        ),
-    },
+    { title: '岛民', dataIndex: 'name' },
+    { title: '年龄', dataIndex: 'age' },
 ];
 
 const data = [
-    { key: '1', name: '豆狸', age: 26, island: '彩虹岛', fruit: '苹果', hobby: '音乐' },
-    { key: '2', name: '粒狸', age: 24, island: '彩虹岛', fruit: '橘子', hobby: '运动' },
-    { key: '3', name: '西施惠', age: 28, island: '好评岛', fruit: '樱桃', hobby: '唱歌' },
+    { key: '1', name: '豆狸', age: 26 },
 ];
 
 const App = () => {
-    const [striped, setStriped] = useState(true);
-
     return (
-        <Table
-            columns={columns}
-            dataSource={data}
-            striped={striped}
-        />
+        <Table columns={columns} dataSource={data} striped={true} />
     );
 };`}
             />
@@ -174,9 +125,9 @@ const TABLE_API: ApiRow[] = [
     { prop: 'striped', desc: '是否显示斑马纹', type: 'boolean', defaultVal: 'true' },
     { prop: 'showHeader', desc: '是否显示表头', type: 'boolean', defaultVal: 'true' },
     { prop: 'loading', desc: '加载状态', type: 'boolean', defaultVal: 'false' },
-    { prop: 'emptyText', desc: '空数据显示文本', type: 'ReactNode', defaultVal: '暂无数据' },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
-    { prop: 'style', desc: '自定义样式', type: 'CSSProperties', defaultVal: '-' },
+    { prop: 'emptyText', desc: '空数据显示文本', type: 'JSX.Element', defaultVal: '暂无数据' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'style', desc: '自定义样式', type: 'JSX.CSSProperties', defaultVal: '-' },
 ];
 
 export default TableDemo;

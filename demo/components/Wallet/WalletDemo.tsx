@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { JSX, createSignal, onCleanup, Show } from 'solid-js';
 import { Wallet } from '../../../src';
 import {
     ApiTable,
@@ -27,7 +27,7 @@ const WALLET_API: ApiRow[] = [
     {
         prop: 'icon',
         desc: '自定义货币图标，默认是动森风格钱袋',
-        type: 'ReactNode',
+        type: 'JSX.Element',
         defaultVal: '-',
     },
     {
@@ -36,19 +36,16 @@ const WALLET_API: ApiRow[] = [
         type: 'string',
         defaultVal: "','",
     },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
-    { prop: 'style', desc: '自定义样式', type: 'CSSProperties', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'style', desc: '自定义样式', type: 'JSX.CSSProperties', defaultVal: '-' },
 ];
 
-const WalletDemo: React.FC = () => {
-    // 一个滚动的金额，演示数字变化
-    const [bells, setBells] = useState(12345);
-    useEffect(() => {
-        const id = setInterval(() => {
-            setBells((prev) => (prev + Math.floor(Math.random() * 250)) % 1000000);
-        }, 1500);
-        return () => clearInterval(id);
-    }, []);
+const WalletDemo = () => {
+    const [bells, setBells] = createSignal(12345);
+    const timer = setInterval(() => {
+        setBells((prev) => (prev + Math.floor(Math.random() * 250)) % 1000000);
+    }, 1500);
+    onCleanup(() => clearInterval(timer));
 
     return (
         <div style={sectionStyle}>
@@ -65,7 +62,7 @@ const WalletDemo: React.FC = () => {
             </div>
 
             <div style={labelStyle}>三种尺寸</div>
-            <div style={{ ...demoBodyStyle, gap: 32, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ ...demoBodyStyle, gap: '32px', 'align-items': 'center', 'flex-wrap': 'wrap' }}>
                 <Wallet size="small" value={1280} />
                 <Wallet size="medium" value={12800} />
                 <Wallet size="large" value={128000} />
@@ -73,33 +70,27 @@ const WalletDemo: React.FC = () => {
 
             <div style={labelStyle}>动态金额（每 1.5s 自动滚动，hover 钱袋会摇晃）</div>
             <div style={demoBodyStyle}>
-                <Wallet value={bells} />
+                <Wallet value={bells()} />
             </div>
 
             <div style={labelStyle}>自定义文案 / 图标 / 关闭千分位</div>
-            <div style={{ ...demoBodyStyle, gap: 32, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ ...demoBodyStyle, gap: '32px', 'align-items': 'center', 'flex-wrap': 'wrap' }}>
                 <Wallet value="∞" />
                 <Wallet value={9999999} thousandSeparator="" />
                 <Wallet
                     value={88}
-                    icon={<span style={{ fontSize: 40 }}>💰</span>}
+                    icon={<span style={{ 'font-size': '40px' }}>💰</span>}
                 />
             </div>
 
             <CodeBlock
-                code={`import React from 'react';
-import { Wallet } from 'animal-island-ui';
+                code={`import { Wallet } from 'animal-island-ui-solid';
 
 const App = () => (
     <div>
-        {/* 占位 */}
         <Wallet />
-        {/* 数字会自动按千分位格式化 */}
         <Wallet value={12800} />
-        {/* 自定义图标 */}
         <Wallet value={88} icon={<span style={{ fontSize: 56 }}>🥕</span>} />
-        {/* 关闭千分位 */}
-        <Wallet value={9999999} thousandSeparator="" />
     </div>
 );
 

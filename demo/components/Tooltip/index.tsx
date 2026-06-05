@@ -1,4 +1,4 @@
-import React from 'react';
+import { JSX } from 'solid-js';
 import { Tooltip, Button } from '../../../src';
 import {
     labelStyle,
@@ -12,56 +12,56 @@ import {
 } from '../../tools';
 
 const TOOLTIP_API: ApiRow[] = [
-    { prop: 'title', desc: '提示内容，支持多行（可用 \\n 或 <br/> 换行）', type: 'ReactNode', defaultVal: '-', required: true },
+    { prop: 'title', desc: '提示内容，支持多行（可用 \\n 或 <br/> 换行）', type: 'JSX.Element', defaultVal: '-', required: true },
     { prop: 'placement', desc: '位置', type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end' | 'right' | 'right-start' | 'right-end'", defaultVal: "'top'" },
     { prop: 'trigger', desc: '触发方式', type: "'hover' | 'focus' | 'click'", defaultVal: "'hover'" },
     { prop: 'variant', desc: '视觉风格', type: "'default' | 'island'", defaultVal: "'default'" },
     { prop: 'bordered', desc: '是否显示边框（含箭头描边）', type: 'boolean', defaultVal: 'true' },
-    { prop: 'children', desc: '触发元素', type: 'ReactElement', defaultVal: '-', required: true },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
-    { prop: 'style', desc: '自定义样式', type: 'React.CSSProperties', defaultVal: '-' },
+    { prop: 'children', desc: '触发元素', type: 'JSX.Element', defaultVal: '-', required: true },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'style', desc: '自定义样式', type: 'JSX.CSSProperties', defaultVal: '-' },
 ];
 
-const leftColStyle: React.CSSProperties = {
+const leftColStyle: JSX.CSSProperties = {
     display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-    alignItems: 'flex-start',
+    'flex-direction': 'column',
+    gap: '12px',
+    'align-items': 'flex-start',
 };
 
-const rightColStyle: React.CSSProperties = {
+const rightColStyle: JSX.CSSProperties = {
     display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-    alignItems: 'flex-end',
+    'flex-direction': 'column',
+    gap: '12px',
+    'align-items': 'flex-end',
 };
 
-const placementRowStyle: React.CSSProperties = {
+const placementRowStyle: JSX.CSSProperties = {
     display: 'flex',
-    gap: 12,
+    gap: '12px',
 };
 
-const placementBoxStyle: React.CSSProperties = {
+const placementBoxStyle: JSX.CSSProperties = {
     display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 12,
+    'flex-direction': 'column',
+    'align-items': 'center',
+    gap: '12px',
 };
 
-const centerMarkStyle: React.CSSProperties = {
-    width: 80,
-    height: 80,
+const centerMarkStyle: JSX.CSSProperties = {
+    width: '80px',
+    height: '80px',
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 16,
+    'align-items': 'center',
+    'justify-content': 'center',
+    'border-radius': '16px',
     background: '#f0e8d8',
     color: '#a0936e',
-    fontSize: 12,
-    fontWeight: 600,
-    textAlign: 'center',
-    lineHeight: 1.3,
-    flexShrink: 0,
+    'font-size': '12px',
+    'font-weight': 600,
+    'text-align': 'center',
+    'line-height': 1.3,
+    'flex-shrink': 0,
 };
 
 const leftTooltipTitle = (label: string) => (
@@ -84,7 +84,7 @@ const rightTooltipTitle = (label: string) => (
     </>
 );
 
-const TooltipDemo: React.FC = () => {
+const TooltipDemo = () => {
     return (
         <div style={sectionStyle}>
             <div style={sectionTitleStyle}>
@@ -93,7 +93,7 @@ const TooltipDemo: React.FC = () => {
 
             <div style={labelStyle}>基础用法 — hover 触发</div>
             <div style={demoBoxStyle}>
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '16px', 'align-items': 'center', 'flex-wrap': 'wrap' }}>
                     <Tooltip title="提示文字">
                         <Button type="primary" size="small">Hover 我</Button>
                     </Tooltip>
@@ -102,7 +102,7 @@ const TooltipDemo: React.FC = () => {
 
             <div style={labelStyle}>风格 — island 动森不规则气泡</div>
             <div style={{ ...demoBoxStyle, overflow: 'visible' }}>
-                <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '24px', 'align-items': 'center', 'flex-wrap': 'wrap' }}>
                     <Tooltip title="标准矩形气泡" placement="top">
                         <Button size="small">default</Button>
                     </Tooltip>
@@ -155,7 +155,7 @@ const TooltipDemo: React.FC = () => {
                         </Tooltip>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 48 }}>
+                    <div style={{ display: 'flex', 'align-items': 'center', gap: '48px' }}>
                         <div style={leftColStyle}>
                             <Tooltip title={leftTooltipTitle('left-start')} placement="left-start">
                                 <Button size="small">left-start</Button>
@@ -214,11 +214,11 @@ const TooltipDemo: React.FC = () => {
                         placeholder="点击输入框聚焦"
                         style={{
                             padding: '8px 16px',
-                            borderRadius: 50,
+                            'border-radius': '50px',
                             border: '2px solid #c4b89e',
                             background: 'rgb(247, 243, 223)',
-                            fontFamily: 'inherit',
-                            fontSize: 14,
+                            'font-family': 'inherit',
+                            'font-size': '14px',
                             color: '#725d42',
                             outline: 'none',
                         }}
@@ -228,7 +228,7 @@ const TooltipDemo: React.FC = () => {
 
             <div style={labelStyle}>多行内容</div>
             <div style={demoBoxStyle}>
-                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '16px', 'flex-wrap': 'wrap' }}>
                     <Tooltip
                         title={
                             <>
@@ -250,69 +250,17 @@ const TooltipDemo: React.FC = () => {
                     >
                         <Button size="small">换行符 \n</Button>
                     </Tooltip>
-
-                    <Tooltip
-                        title="这是一段比较长的提示文字，用来测试 Tooltip 的自动换行效果。当文字超过最大宽度时会自动换行。"
-                        placement="top"
-                    >
-                        <Button size="small">自动换行长文本</Button>
-                    </Tooltip>
                 </div>
             </div>
 
             <CodeBlock
-                code={`import React from 'react';
-import { Tooltip, Button } from 'animal-island-ui';
+                code={`import { Tooltip, Button } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
-        <div>
-            {/* 基础用法 */}
-            <Tooltip title="提示文字">
-                <Button>Hover 我</Button>
-            </Tooltip>
-
-            {/* 动森 island 风格 — bordered 默认 true，箭头更清晰 */}
-            <Tooltip variant="island" bordered title="有边框有机气泡">
-                <Button>Island</Button>
-            </Tooltip>
-            <Tooltip variant="island" bordered={false} title="无边框 · 圆点指示">
-                <Button>Island 无边框</Button>
-            </Tooltip>
-
-            {/* 12 个方向 */}
-            <Tooltip title="我在上方" placement="top">
-                <Button>Top</Button>
-            </Tooltip>
-            <Tooltip title="我在左下方" placement="bottom-start">
-                <Button>Bottom-Start</Button>
-            </Tooltip>
-
-            {/* Click 触发 */}
-            <Tooltip title="点击触发" trigger="click">
-                <Button>Click</Button>
-            </Tooltip>
-
-            {/* Focus 触发 */}
-            <Tooltip title="聚焦显示" trigger="focus">
-                <input placeholder="点击聚焦" />
-            </Tooltip>
-
-            {/* 多行内容 */}
-            <Tooltip
-                title={
-                    <>
-                        第一行
-                        <br />
-                        第二行
-                        <br />
-                        第三行 🍃
-                    </>
-                }
-            >
-                <Button>多行</Button>
-            </Tooltip>
-        </div>
+        <Tooltip title="提示文字">
+            <Button>Hover 我</Button>
+        </Tooltip>
     );
 };
 

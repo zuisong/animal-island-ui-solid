@@ -1,8 +1,8 @@
-import React from 'react';
+import { JSX } from 'solid-js';
 import { Time as TimeComponent } from '../../../src';
 import { CodeBlock, ApiTable, ApiRow, sectionStyle, sectionTitleStyle, tagStyle, demoBodyStyle, labelStyle } from '../../tools';
 
-const TimeDemo: React.FC = () => (
+const TimeDemo = () => (
     <div style={sectionStyle}>
         <div style={sectionTitleStyle}>
             Time <span style={tagStyle}>时间</span>
@@ -14,8 +14,7 @@ const TimeDemo: React.FC = () => (
             <TimeComponent />
         </div>
         <CodeBlock
-            code={`import React from 'react';
-import { Time } from 'animal-island-ui';
+            code={`import { Time } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
@@ -33,7 +32,7 @@ export default App;`}
 );
 
 const TIME_API: ApiRow[] = [
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
 ];
 
 export default TimeDemo;

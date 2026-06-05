@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { JSX, createSignal } from 'solid-js';
 import { Radio } from '../../../src';
 import {
     labelStyle,
@@ -19,8 +19,8 @@ const RADIO_API: ApiRow[] = [
     { prop: 'disabled', desc: '禁用全部选项', type: 'boolean', defaultVal: 'false' },
     { prop: 'direction', desc: '排列方向', type: "'horizontal' | 'vertical'", defaultVal: "'horizontal'" },
     { prop: 'onChange', desc: '选中值变化回调', type: '(value: string | number) => void', defaultVal: '-' },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
-    { prop: 'style', desc: '自定义样式', type: 'React.CSSProperties', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'style', desc: '自定义样式', type: 'JSX.CSSProperties', defaultVal: '-' },
 ];
 
 const seasonOptions = [
@@ -45,10 +45,10 @@ const timeOptions = [
     { label: '🌙 深夜', value: 'night' },
 ];
 
-const RadioDemo: React.FC = () => {
-    const [selected1, setSelected1] = useState<string | number>('spring');
-    const [selected2, setSelected2] = useState<string | number>('');
-    const [selected3, setSelected3] = useState<string | number>('noon');
+const RadioDemo = () => {
+    const [selected1, setSelected1] = createSignal<string | number>('spring');
+    const [selected2, setSelected2] = createSignal<string | number>('');
+    const [selected3, setSelected3] = createSignal<string | number>('noon');
 
     return (
         <div style={sectionStyle}>
@@ -57,24 +57,24 @@ const RadioDemo: React.FC = () => {
             </div>
 
             <div style={labelStyle}>水平排列（受控）— 支持方向键 ↑↓←→ 切换</div>
-            <div style={{ marginBottom: 8, fontSize: 13, color: '#a08060' }}>
+            <div style={{ 'margin-bottom': '8px', 'font-size': '13px', color: '#a08060' }}>
                 已选中:{' '}
-                <span style={{ color: '#19c8b9', fontWeight: 600 }}>
-                    {seasonOptions.find((o) => o.value === selected1)?.label ?? '无'}
+                <span style={{ color: '#19c8b9', 'font-weight': 600 }}>
+                    {seasonOptions.find((o) => o.value === selected1())?.label ?? '无'}
                 </span>
             </div>
             <div style={demoBoxStyle}>
-                <Radio options={seasonOptions} value={selected1} onChange={setSelected1} style={{ gap: 20 }} />
+                <Radio options={seasonOptions} value={selected1()} onChange={setSelected1} style={{ gap: '20px' }} />
             </div>
 
             <div style={labelStyle}>垂直排列 + 含禁用选项</div>
             <div style={demoBoxStyle}>
                 <Radio
                     options={fruitOptions}
-                    value={selected2}
+                    value={selected2()}
                     onChange={setSelected2}
                     direction="vertical"
-                    style={{ gap: 12 }}
+                    style={{ gap: '12px' }}
                 />
             </div>
 
@@ -94,14 +94,14 @@ const RadioDemo: React.FC = () => {
             </div>
 
             <div style={labelStyle}>3D 按键感 — 点击体验下压反馈</div>
-            <div style={{ marginBottom: 8, fontSize: 13, color: '#a08060' }}>
+            <div style={{ 'margin-bottom': '8px', 'font-size': '13px', color: '#a08060' }}>
                 已选中:{' '}
-                <span style={{ color: '#19c8b9', fontWeight: 600 }}>
-                    {timeOptions.find((o) => o.value === selected3)?.label ?? '无'}
+                <span style={{ color: '#19c8b9', 'font-weight': 600 }}>
+                    {timeOptions.find((o) => o.value === selected3())?.label ?? '无'}
                 </span>
             </div>
             <div style={demoBoxStyle}>
-                <Radio options={timeOptions} value={selected3} onChange={setSelected3} size="large" />
+                <Radio options={timeOptions} value={selected3()} onChange={setSelected3} size="large" />
             </div>
 
             <div style={labelStyle}>全部禁用</div>
@@ -110,24 +110,17 @@ const RadioDemo: React.FC = () => {
             </div>
 
             <CodeBlock
-                code={`import React, { useState } from 'react';
-import { Radio } from 'animal-island-ui';
-
-const options = [
-    { label: '🌸 春天', value: 'spring' },
-    { label: '☀️ 夏天', value: 'summer' },
-    { label: '🍁 秋天', value: 'autumn' },
-    { label: '❄️ 冬天', value: 'winter' },
-];
+                code={`import { createSignal } from 'solid-js';
+import { Radio } from 'animal-island-ui-solid';
 
 const App = () => {
-    const [value, setValue] = useState('spring');
+    const [value, setValue] = createSignal('spring');
     return (
         <div>
             {/* 非受控 */}
             <Radio options={options} defaultValue="spring" />
             {/* 受控 */}
-            <Radio options={options} value={value} onChange={setValue} />
+            <Radio options={options} value={value()} onChange={setValue} />
             {/* 垂直排列 */}
             <Radio options={options} direction="vertical" />
         </div>

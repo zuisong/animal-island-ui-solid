@@ -1,10 +1,10 @@
-import React from 'react';
+import { JSX, splitProps, mergeProps } from 'solid-js';
 
 const COLORS = {
     comment: '#6b5e50',
     string: '#a8d4a0',
     keyword: '#d4a0e0',
-    react: '#e06c75',
+    solid: '#e06c75',
     component: '#80c0e0',
     func: '#61afef',
     prop: '#e8c87a',
@@ -14,27 +14,30 @@ const COLORS = {
     default: '#e8d5bc',
 };
 
-const codeBlockStyle: React.CSSProperties = {
+const codeBlockStyle: JSX.CSSProperties = {
     padding: '20px 24px',
     background: '#2b2118',
     border: '1px solid #3d3028',
-    borderRadius: 20,
-    fontSize: 14,
-    lineHeight: 1.7,
-    fontFamily: "'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
-    fontWeight: 600,
+    'border-radius': '20px',
+    'font-size': '14px',
+    'line-height': 1.7,
+    'font-family': "'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+    'font-weight': 600,
     color: '#e8d5bc',
-    whiteSpace: 'pre' as const,
-    overflow: 'auto' as const,
-    tabSize: 4,
+    'white-space': 'pre',
+    overflow: 'auto',
+    'tab-size': 4,
 };
 
-const highlightJSX = (code: string): React.ReactNode[] => {
+const highlightJSX = (code: string): JSX.Element[] => {
     const tokens: { start: number; end: number; color: string }[] = [];
 
     const addPattern = (regex: RegExp, color: string) => {
         let match;
-        const re = new RegExp(regex.source, regex.flags.includes('g') ? regex.flags : regex.flags + 'g');
+        const re = new RegExp(
+            regex.source,
+            regex.flags.includes('g') ? regex.flags : regex.flags + 'g'
+        );
         while ((match = re.exec(code)) !== null) {
             tokens.push({
                 start: match.index,
@@ -52,11 +55,17 @@ const highlightJSX = (code: string): React.ReactNode[] => {
     addPattern(/<\/?[A-Z][\w.$]*/g, COLORS.jsx);
     addPattern(/<\/?[a-z][\w-]*/g, COLORS.jsx);
     addPattern(/\/?>/g, COLORS.jsx);
-    addPattern(/\b(React|useState|useEffect|useCallback|useMemo|useRef|useContext|useReducer|useLayoutEffect|useImperativeHandle|useDebugValue|createContext|createElement|cloneElement|Fragment|Suspense|lazy|memo|forwardRef|useId|FC|ReactNode|ReactElement|CSSProperties)\b/g, COLORS.react);
+    addPattern(
+        /\b(Solid|createSignal|createEffect|onMount|onCleanup|createMemo|createUniqueId|useContext|splitProps|mergeProps|Show|For|Index|Switch|Match|Portal|Dynamic|ErrorBoundary|lazy|Suspense|Component|JSX|CSSProperties)\b/g,
+        COLORS.solid
+    );
     addPattern(/\b(true|false)\b/g, COLORS.keyword);
     addPattern(/\b(null|undefined|void|NaN|Infinity)\b/gi, COLORS.keyword);
     addPattern(/\b\d+\.?\d*\b/g, COLORS.number);
-    addPattern(/\b(import|from|as|export|default|const|let|var|function|return|if|else|for|while|switch|case|break|continue|try|catch|throw|finally|new|typeof|instanceof|async|await|type|interface)\b/gi, COLORS.keyword);
+    addPattern(
+        /\b(import|from|as|export|default|const|let|var|function|return|if|else|for|while|switch|case|break|continue|try|catch|throw|finally|new|typeof|instanceof|async|await|type|interface)\b/gi,
+        COLORS.keyword
+    );
     addPattern(/\b[A-Z][a-zA-Z0-9_$]*\b/g, COLORS.component);
     addPattern(/\b[a-z][a-zA-Z0-9_$]*\s*(?=\()/g, COLORS.func);
     addPattern(/\b[a-zA-Z_$][\w$]*\s*(?==)/g, COLORS.prop);
@@ -65,35 +74,50 @@ const highlightJSX = (code: string): React.ReactNode[] => {
 
     tokens.sort((a, b) => a.start - b.start);
 
-    const result: React.ReactNode[] = [];
+    const result: JSX.Element[] = [];
     let pos = 0;
 
     for (const token of tokens) {
         if (token.start < pos) continue;
 
         if (token.start > pos) {
-            result.push(<span key={`t${pos}`} style={{ color: COLORS.default }}>{code.slice(pos, token.start)}</span>);
+            result.push(code.slice(pos, token.start) as any);
         }
 
-        result.push(<span key={`s${token.start}`} style={{ color: token.color }}>{code.slice(token.start, token.end)}</span>);
+        result.push(<span style={{ color: token.color }}>{code.slice(token.start, token.end)}</span>);
         pos = token.end;
     }
 
     if (pos < code.length) {
-        result.push(<span key={`e${pos}`} style={{ color: COLORS.default }}>{code.slice(pos)}</span>);
+        result.push(code.slice(pos) as any);
     }
 
     return result;
 };
 
 export interface CodeBlockProps {
+    /** 代码字符串 */
     code: string;
-    style?: React.CSSProperties;
-    className?: string;
+    /** 自定义样式 */
+    style?: JSX.CSSProperties;
+    /** 自定义类名 */
+    class?: string;
+    /** 自定义类名列表 */
+    classList?: { [key: string]: boolean | undefined };
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ code, style, className }) => (
-    <pre style={{ ...codeBlockStyle, ...style }} className={className}>
-        {highlightJSX(code)}
-    </pre>
-);
+export const CodeBlock = (props: CodeBlockProps) => {
+    const merged = mergeProps({}, props);
+    const [local, rest] = splitProps(merged, ['code', 'style', 'class', 'classList']);
+
+    return (
+        <pre
+            style={{ ...codeBlockStyle, ...local.style }}
+            class={local.class}
+            classList={local.classList}
+            {...rest}
+        >
+            {highlightJSX(local.code)}
+        </pre>
+    );
+};

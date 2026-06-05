@@ -1,5 +1,5 @@
 import { defineConfig, type Plugin } from 'vite';
-import react from '@vitejs/plugin-react';
+import solid from 'vite-plugin-solid';
 import libAssetsPlugin from '@laynezh/vite-plugin-lib-assets';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -89,7 +89,7 @@ function stripWoffFallbackPlugin(): Plugin {
 
 export default defineConfig({
     plugins: [
-        react(),
+        solid(),
         stripWoffFallbackPlugin(),
         // lib 模式下 Vite 会强制内联所有资源，本插件绕过该限制，把字体/图片等作为独立文件输出
         libAssetsPlugin({
@@ -125,11 +125,11 @@ export default defineConfig({
                 `${format === 'es' ? 'es' : 'cjs'}/index.${format === 'es' ? 'js' : 'cjs'}`,
         },
         rollupOptions: {
-            external: ['react', 'react-dom', 'react/jsx-runtime'],
+            external: ['solid-js', 'solid-js/web', 'solid-js/store'],
             output: {
                 globals: {
-                    react: 'React',
-                    'react-dom': 'ReactDOM',
+                    'solid-js': 'Solid',
+                    'solid-js/web': 'SolidWeb',
                 },
                 assetFileNames: (assetInfo) => {
                     if (assetInfo.name?.endsWith('.css')) return 'index.css';

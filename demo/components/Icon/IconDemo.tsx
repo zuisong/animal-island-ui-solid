@@ -1,4 +1,4 @@
-import React from 'react';
+import { JSX, For } from 'solid-js';
 import { Icon, ICON_LIST, ITEM_LIST, ITEM_COUNT } from '../../../src';
 import { ApiTable, ApiRow, sectionStyle, sectionTitleStyle, tagStyle, CodeBlock, labelStyle } from '../../tools';
 
@@ -28,7 +28,7 @@ const ICON_API: ApiRow[] = [
         defaultVal: 'false',
     },
     {
-        prop: 'className',
+        prop: 'class',
         desc: '自定义类名',
         type: 'string',
         defaultVal: '-',
@@ -36,18 +36,18 @@ const ICON_API: ApiRow[] = [
     {
         prop: 'style',
         desc: '自定义样式',
-        type: 'CSSProperties',
+        type: 'JSX.CSSProperties',
         defaultVal: '-',
     },
 ];
 
-const IconDemo: React.FC = () => (
+const IconDemo = () => (
     <div style={sectionStyle}>
         <div style={sectionTitleStyle}>
             Icon <span style={tagStyle}>10 icons</span>
         </div>
         <div style={labelStyle}>基础用法</div>
-        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' as const, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '20px', 'flex-wrap': 'wrap', 'align-items': 'center' }}>
             <Icon name="icon-miles" size={32} />
             <Icon name="icon-camera" size={32} />
             <Icon name="icon-chat" size={32} />
@@ -55,14 +55,14 @@ const IconDemo: React.FC = () => (
             <Icon name="icon-map" size={32} />
         </div>
         <div style={labelStyle}>size 尺寸</div>
-        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '20px', 'align-items': 'center' }}>
             <Icon name="icon-miles" size={16} />
             <Icon name="icon-miles" size={24} />
             <Icon name="icon-miles" size={32} />
             <Icon name="icon-miles" size={48} />
         </div>
         <div style={labelStyle}>bounce 弹跳动画（鼠标悬停查看效果）</div>
-        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '20px', 'align-items': 'center' }}>
             <Icon name="icon-miles" size={32} bounce />
             <Icon name="icon-camera" size={32} bounce />
             <Icon name="icon-chat" size={32} bounce />
@@ -70,37 +70,38 @@ const IconDemo: React.FC = () => (
         <div style={labelStyle}>图标列表</div>
         <div style={{
             border: '1px solid #e8e2d6',
-            borderRadius: 12,
+            'border-radius': '12px',
             overflow: 'hidden',
             padding: '5px 16px',
-            marginBottom: 20,
+            'margin-bottom': '20px',
         }}>
-            {ICON_LIST.map((icon, index) => (
-                <div
-                    key={icon.name}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 20,
-                        padding: '12px 5px',
-                        borderBottom: index < ICON_LIST.length - 1 ? '1px dashed #f0e8d8' : 'none',
-                        background: '#fff',
-                    }}
-                >
-                    <Icon name={icon.name} size={32} />
-                    <span style={{ fontSize: 14, color: '#725d42', fontFamily: 'inherit' }}>
-                        {icon.label}
-                    </span>
-                    <span style={{
-                        marginLeft: 'auto',
-                        fontSize: 12,
-                        color: '#a0936e',
-                        fontFamily: "'SF Mono', 'Fira Code', Consolas, monospace",
-                    }}>
-                        {icon.name}
-                    </span>
-                </div>
-            ))}
+            <For each={ICON_LIST}>
+                {(icon, index) => (
+                    <div
+                        style={{
+                            display: 'flex',
+                            'align-items': 'center',
+                            gap: '20px',
+                            padding: '12px 5px',
+                            'border-bottom': index() < ICON_LIST.length - 1 ? '1px dashed #f0e8d8' : 'none',
+                            background: '#fff',
+                        }}
+                    >
+                        <Icon name={icon.name} size={32} />
+                        <span style={{ 'font-size': '14px', color: '#725d42', 'font-family': 'inherit' }}>
+                            {icon.label}
+                        </span>
+                        <span style={{
+                            'margin-left': 'auto',
+                            'font-size': '12px',
+                            color: '#a0936e',
+                            'font-family': "'SF Mono', 'Fira Code', Consolas, monospace",
+                        }}>
+                            {icon.name}
+                        </span>
+                    </div>
+                )}
+            </For>
         </div>
         <div style={sectionTitleStyle}>
             Items <span style={tagStyle}>{ITEM_COUNT} items</span>
@@ -108,7 +109,7 @@ const IconDemo: React.FC = () => (
         <div style={labelStyle}>
             {ITEM_COUNT} 个物品图标。通过 <code>item</code> 编号引用。
         </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', 'align-items': 'center', 'flex-wrap': 'wrap' }}>
             <Icon item={1} size={48} bounce />
             <Icon item={5} size={48} bounce />
             <Icon item={20} size={48} bounce />
@@ -122,46 +123,46 @@ const IconDemo: React.FC = () => (
         <div
             style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))',
-                gap: 8,
-                padding: 12,
+                'grid-template-columns': 'repeat(auto-fill, minmax(72px, 1fr))',
+                gap: '8px',
+                padding: '12px',
                 background: '#fff',
                 border: '1px solid #e8e2d6',
-                borderRadius: 12,
-                maxHeight: 550,
-                overflowY: 'auto',
+                'border-radius': '12px',
+                'max-height': '550px',
+                'overflow-y': 'auto',
             }}
         >
-            {ITEM_LIST.map((id) => (
-                <div
-                    key={id}
-                    title={`item={${id}}`}
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: 4,
-                        padding: '10px 12px 4px 12px',
-                        background: '#faf6ec',
-                        borderRadius: 8,
-                    }}
-                >
-                    <Icon item={id} size={40} />
-                    <span
+            <For each={ITEM_LIST}>
+                {(id) => (
+                    <div
+                        title={`item={${id}}`}
                         style={{
-                            fontSize: 10,
-                            color: '#a0936e',
-                            fontFamily: "'SF Mono', 'Fira Code', Consolas, monospace",
+                            display: 'flex',
+                            'flex-direction': 'column',
+                            'align-items': 'center',
+                            gap: '4px',
+                            padding: '10px 12px 4px 12px',
+                            background: '#faf6ec',
+                            'border-radius': '8px',
                         }}
                     >
-                        {id}
-                    </span>
-                </div>
-            ))}
+                        <Icon item={id} size={40} />
+                        <span
+                            style={{
+                                'font-size': '10px',
+                                color: '#a0936e',
+                                'font-family': "'SF Mono', 'Fira Code', Consolas, monospace",
+                            }}
+                        >
+                            {id}
+                        </span>
+                    </div>
+                )}
+            </For>
         </div>
         <CodeBlock
-            code={`import React from 'react';
-import { Icon } from 'animal-island-ui';
+            code={`import { Icon } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
@@ -170,7 +171,7 @@ const App = () => {
             <Icon name="icon-miles" size={32} />
             {/* 弹跳动画 */}
             <Icon name="icon-camera" size={48} bounce />
-            {/* 物品图标（来自 figma Items 设计稿） */}
+            {/* 物品图标 */}
             <Icon item={1} size={48} />
         </div>
     );

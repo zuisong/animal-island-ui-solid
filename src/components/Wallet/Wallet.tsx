@@ -1,4 +1,4 @@
-import React from 'react';
+import { JSX, splitProps, mergeProps, Show } from 'solid-js';
 import styles from './wallet.module.less';
 import { Icon } from '../Icon';
 
@@ -8,13 +8,14 @@ export interface WalletProps {
     /** 金额数值，数字会按千分位格式化；字符串则原样展示 */
     value?: number | string;
     /** 自定义货币图标，默认使用动森风格钱袋 */
-    icon?: React.ReactNode;
+    icon?: JSX.Element;
     /** 尺寸预设 */
     size?: WalletSize;
     /** 千分位分隔符，默认 ","，传 "" 可关闭 */
     thousandSeparator?: string;
-    className?: string;
-    style?: React.CSSProperties;
+    class?: string;
+    classList?: { [key: string]: boolean | undefined };
+    style?: JSX.CSSProperties;
 }
 
 /** 数值格式化：仅对 number 类型按千分位插入分隔符 */
@@ -34,31 +35,39 @@ const SIZE_CLASS: Record<WalletSize, string> = {
     large: styles['size-large'],
 };
 
-export const Wallet: React.FC<WalletProps> = ({
-    value = '00,000',
-    icon,
-    size = 'medium',
-    thousandSeparator = ',',
-    className,
-    style,
-}) => {
-    const cls = [styles.wallet, SIZE_CLASS[size], className].filter(Boolean).join(' ');
+export const Wallet = (props: WalletProps) => {
+    const merged = mergeProps(
+        { value: '00,000', size: 'medium' as WalletSize, thousandSeparator: ',' },
+        props
+    );
+    const [local, rest] = splitProps(merged, [
+        'value',
+        'icon',
+        'size',
+        'thousandSeparator',
+        'class',
+        'classList',
+        'style',
+    ]);
+
     return (
-        <div className={cls} style={style}>
-            {icon ? (
-                <div className={styles.bagSlot} aria-hidden="true">
-                    {icon}
-                </div>
-            ) : (
-                <div className={styles.bagSlot} aria-hidden="true">
-                    <Icon item={22} size="80%" />
-                </div>
-            )}
-            <div className={styles.pill}>
-                <span className={styles.value}>{formatValue(value, thousandSeparator)}</span>
+        <div
+            class={local.class}
+            classList={{
+                [styles.wallet]: true,
+                [SIZE_CLASS[local.size]]: !!SIZE_CLASS[local.size],
+                ...local.classList,
+            }}
+            style={local.style}
+        >
+            <div class={styles.bagSlot} aria-hidden="true">
+                <Show when={local.icon} fallback={<Icon item={22} size="80%" />}>
+                    {local.icon}
+                </Show>
+            </div>
+            <div class={styles.pill}>
+                <span class={styles.value}>{formatValue(local.value, local.thousandSeparator)}</span>
             </div>
         </div>
     );
 };
-
-Wallet.displayName = 'Wallet';

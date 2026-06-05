@@ -1,12 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import { JSX, createSignal, splitProps, For, mergeProps } from 'solid-js';
 import styles from './checkbox.module.less';
-import classNames from 'classnames';
 
 export type CheckboxSize = 'small' | 'middle' | 'large';
 
 export interface CheckboxOption {
     /** 选项标签 */
-    label: React.ReactNode;
+    label: JSX.Element;
     /** 选项值 */
     value: string | number;
     /** 是否禁用该选项 */
@@ -29,86 +28,98 @@ export interface CheckboxProps {
     /** 变化回调 */
     onChange?: (values: Array<string | number>) => void;
     /** 自定义类名 */
-    className?: string;
+    class?: string;
+    /** 自定义类名列表 */
+    classList?: { [key: string]: boolean | undefined };
     /** 自定义样式 */
-    style?: React.CSSProperties;
+    style?: JSX.CSSProperties;
 }
 
-export const Checkbox: React.FC<CheckboxProps> = ({
-    value,
-    defaultValue = [],
-    options,
-    size = 'middle',
-    disabled = false,
-    direction = 'horizontal',
-    onChange,
-    className,
-    style,
-}) => {
-    const [innerValue, setInnerValue] = useState<Array<string | number>>(defaultValue);
-    const isControlled = value !== undefined;
-    const checkedValues = isControlled ? value! : innerValue;
-
-    const handleChange = useCallback(
-        (optValue: string | number, optDisabled?: boolean) => {
-            if (disabled || optDisabled) return;
-            const next = checkedValues.includes(optValue)
-                ? checkedValues.filter((v) => v !== optValue)
-                : [...checkedValues, optValue];
-            if (!isControlled) setInnerValue(next);
-            onChange?.(next);
-        },
-        [disabled, checkedValues, isControlled, onChange]
+export const Checkbox = (props: CheckboxProps) => {
+    const merged = mergeProps(
+        { defaultValue: [] as Array<string | number>, size: 'middle' as CheckboxSize, disabled: false, direction: 'horizontal' as const },
+        props
     );
+    const [local, rest] = splitProps(merged, [
+        'value',
+        'defaultValue',
+        'options',
+        'size',
+        'disabled',
+        'direction',
+        'onChange',
+        'class',
+        'classList',
+        'style'
+    ]);
+
+    const [innerValue, setInnerValue] = createSignal<Array<string | number>>(local.defaultValue);
+    
+    const checkedValues = () => local.value !== undefined ? local.value : innerValue();
+
+    const handleChange = (optValue: string | number, optDisabled?: boolean) => {
+        if (local.disabled || optDisabled) return;
+        const current = checkedValues();
+        const next = current.includes(optValue)
+            ? current.filter((v) => v !== optValue)
+            : [...current, optValue];
+        
+        if (local.value === undefined) {
+            setInnerValue(next);
+        }
+        local.onChange?.(next);
+    };
 
     return (
         <div
-            className={classNames(
-                styles.checkboxGroup,
-                styles[direction],
-                { [styles.groupDisabled]: disabled },
-                className
-            )}
-            style={style}
+            class={local.class}
+            classList={{
+                [styles.checkboxGroup]: true,
+                [styles[local.direction]]: true,
+                [styles.groupDisabled]: local.disabled,
+                ...local.classList
+            }}
+            style={local.style}
         >
-            {options.map((opt) => {
-                const isChecked = checkedValues.includes(opt.value);
-                const isDisabled = disabled || opt.disabled;
-                return (
-                    <label
-                        key={String(opt.value)}
-                        className={classNames(
-                            styles.checkboxItem,
-                            styles[size],
-                            {
-                                [styles.checked]: isChecked,
-                                [styles.disabled]: isDisabled,
-                            }
-                        )}
-                        onClick={() => handleChange(opt.value, opt.disabled)}
-                    >
-                        <span className={styles.box} role="checkbox" aria-checked={isChecked} tabIndex={isDisabled ? -1 : 0}
-                            onKeyDown={(e) => {
-                                if (e.key === ' ' || e.key === 'Enter') {
-                                    e.preventDefault();
-                                    handleChange(opt.value, opt.disabled);
-                                }
+            <For each={local.options}>
+                {(opt) => {
+                    const isChecked = () => checkedValues().includes(opt.value);
+                    const isDisabled = () => local.disabled || opt.disabled;
+                    return (
+                        <label
+                            class={styles.checkboxItem}
+                            classList={{
+                                [styles[local.size]]: true,
+                                [styles.checked]: isChecked(),
+                                [styles.disabled]: isDisabled(),
                             }}
+                            onClick={() => handleChange(opt.value, opt.disabled)}
                         >
-                            {isChecked && (
-                                <span className={styles.checkmark}>
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M2 8L6 12L14 4" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
+                            <span 
+                                class={styles.box} 
+                                role="checkbox" 
+                                aria-checked={isChecked()} 
+                                tabIndex={isDisabled() ? -1 : 0}
+                                onKeyDown={(e) => {
+                                    if (e.key === ' ' || e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleChange(opt.value, opt.disabled);
+                                    }
+                                }}
+                            >
+                                {isChecked() && (
+                                    <span class={styles.checkmark}>
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 8L6 12L14 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
+                                )}
                             </span>
-                            )}
-                        </span>
-                        <span className={styles.label}>{opt.label}</span>
-                    </label>
-                );
-            })}
+                            <span class={styles.label}>{opt.label}</span>
+                        </label>
+                    );
+                }}
+            </For>
         </div>
     );
 };
-
-Checkbox.displayName = 'Checkbox';

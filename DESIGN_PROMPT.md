@@ -1,8 +1,8 @@
-# animal-island-ui 设计提示词
+# animal-island-ui-solid 设计提示词
 
 > 本文件目标：给 **AI 设计 / 出图工具**（v0、Figma AI、Framer AI、Locofy、Midjourney、DALL·E、SD）喂可以一次成型的视觉风格描述。
 >
-> - 描述对象是 `animal-island-ui` 组件库本身的视觉风格（v0.9.5，24 个具名导出 = 23 个组件 + 1 个伴生导出按钮）。
+> - 描述对象是 `animal-island-ui-solid` 组件库本身的视觉风格（v0.9.5，24 个具名导出 = 23 个组件 + 1 个伴生导出按钮）。
 > - 文件中提到的 **侧边栏 / 页面背景图（home_bg.svg / content_bg_pc.jpg / menu_bg.svg）** 属于 **demo 文档站**，库本身不附带，仅作为整体风格参考保留。
 > - 配套文档：消费侧 API 看 [`AI_USAGE.md`](./AI_USAGE.md)；源码内部规范看 [`skill/SKILL.md`](./skill/SKILL.md)；贡献流程看 [`CONTRIBUTING.md`](./CONTRIBUTING.md)。
 
@@ -14,7 +14,7 @@
 ## UI 工具提示词（适用于 v0 / Figma AI / Framer AI / Locofy）
 
 ```
-Design a UI in the style of "animal-island-ui" — an Animal Crossing-inspired React component library.
+Design a UI in the style of "animal-island-ui-solid" — an Animal Crossing-inspired SolidJS component library.
 Reproduce every detail below as precisely as possible.
 
 === FONTS (REQUIRED — load from Google Fonts if not installed) ===
@@ -342,9 +342,9 @@ App palette:   camera #B77DEE, app #889DF0 (with offset), critterpedia #F7CD67, 
 Hotspot coordinates: (4, 0). Uses !important to override all child cursors.
 
 === TYPEWRITER (no markup wrapper) ===
-Props: children (ReactNode), speed=90ms, trigger (any unknown; change to restart),
+Props: children (JSX.Element), speed=90ms, trigger (any unknown; change to restart),
        autoPlay=true, onDone?: () => void
-Behavior: recursively truncates ReactNode tree by character count while preserving
+Behavior: recursively truncates JSX.Element tree by character count while preserving
           element structure, className, and inline styles. Returns a plain fragment
           (NO extra wrapping div/span) so it has ZERO layout impact.
 
@@ -384,7 +384,7 @@ Token colors:
   comment   #6b5e50 (/* */, //)
   string    #a8d4a0 (quoted strings, numeric literals)
   keyword   #d4a0e0 (import/export/const/return/true/false/null/async/await/type/interface...)
-  react     #e06c75 (React, useState, useEffect, FC, ReactNode, CSSProperties...)
+  react     #e06c75 (React, useState, useEffect, FC, JSX.Element, CSSProperties...)
   component #80c0e0 (PascalCase identifiers — JSX tags / type names)
   func      #61afef (lowercase identifier followed by `(`)
   prop      #e8c87a (identifier followed by `=`)
@@ -409,7 +409,7 @@ Token colors:
 ## 图片生成提示词（适用于 Midjourney / DALL-E / Stable Diffusion）
 
 ```
-Pixel-perfect UI screenshot of "animal-island-ui" React component library website,
+Pixel-perfect UI screenshot of "animal-island-ui-solid" SolidJS component library website,
 Animal Crossing Nintendo Switch life-sim game aesthetic,
 
 Interface details:

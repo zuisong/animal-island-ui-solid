@@ -1,4 +1,4 @@
-import React from 'react';
+import { JSX, splitProps } from 'solid-js';
 import styles from './button.module.less';
 
 export type ButtonType = 'primary' | 'default' | 'dashed' | 'text' | 'link';
@@ -6,7 +6,7 @@ export type ButtonSize = 'small' | 'middle' | 'large';
 export type ButtonHTMLType = 'submit' | 'reset' | 'button';
 
 export interface ButtonProps extends Omit<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    JSX.ButtonHTMLAttributes<HTMLButtonElement>,
     'type'
 > {
     /** 按钮类型 */
@@ -24,52 +24,49 @@ export interface ButtonProps extends Omit<
     /** 禁用状态 */
     disabled?: boolean;
     /** 图标 */
-    icon?: React.ReactNode;
+    icon?: JSX.Element;
     /** 原生 button type */
     htmlType?: ButtonHTMLType;
-    children?: React.ReactNode;
+    children?: JSX.Element;
 }
 
-export const Button: React.FC<ButtonProps> = ({
-    type = 'default',
-    size = 'middle',
-    danger = false,
-    ghost = false,
-    block = false,
-    loading = false,
-    disabled = false,
-    icon,
-    htmlType = 'button',
-    children,
-    className,
-    ...rest
-}) => {
-    const classNames = [
-        styles.btn,
-        styles[`btn-${type}`],
-        styles[`btn-${size}`],
-        danger && styles['btn-danger'],
-        ghost && styles['btn-ghost'],
-        block && styles['btn-block'],
-        loading && styles['btn-loading'],
-        className,
-    ]
-        .filter(Boolean)
-        .join(' ');
+export const Button = (props: ButtonProps) => {
+    const [local, rest] = splitProps(props, [
+        'type',
+        'size',
+        'danger',
+        'ghost',
+        'block',
+        'loading',
+        'disabled',
+        'icon',
+        'htmlType',
+        'children',
+        'class',
+        'classList'
+    ]);
 
     return (
         <button
-            type={htmlType}
-            className={classNames}
-            disabled={disabled}
+            type={local.htmlType || 'button'}
+            disabled={local.disabled}
+            class={local.class}
+            classList={{
+                [styles.btn]: true,
+                [styles[`btn-${local.type || 'default'}`]]: true,
+                [styles[`btn-${local.size || 'middle'}`]]: true,
+                [styles['btn-danger']]: local.danger,
+                [styles['btn-ghost']]: local.ghost,
+                [styles['btn-block']]: local.block,
+                [styles['btn-loading']]: local.loading,
+                ...local.classList
+            }}
             {...rest}
         >
-            {icon && !loading && (
-                <span className={styles['btn-icon']}>{icon}</span>
+            {local.icon && !local.loading && (
+                <span class={styles['btn-icon']}>{local.icon}</span>
             )}
-            {children && <span>{children}</span>}
+            {local.children && <span>{local.children}</span>}
         </button>
     );
 };
-
-Button.displayName = 'Button';

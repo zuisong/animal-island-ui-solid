@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { JSX, createSignal, splitProps, mergeProps, Show } from 'solid-js';
 import styles from './switch.module.less';
 
 export type SwitchSize = 'small' | 'default';
@@ -15,64 +15,68 @@ export interface SwitchProps {
     /** 加载状态 */
     loading?: boolean;
     /** 选中时文案 */
-    checkedChildren?: React.ReactNode;
+    checkedChildren?: JSX.Element;
     /** 未选中时文案 */
-    unCheckedChildren?: React.ReactNode;
+    unCheckedChildren?: JSX.Element;
     /** 变化回调 */
     onChange?: (checked: boolean) => void;
-    className?: string;
+    class?: string;
+    classList?: { [key: string]: boolean | undefined };
 }
 
-export const Switch: React.FC<SwitchProps> = ({
-    checked,
-    defaultChecked = false,
-    size = 'default',
-    disabled = false,
-    loading = false,
-    checkedChildren,
-    unCheckedChildren,
-    onChange,
-    className,
-}) => {
-    const [innerChecked, setInnerChecked] = useState(defaultChecked);
-    const isControlled = checked !== undefined;
-    const isChecked = isControlled ? checked : innerChecked;
+export const Switch = (props: SwitchProps) => {
+    const merged = mergeProps(
+        { defaultChecked: false, size: 'default' as SwitchSize, disabled: false, loading: false },
+        props
+    );
+    const [local, rest] = splitProps(merged, [
+        'checked',
+        'defaultChecked',
+        'size',
+        'disabled',
+        'loading',
+        'checkedChildren',
+        'unCheckedChildren',
+        'onChange',
+        'class',
+        'classList',
+    ]);
 
-    const handleClick = useCallback(() => {
-        if (disabled || loading) return;
-        const next = !isChecked;
-        if (!isControlled) setInnerChecked(next);
-        onChange?.(next);
-    }, [disabled, loading, isChecked, isControlled, onChange]);
+    const [innerChecked, setInnerChecked] = createSignal(local.defaultChecked);
+    const isChecked = () => (local.checked !== undefined ? local.checked : innerChecked());
 
-    const cls = [
-        styles.switch,
-        styles[`switch-${size}`],
-        isChecked && styles['switch-checked'],
-        disabled && styles['switch-disabled'],
-        loading && styles['switch-loading'],
-        className,
-    ]
-        .filter(Boolean)
-        .join(' ');
+    const handleClick = () => {
+        if (local.disabled || local.loading) return;
+        const next = !isChecked();
+        if (local.checked === undefined) setInnerChecked(next);
+        local.onChange?.(next);
+    };
 
     return (
         <button
             type="button"
             role="switch"
-            aria-checked={isChecked}
-            className={cls}
+            aria-checked={isChecked()}
+            class={local.class}
+            classList={{
+                [styles.switch]: true,
+                [styles[`switch-${local.size}`]]: true,
+                [styles['switch-checked']]: isChecked(),
+                [styles['switch-disabled']]: local.disabled,
+                [styles['switch-loading']]: local.loading,
+                ...local.classList
+            }}
             onClick={handleClick}
-            disabled={disabled}
+            disabled={local.disabled}
         >
-            <span className={styles.handle}>
-                {loading && <span className={styles.spinner} />}
+            <span class={styles.handle}>
+                <Show when={local.loading}>
+                    <span class={styles.spinner} />
+                </Show>
             </span>
-            <span className={styles.inner}>
-                {isChecked ? checkedChildren : unCheckedChildren}
+            <span class={styles.inner}>
+                {isChecked() ? local.checkedChildren : local.unCheckedChildren}
             </span>
         </button>
     );
 };
-
-Switch.displayName = 'Switch';

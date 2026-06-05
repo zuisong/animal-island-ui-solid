@@ -1,4 +1,4 @@
-import React from 'react';
+import { JSX } from 'solid-js';
 import { CodeBlock } from '../../../src';
 import {
     labelStyle,
@@ -13,11 +13,11 @@ import {
 
 const CODEBLOCK_API: ApiRow[] = [
     { prop: 'code', desc: '代码字符串', type: 'string', defaultVal: '-', required: true },
-    { prop: 'style', desc: '自定义样式', type: 'CSSProperties', defaultVal: '-' },
-    { prop: 'className', desc: '自定义类名', type: 'string', defaultVal: '-' },
+    { prop: 'style', desc: '自定义样式', type: 'JSX.CSSProperties', defaultVal: '-' },
+    { prop: 'class', desc: '自定义类名', type: 'string', defaultVal: '-' },
 ];
 
-const CodeBlockDemo: React.FC = () => {
+const CodeBlockDemo = () => {
     return (
         <div style={sectionStyle}>
             <div style={sectionTitleStyle}>
@@ -26,8 +26,7 @@ const CodeBlockDemo: React.FC = () => {
             <div style={labelStyle}>基础用法</div>
             <div style={demoBoxStyle}>
                 <CodeBlock
-                    code={`import React from 'react';
-import { Button } from 'animal-island-ui';
+                    code={`import { Button } from 'animal-island-ui-solid';
 
 const App = () => (
     <Button type="primary">按钮</Button>
@@ -40,47 +39,29 @@ export default App;`}
             <div style={labelStyle}>自定义样式</div>
             <div style={demoBoxStyle}>
                 <CodeBlock
-                    code={`import React from 'react';
-import { CodeBlock } from 'animal-island-ui';
+                    code={`import { CodeBlock } from 'animal-island-ui-solid';
 
 <CodeBlock
     code={codeString}
-    style={{ borderRadius: 5, backgroundColor: '#242c46ff' }}
-    className="custom-code"
+    style={{ 'border-radius': '5px', 'background-color': '#242c46ff' }}
+    class="custom-code"
 />`}
-                    style={{ borderRadius: 5, backgroundColor: '#242c46ff' }}
+                    style={{ 'border-radius': '5px', 'background-color': '#242c46ff' }}
                 />
             </div>
             <CodeBlockBase
-                code={`import React from 'react';
-import { CodeBlock } from 'animal-island-ui';
+                code={`import { CodeBlock } from 'animal-island-ui-solid';
 
 const App = () => {
     return (
         <div>
             {/* 基础用法 */}
-            <CodeBlock code={'
-                import React from 'react';
-                import { Footer } from 'animal-island-ui';
-
-                const App = () => {
-                    return (
-                        <div>
-                            {/* sea 类型（默认） */}
-                            <Footer type="sea" />
-                            {/* tree 类型 */}
-                            <Footer type="tree" />
-                        </div>
-                    );
-                };
-
-                export default App;'}
-            />
+            <CodeBlock code={'...'} />
             {/* 自定义样式 */}
             <CodeBlock
                 code={codeString}
-                style={{ borderRadius: 5, backgroundColor: '#242c46ff' }}
-                className="custom-code"
+                style={{ 'border-radius': '5px', 'background-color': '#242c46ff' }}
+                class="custom-code"
             />
         </div>
     );

@@ -42,7 +42,7 @@ export const PAGE_INFO: Record<string, { title: string; desc: string }> = {
     },
     typewriter: {
         title: 'Typewriter 打字机',
-        desc: '打字机组件 — 按字符逐个显示文本，支持多行与 ReactNode 富内容，不改变原有样式',
+        desc: '打字机组件 — 按字符逐个显示文本，支持多行与 JSX.Element 富内容，不改变原有样式',
     },
     'divider-comp': {
         title: 'Divider 分割线',
