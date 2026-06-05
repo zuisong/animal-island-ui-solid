@@ -74,6 +74,7 @@ export { WeddingInvitation, WeddingInvitationExportButton } from './components/W
 export type {
     WeddingInvitationProps,
     WeddingInvitationRef,
+    WeddingInvitationExportTarget,
     WeddingInvitationExportButtonProps,
 } from './components/WeddingInvitation';
 

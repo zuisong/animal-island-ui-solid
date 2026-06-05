@@ -3,14 +3,13 @@
     "version": "0.9.5",
     "description": "A nature-inspired SolidJS component library",
     "type": "module",
-    "main": "dist/cjs/index.cjs",
+    "main": "dist/es/index.js",
     "module": "dist/es/index.js",
     "types": "dist/types/index.d.ts",
     "exports": {
         ".": {
             "types": "./dist/types/index.d.ts",
-            "import": "./dist/es/index.js",
-            "require": "./dist/cjs/index.cjs"
+            "import": "./dist/es/index.js"
         },
         "./style": "./dist/index.css",
         "./dist/index.css": "./dist/index.css"
@@ -35,7 +34,8 @@
     "author": "guokaigdg",
     "scripts": {
         "dev": "vite",
-        "build": "vite build && tsc --project tsconfig.build.json --emitDeclarationOnly",
+        "typecheck": "tsc --noEmit",
+        "build": "npm run typecheck && vite build && tsc --project tsconfig.build.json --emitDeclarationOnly",
         "build:demo": "vite build --config vite.config.demo.ts",
         "dev:demo": "vite dev --config vite.config.demo.ts",
         "prepublishOnly": "npm run build",

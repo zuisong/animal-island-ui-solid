@@ -41,10 +41,8 @@ export const Radio = (props: RadioProps) => {
 
     let groupRef: HTMLDivElement | undefined;
 
-    const [focusedIndex, setFocusedIndex] = createSignal<number>(() => {
-        const idx = props.options.findIndex((o) => o.value === checkedValue());
-        return idx >= 0 ? idx : 0;
-    });
+    const initialFocusedIndex = props.options.findIndex((o) => o.value === checkedValue());
+    const [focusedIndex, setFocusedIndex] = createSignal<number>(initialFocusedIndex >= 0 ? initialFocusedIndex : 0);
 
     createEffect(() => {
         const idx = props.options.findIndex((o) => o.value === checkedValue());

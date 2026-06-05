@@ -39,21 +39,30 @@ export const Input = (props: InputProps) => {
         'classList',
         'value',
         'defaultValue',
+        'onInput',
         'onChange',
         'onClear',
     ]);
 
     const [innerValue, setInnerValue] = createSignal(local.defaultValue ?? '');
     const currentValue = () => local.value !== undefined ? local.value : innerValue();
+    let inputRef: HTMLInputElement | undefined;
 
     const handleChange = (e: Event & { target: HTMLInputElement }) => {
         if (local.value === undefined) setInnerValue(e.target.value);
+        if (typeof local.onInput === 'function') {
+            (local.onInput as any)(e);
+        }
         if (typeof local.onChange === 'function') {
             (local.onChange as any)(e);
         }
     };
 
     const handleClear = () => {
+        if (inputRef) {
+            inputRef.value = '';
+            inputRef.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'deleteContentBackward' }));
+        }
         if (local.value === undefined) setInnerValue('');
         local.onClear?.();
     };
@@ -72,6 +81,7 @@ export const Input = (props: InputProps) => {
         >
             {local.prefix && <span class={styles.prefix}>{local.prefix}</span>}
             <input
+                ref={inputRef}
                 class={styles.input}
                 disabled={local.disabled}
                 value={currentValue()}

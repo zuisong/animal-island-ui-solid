@@ -57,6 +57,12 @@ export interface WeddingInvitationRef {
     getElement: () => HTMLDivElement | undefined;
 }
 
+export type WeddingInvitationExportTarget =
+    | WeddingInvitationRef
+    | undefined
+    | (() => WeddingInvitationRef | undefined)
+    | { current?: WeddingInvitationRef | undefined };
+
 // ---------- Decorative SVGs ----------
 const Leaf = (p: { class?: string }) => (
     <svg class={p.class} viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
@@ -342,7 +348,7 @@ export const WeddingInvitation = (props: WeddingInvitationProps) => {
 
 export interface WeddingInvitationExportButtonProps {
     /** 关联的请柬 ref */
-    targetRef: WeddingInvitationRef | undefined;
+    targetRef: WeddingInvitationExportTarget;
     /** 文件名（不含扩展名） */
     filename?: string;
     /** 自定义文案，默认「保存为图片」 */
@@ -354,11 +360,18 @@ export interface WeddingInvitationExportButtonProps {
 
 export const WeddingInvitationExportButton = (props: WeddingInvitationExportButtonProps) => {
     const [exporting, setExporting] = createSignal(false);
+    const targetRef = () => {
+        const target = props.targetRef;
+        if (typeof target === 'function') return target();
+        if (target && 'exportAsImage' in target) return target;
+        return target?.current;
+    };
+
     const handleClick = async () => {
         if (exporting()) return;
         setExporting(true);
         try {
-            await props.targetRef?.exportAsImage(props.filename || 'wedding-invitation');
+            await targetRef()?.exportAsImage(props.filename || 'wedding-invitation');
         } catch (err) {
             console.error('[WeddingInvitation] 导出图片失败：', err);
             alert(`导出失败：${err instanceof Error ? err.message : String(err)}`);

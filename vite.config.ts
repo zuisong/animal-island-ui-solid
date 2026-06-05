@@ -1,9 +1,9 @@
 import { defineConfig, type Plugin } from 'vite';
 import solid from 'vite-plugin-solid';
 import libAssetsPlugin from '@laynezh/vite-plugin-lib-assets';
-import { resolve, dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-import { readdirSync, rmdirSync, statSync } from 'fs';
+import { resolve, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readdirSync, rmdirSync, statSync } from 'node:fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -96,6 +96,7 @@ export default defineConfig({
             outputPath: 'files',
             name: '[name].[contenthash:8].[ext]',
             limit: 0,
+            include: /\.(jpe?g|png|gif|svg|webp|woff2?)(\?.*)?$/i,
         }),
         pruneEmptyDirsPlugin('dist'),
     ],
@@ -120,10 +121,10 @@ export default defineConfig({
     build: {
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
-            formats: ['es', 'cjs'],
-            fileName: (format) =>
-                `${format === 'es' ? 'es' : 'cjs'}/index.${format === 'es' ? 'js' : 'cjs'}`,
+            formats: ['es'],
+            fileName: () => 'es/index.js',
         },
+        assetsInlineLimit: 0,
         rollupOptions: {
             external: ['solid-js', 'solid-js/web', 'solid-js/store'],
             output: {

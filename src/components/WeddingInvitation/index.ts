@@ -2,5 +2,6 @@ export { WeddingInvitation, WeddingInvitationExportButton } from './WeddingInvit
 export type {
     WeddingInvitationProps,
     WeddingInvitationRef,
+    WeddingInvitationExportTarget,
     WeddingInvitationExportButtonProps,
 } from './WeddingInvitation';

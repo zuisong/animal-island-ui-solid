@@ -219,7 +219,7 @@ const WeddingInvitationDemo = () => {
 
                     <div style={{ 'margin-top': '4px', display: 'flex', 'justify-content': 'center' }}>
                         <WeddingInvitationExportButton
-                            targetRef={cardRef}
+                            targetRef={() => cardRef}
                             filename={`${brideName()}-${groomName()}-请柬`}
                         />
                     </div>
@@ -231,7 +231,7 @@ const WeddingInvitationDemo = () => {
 
 let ref;
 <WeddingInvitation ref={el => ref = el} />
-<WeddingInvitationExportButton targetRef={ref} />`}
+<WeddingInvitationExportButton targetRef={() => ref} />`}
             />
 
             <ApiTable rows={WEDDING_API} />
@@ -274,7 +274,7 @@ const EXPORT_BTN_API: ApiRow[] = [
     {
         prop: 'targetRef',
         desc: '关联的 WeddingInvitation ref',
-        type: 'WeddingInvitationRef',
+        type: 'WeddingInvitationRef | () => WeddingInvitationRef | { current?: WeddingInvitationRef }',
         defaultVal: '-',
     },
     { prop: 'filename', desc: '文件名（不含扩展名）', type: 'string', defaultVal: 'wedding-invitation' },

@@ -1,4 +1,4 @@
-import { JSX, createSignal, createMemo, Suspense, lazy, Show } from 'solid-js';
+import { JSX, createSignal, createMemo, Suspense, lazy, Show, For } from 'solid-js';
 import { Button, Input, Switch, Modal, Card, Collapse, Divider, Typewriter, Tabs, Cursor, Title } from '../src';
 import type { TitleColor } from '../src';
 import {
