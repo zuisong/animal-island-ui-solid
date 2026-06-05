@@ -1,4 +1,4 @@
-import { JSX, onMount, createEffect, onCleanup, splitProps, mergeProps } from 'solid-js';
+import { JSX, onMount, createEffect, onCleanup } from 'solid-js';
 import styles from './Loading.module.less';
 import { gsap } from './island/gsap.min.js';
 import { MotionPathPlugin } from './island/MotionPathPlugin.min.js';
@@ -76,9 +76,6 @@ const SVG_CONTENT = `<svg viewBox="0 0 446 540" xmlns="http://www.w3.org/2000/sv
 </g></svg>`;
 
 export const Loading = (props: LoadingProps) => {
-    const merged = mergeProps({ active: true }, props);
-    const [local, rest] = splitProps(merged, ['class', 'classList', 'style', 'active']);
-    
     let containerRef: HTMLDivElement | undefined;
 
     onMount(() => {
@@ -94,7 +91,7 @@ export const Loading = (props: LoadingProps) => {
         const finalR = Math.ceil(Math.hypot(rect.width, rect.height) / 2) + 50;
         const duration = Math.max(0.1, finalR / 1500);
 
-        if (local.active) {
+        if (props.active !== false) { // 默认 active 为 true
             container.classList.remove(styles.closing);
             container.style.transition = '';
             container.style.setProperty('--mask-r', '0px');
@@ -120,12 +117,12 @@ export const Loading = (props: LoadingProps) => {
         <div class={styles.wrapper}>
             <div 
                 ref={containerRef} 
-                class={local.class}
+                class={props.class}
                 classList={{
                     [styles.container]: true,
-                    ...local.classList
+                    ...props.classList
                 }} 
-                style={local.style}
+                style={props.style}
                 innerHTML={SVG_CONTENT}
             />
         </div>

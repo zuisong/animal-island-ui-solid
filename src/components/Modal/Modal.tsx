@@ -1,4 +1,4 @@
-import { JSX, createSignal, createEffect, onCleanup, splitProps, mergeProps, Show } from 'solid-js';
+import { JSX, createSignal, createEffect, onCleanup, Show } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { Button } from '../Button';
 import { Cursor } from '../Cursor';
@@ -40,36 +40,17 @@ export interface ModalProps {
 }
 
 export const Modal = (props: ModalProps) => {
-    const merged = mergeProps(
-        { width: 520, maskClosable: true, typeSpeed: 80, typewriter: true },
-        props
-    );
-    const [local, rest] = splitProps(merged, [
-        'open',
-        'title',
-        'width',
-        'maskClosable',
-        'footer',
-        'onClose',
-        'onOk',
-        'children',
-        'class',
-        'classList',
-        'typeSpeed',
-        'typewriter',
-    ]);
-
     // 每次 open 变为 true 时重启打字机
     const [playKey, setPlayKey] = createSignal(0);
     createEffect(() => {
-        if (local.open) setPlayKey((k) => k + 1);
+        if (props.open) setPlayKey((k) => k + 1);
     });
 
     // ESC 关闭
     createEffect(() => {
-        if (!local.open) return;
+        if (!props.open) return;
         const handler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') local.onClose?.();
+            if (e.key === 'Escape') props.onClose?.();
         };
         document.addEventListener('keydown', handler);
         onCleanup(() => document.removeEventListener('keydown', handler));
@@ -77,7 +58,7 @@ export const Modal = (props: ModalProps) => {
 
     // 禁止滚动
     createEffect(() => {
-        if (local.open) {
+        if (props.open) {
             const original = document.body.style.overflow;
             document.body.style.overflow = 'hidden';
             onCleanup(() => {
@@ -87,7 +68,7 @@ export const Modal = (props: ModalProps) => {
     });
 
     const handleMaskClick = () => {
-        if (local.maskClosable) local.onClose?.();
+        if (props.maskClosable !== false) props.onClose?.();
     };
 
     const handleContentClick = (e: MouseEvent) => {
@@ -96,48 +77,48 @@ export const Modal = (props: ModalProps) => {
 
     const defaultFooter = (
         <>
-            <Button type="primary" onClick={() => local.onClose?.()}>
+            <Button type="primary" onClick={() => props.onClose?.()}>
                 取消
             </Button>
-            <Button type="primary" onClick={() => local.onOk?.()}>
+            <Button type="primary" onClick={() => props.onOk?.()}>
                 确定
             </Button>
         </>
     );
 
     return (
-        <Show when={local.open}>
+        <Show when={props.open}>
             <Portal>
                 <Cursor>
                     <div class={styles.mask} onClick={handleMaskClick}>
                         <div
-                            class={local.class}
+                            class={props.class}
                             classList={{
                                 [styles.modal]: true,
-                                ...local.classList
+                                ...props.classList
                             }}
-                            style={{ width: typeof local.width === 'number' ? `${local.width}px` : local.width }}
+                            style={{ width: typeof props.width === 'number' ? `${props.width}px` : (props.width || '520px') }}
                             onClick={handleContentClick}
                             role="dialog"
                             aria-modal="true"
                         >
                             <ClipDef />
                             <div class={styles.modalClipped}>
-                                <Show when={local.title}>
+                                <Show when={props.title}>
                                     <div class={styles.header}>
-                                        <div class={styles.title}>{local.title}</div>
+                                        <div class={styles.title}>{props.title}</div>
                                     </div>
                                 </Show>
                                 <div class={styles.body}>
-                                    <Show when={local.typewriter} fallback={local.children}>
-                                        <Typewriter speed={local.typeSpeed} trigger={playKey()}>
-                                            {local.children}
+                                    <Show when={props.typewriter !== false} fallback={props.children}>
+                                        <Typewriter speed={props.typeSpeed || 80} trigger={playKey()}>
+                                            {props.children}
                                         </Typewriter>
                                     </Show>
                                 </div>
-                                <Show when={local.footer !== null}>
+                                <Show when={props.footer !== null}>
                                     <div class={styles.footer}>
-                                        {local.footer === undefined ? defaultFooter : local.footer}
+                                        {props.footer === undefined ? defaultFooter : props.footer}
                                     </div>
                                 </Show>
                             </div>

@@ -1,4 +1,4 @@
-import { JSX, splitProps, mergeProps } from 'solid-js';
+import { JSX } from 'solid-js';
 import styles from './footer.module.less';
 
 export type FooterType = 'sea' | 'tree';
@@ -15,18 +15,15 @@ export interface FooterProps {
 }
 
 export const Footer = (props: FooterProps) => {
-    const merged = mergeProps({ type: 'tree' as FooterType }, props);
-    const [local, rest] = splitProps(merged, ['type', 'class', 'classList', 'style']);
-
     return (
         <div 
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.footer]: true,
-                [styles[local.type]]: true,
-                ...local.classList
+                [styles[props.type || 'tree']]: true,
+                ...props.classList
             }}
-            style={local.style} 
+            style={props.style} 
         />
     );
 };

@@ -19,6 +19,8 @@ export interface InputProps extends Omit<
     status?: 'error' | 'warning';
     /** 是否显示阴影 */
     shadow?: boolean;
+    /** 默认值 */
+    defaultValue?: string | number;
     /** 清除回调 */
     onClear?: () => void;
 }

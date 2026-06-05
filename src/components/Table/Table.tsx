@@ -1,4 +1,4 @@
-import { JSX, splitProps, mergeProps, For, Show } from 'solid-js';
+import { JSX, For, Show } from 'solid-js';
 import styles from './table.module.less';
 
 export interface TableColumn<T = any> {
@@ -31,52 +31,24 @@ export interface TableProps {
 }
 
 export const Table = (props: TableProps) => {
-    const merged = mergeProps(
-        {
-            columns: [],
-            dataSource: [],
-            rowKey: 'key',
-            striped: true,
-            showHeader: true,
-            emptyText: '暂无数据',
-            loading: false,
-        },
-        props
-    );
-
-    const [local, rest] = splitProps(merged, [
-        'columns',
-        'dataSource',
-        'rowKey',
-        'striped',
-        'showHeader',
-        'rowClassName',
-        'onRow',
-        'loading',
-        'emptyText',
-        'scroll',
-        'class',
-        'classList',
-        'style',
-    ]);
-
     const getRowKey = (record: any, index: number): string => {
-        if (typeof local.rowKey === 'function') {
-            return local.rowKey(record);
+        if (typeof props.rowKey === 'function') {
+            return props.rowKey(record);
         }
-        return (record[local.rowKey!] as string) || String(index);
+        const key = props.rowKey || 'key';
+        return (record[key] as string) || String(index);
     };
 
     const getRowClassName = (record: any, index: number): string => {
         const classes: string[] = [styles.row];
-        if (local.striped && index % 2 === 1) {
+        if (props.striped !== false && index % 2 === 1) {
             classes.push(styles.striped);
         }
-        if (local.rowClassName) {
-            if (typeof local.rowClassName === 'function') {
-                classes.push(local.rowClassName(record, index));
+        if (props.rowClassName) {
+            if (typeof props.rowClassName === 'function') {
+                classes.push(props.rowClassName(record, index));
             } else {
-                classes.push(local.rowClassName);
+                classes.push(props.rowClassName);
             }
         }
         return classes.join(' ');
@@ -90,24 +62,27 @@ export const Table = (props: TableProps) => {
         return value;
     };
 
+    const columns = () => props.columns || [];
+    const dataSource = () => props.dataSource || [];
+
     return (
         <div
             class={styles.wrapper}
-            classList={{ [styles.scrollable]: !!local.scroll }}
-            style={local.style}
+            classList={{ [styles.scrollable]: !!props.scroll }}
+            style={props.style}
         >
             <table
-                class={local.class}
+                class={props.class}
                 classList={{
                     [styles.table]: true,
-                    [styles.loading]: local.loading,
-                    ...local.classList,
+                    [styles.loading]: props.loading,
+                    ...props.classList,
                 }}
             >
-                <Show when={local.showHeader}>
+                <Show when={props.showHeader !== false}>
                     <thead class={styles.thead}>
                         <tr class={styles.headerRow}>
-                            <For each={local.columns}>
+                            <For each={columns()}>
                                 {(column) => (
                                     <th
                                         class={styles.headerCell}
@@ -129,10 +104,10 @@ export const Table = (props: TableProps) => {
                 </Show>
                 <tbody class={styles.tbody}>
                     <Show
-                        when={local.dataSource.length > 0}
+                        when={dataSource().length > 0}
                         fallback={
                             <tr>
-                                <td colSpan={local.columns.length} class={styles.emptyCell}>
+                                <td colSpan={columns().length} class={styles.emptyCell}>
                                     <div class={styles.emptyContent}>
                                         <svg
                                             class={styles.emptyIcon}
@@ -145,19 +120,19 @@ export const Table = (props: TableProps) => {
                                                 d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"
                                             />
                                         </svg>
-                                        <span>{local.emptyText}</span>
+                                        <span>{props.emptyText || '暂无数据'}</span>
                                     </div>
                                 </td>
                             </tr>
                         }
                     >
-                        <For each={local.dataSource}>
+                        <For each={dataSource()}>
                             {(record, index) => (
                                 <tr
                                     class={getRowClassName(record, index())}
-                                    {...local.onRow?.(record, index())}
+                                    {...props.onRow?.(record, index())}
                                 >
-                                    <For each={local.columns}>
+                                    <For each={columns()}>
                                         {(column) => (
                                             <td
                                                 class={styles.cell}
@@ -176,7 +151,7 @@ export const Table = (props: TableProps) => {
                     </Show>
                 </tbody>
             </table>
-            <Show when={local.loading}>
+            <Show when={props.loading}>
                 <div class={styles.loadingOverlay}>
                     <div class={styles.loadingSpinner}>
                         <svg viewBox="0 0 50 50" width="40" height="40">

@@ -1,4 +1,4 @@
-import { JSX, splitProps, mergeProps } from 'solid-js';
+import { JSX } from 'solid-js';
 import styles from './title.module.less';
 
 export type TitleSize = 'small' | 'middle' | 'large';
@@ -57,20 +57,20 @@ const Ribbon = (props: { children: JSX.Element; fontSize: number; color?: TitleC
 );
 
 export const Title = (props: TitleProps) => {
-    const merged = mergeProps({ size: 'middle' as TitleSize, color: 'default' as TitleColor }, props);
-    const [local, rest] = splitProps(merged, ['children', 'size', 'color', 'class', 'classList', 'style']);
-
     return (
         <span
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.title]: true,
-                ...local.classList,
+                ...props.classList,
             }}
-            style={local.style}
+            style={props.style}
         >
-            <Ribbon fontSize={SIZE_MAP[local.size]} color={local.color}>
-                {local.children}
+            <Ribbon 
+                fontSize={SIZE_MAP[props.size || 'middle']} 
+                color={props.color || 'default'}
+            >
+                {props.children}
             </Ribbon>
         </span>
     );

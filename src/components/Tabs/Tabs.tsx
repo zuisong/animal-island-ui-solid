@@ -1,4 +1,4 @@
-import { JSX, createSignal, splitProps, mergeProps, For, Show } from 'solid-js';
+import { JSX, createSignal, For, Show } from 'solid-js';
 import styles from './tabs.module.less';
 import leafIcon from '../../assets/img/icons/icon-leaf.png';
 
@@ -21,45 +21,33 @@ export interface TabsProps {
 }
 
 export const Tabs = (props: TabsProps) => {
-    const merged = mergeProps({ leafAnimation: true, shadow: true }, props);
-    const [local, rest] = splitProps(merged, [
-        'items',
-        'defaultActiveKey',
-        'activeKey',
-        'onChange',
-        'class',
-        'classList',
-        'style',
-        'leafAnimation',
-        'shadow',
-    ]);
-
+    const items = () => props.items || [];
     const [internalActiveKey, setInternalActiveKey] = createSignal(
-        local.defaultActiveKey || local.items[0]?.key
+        props.defaultActiveKey || items()[0]?.key
     );
 
-    const currentActiveKey = () => (local.activeKey !== undefined ? local.activeKey : internalActiveKey());
+    const currentActiveKey = () => (props.activeKey !== undefined ? props.activeKey : internalActiveKey());
 
     const handleTabClick = (key: string) => {
-        if (local.activeKey === undefined) {
+        if (props.activeKey === undefined) {
             setInternalActiveKey(key);
         }
-        local.onChange?.(key);
+        props.onChange?.(key);
     };
 
-    const activeItem = () => local.items.find((item) => item.key === currentActiveKey());
+    const activeItem = () => items().find((item) => item.key === currentActiveKey());
 
     return (
         <div
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.tabs]: true,
-                ...local.classList,
+                ...props.classList,
             }}
-            style={local.style}
+            style={props.style}
         >
             <div class={styles.tabList}>
-                <For each={local.items}>
+                <For each={items()}>
                     {(item) => {
                         const isActive = () => item.key === currentActiveKey();
                         return (
@@ -67,7 +55,7 @@ export const Tabs = (props: TabsProps) => {
                                 class={styles.tabItem}
                                 classList={{
                                     [styles.active]: isActive(),
-                                    [styles['active-shadow']]: isActive() && local.shadow,
+                                    [styles['active-shadow']]: isActive() && props.shadow !== false,
                                 }}
                                 onClick={() => handleTabClick(item.key)}
                             >
@@ -78,7 +66,7 @@ export const Tabs = (props: TabsProps) => {
                                         src={leafIcon}
                                         alt=""
                                         class={styles.tabLeaf}
-                                        classList={{ [styles.tabLeafStatic]: !local.leafAnimation }}
+                                        classList={{ [styles.tabLeafStatic]: props.leafAnimation === false }}
                                     />
                                 </Show>
                             </button>

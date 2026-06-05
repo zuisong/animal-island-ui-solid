@@ -1,4 +1,4 @@
-import { JSX, createSignal, onMount, onCleanup, splitProps } from 'solid-js';
+import { JSX, createSignal, onMount, onCleanup } from 'solid-js';
 import styles from './time.module.less';
 
 export interface TimeProps {
@@ -9,7 +9,6 @@ const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frida
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export const Time = (props: TimeProps) => {
-    const [local, rest] = splitProps(props, ['class']);
     const [currentTime, setCurrentTime] = createSignal(new Date());
 
     onMount(() => {
@@ -18,7 +17,7 @@ export const Time = (props: TimeProps) => {
     });
 
     return (
-        <div class={`${styles.acDatetime} ${local.class || ''}`}>
+        <div class={`${styles.acDatetime} ${props.class || ''}`}>
             <div class={styles.acDate}>
                 <span class={styles.acWeekday}>{weekdays[currentTime().getDay()]}</span>
                 <span class={styles.acMonthday}>

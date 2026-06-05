@@ -1,4 +1,4 @@
-import { JSX, createSignal, splitProps, mergeProps } from 'solid-js';
+import { JSX, createSignal } from 'solid-js';
 import styles from './collapse.module.less';
 
 export interface CollapseProps {
@@ -19,46 +19,35 @@ export interface CollapseProps {
 }
 
 export const Collapse = (props: CollapseProps) => {
-    const merged = mergeProps({ defaultExpanded: false, disabled: false }, props);
-    const [local, rest] = splitProps(merged, [
-        'question',
-        'answer',
-        'defaultExpanded',
-        'disabled',
-        'class',
-        'classList',
-        'style'
-    ]);
-
-    const [expanded, setExpanded] = createSignal(local.defaultExpanded);
+    const [expanded, setExpanded] = createSignal(props.defaultExpanded ?? false);
 
     const handleClick = () => {
-        if (!local.disabled) {
+        if (!props.disabled) {
             setExpanded(!expanded());
         }
     };
 
     return (
         <div 
-            class={local.class} 
+            class={props.class} 
             classList={{
                 [styles.faqCard]: true,
                 [styles.expanded]: expanded(),
-                [styles.disabled]: local.disabled,
-                ...local.classList
+                [styles.disabled]: props.disabled,
+                ...props.classList
             }}
-            style={local.style}
+            style={props.style}
         >
             <button
                 class={styles.questionHeader}
                 onClick={handleClick}
-                disabled={local.disabled}
+                disabled={props.disabled}
                 aria-expanded={expanded()}
             >
                 <span class={styles.questionIcon}>
                     {expanded() ? '−' : '+'}
                 </span>
-                <span class={styles.questionText}>{local.question}</span>
+                <span class={styles.questionText}>{props.question}</span>
                 <span class={styles.leafDecoration}>
                     <svg viewBox="0 0 24 24" width="20" height="20">
                         <path
@@ -69,7 +58,7 @@ export const Collapse = (props: CollapseProps) => {
                 </span>
             </button>
             <div class={styles.answerWrapper}>
-                <div class={styles.answerContent}>{local.answer}</div>
+                <div class={styles.answerContent}>{props.answer}</div>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-import { JSX, splitProps, mergeProps } from 'solid-js';
+import { JSX } from 'solid-js';
 import './cursor.css';
 
 export interface CursorProps {
@@ -19,21 +19,18 @@ export interface CursorProps {
 }
 
 export const Cursor = (props: CursorProps) => {
-    const merged = mergeProps({ forceAll: true }, props);
-    const [local, rest] = splitProps(merged, ['children', 'class', 'classList', 'style', 'forceAll']);
-
     return (
         <div 
-            class={local.class}
+            class={props.class}
             classList={{
                 'animal-cursor': true,
-                'animal-cursor--force': local.forceAll,
-                'animal-cursor--scoped': !local.forceAll,
-                ...local.classList
+                'animal-cursor--force': props.forceAll !== false,
+                'animal-cursor--scoped': props.forceAll === false,
+                ...props.classList
             }}
-            style={local.style}
+            style={props.style}
         >
-            {local.children}
+            {props.children}
         </div>
     );
 };

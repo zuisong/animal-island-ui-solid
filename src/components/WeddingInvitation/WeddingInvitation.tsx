@@ -1,4 +1,4 @@
-import { JSX, createSignal, splitProps, mergeProps, Show, onMount, For } from 'solid-js';
+import { JSX, createSignal, Show, onMount, For } from 'solid-js';
 import { domToCanvas } from 'modern-screenshot';
 import styles from './weddingInvitation.module.less';
 import weddingTitleImg from './img/wedding.PNG';
@@ -58,8 +58,8 @@ export interface WeddingInvitationRef {
 }
 
 // ---------- Decorative SVGs ----------
-const Leaf = (props: { class?: string }) => (
-    <svg class={props.class} viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+const Leaf = (p: { class?: string }) => (
+    <svg class={p.class} viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
         <path
             d="M8 56 C 8 24, 32 4, 60 6 C 58 36, 38 58, 8 56 Z"
             fill="#8ac68a"
@@ -79,10 +79,9 @@ const Leaf = (props: { class?: string }) => (
     </svg>
 );
 
-const Flower = (props: { color?: string; center?: string; size?: number }) => {
-    const merged = mergeProps({ color: '#f8a6b2', center: '#f7cd67', size: 28 }, props);
+const Flower = (p: { color?: string; center?: string; size?: number }) => {
     return (
-        <svg viewBox="0 0 32 32" width={merged.size} height={merged.size} aria-hidden="true">
+        <svg viewBox="0 0 32 32" width={p.size || 28} height={p.size || 28} aria-hidden="true">
             <For each={[0, 72, 144, 216, 288]}>
                 {(angle) => (
                     <ellipse
@@ -90,22 +89,21 @@ const Flower = (props: { color?: string; center?: string; size?: number }) => {
                         cy="8"
                         rx="5"
                         ry="7"
-                        fill={merged.color}
+                        fill={p.color || '#f8a6b2'}
                         stroke="#725d42"
                         stroke-width="1.2"
                         transform={`rotate(${angle} 16 16)`}
                     />
                 )}
             </For>
-            <circle cx="16" cy="16" r="3.5" fill={merged.center} stroke="#725d42" stroke-width="1.2" />
+            <circle cx="16" cy="16" r="3.5" fill={p.center || '#f7cd67'} stroke="#725d42" stroke-width="1.2" />
         </svg>
     );
 };
 
-const Heart = (props: { size?: number }) => {
-    const merged = mergeProps({ size: 64 }, props);
+const Heart = (p: { size?: number }) => {
     return (
-        <svg viewBox="0 0 64 64" width={merged.size} height={merged.size} aria-hidden="true">
+        <svg viewBox="0 0 64 64" width={p.size || 64} height={p.size || 64} aria-hidden="true">
             <path
                 d="M32 56 C 8 40, 4 22, 16 14 C 24 9, 30 14, 32 20 C 34 14, 40 9, 48 14 C 60 22, 56 40, 32 56 Z"
                 fill="#fc736d"
@@ -118,13 +116,12 @@ const Heart = (props: { size?: number }) => {
     );
 };
 
-const Star = (props: { size?: number; color?: string }) => {
-    const merged = mergeProps({ size: 18, color: '#f7cd67' }, props);
+const Star = (p: { size?: number; color?: string }) => {
     return (
-        <svg viewBox="0 0 24 24" width={merged.size} height={merged.size} aria-hidden="true">
+        <svg viewBox="0 0 24 24" width={p.size || 18} height={p.size || 18} aria-hidden="true">
             <path
                 d="M12 2 L14.5 9 L22 9.5 L16 14.5 L18 22 L12 17.5 L6 22 L8 14.5 L2 9.5 L9.5 9 Z"
-                fill={merged.color}
+                fill={p.color || '#f7cd67'}
                 stroke="#725d42"
                 stroke-width="1.4"
                 stroke-linejoin="round"
@@ -213,48 +210,6 @@ const exportNodeAsPng = async (
 };
 
 export const WeddingInvitation = (props: WeddingInvitationProps) => {
-    const merged = mergeProps(
-        {
-            groomName: '小狸',
-            brideName: '小兔',
-            date: '2026.06.15',
-            weekday: '星期六',
-            time: '10:00 AM',
-            venue: '彩虹岛 · 樱花广场',
-            address: '动物之森 · 无人岛 · K.K. 演奏台前',
-            title: 'Wedding Invitation',
-            subtitle: <img src={weddingTitleImg} alt="集合啦 婚礼森友会" />,
-            message:
-                '哎呀，恭喜恭喜！我们要在小岛上举办婚礼啦~ 诚挚邀请您一同前来见证这个被花瓣和音符包围的日子！',
-            showLotteryNumber: true,
-            lotteryNumber: '0001',
-            lotteryLabel: 'LUCKY NUMBER',
-            lotteryHint: '凭此号码参与现场抽奖 · Keep this stub for the lucky draw',
-        },
-        props
-    );
-
-    const [local, rest] = splitProps(merged, [
-        'groomName',
-        'brideName',
-        'date',
-        'weekday',
-        'time',
-        'venue',
-        'address',
-        'title',
-        'subtitle',
-        'message',
-        'showLotteryNumber',
-        'lotteryNumber',
-        'lotteryLabel',
-        'lotteryHint',
-        'class',
-        'classList',
-        'style',
-        'ref',
-    ]);
-
     let rootRef: HTMLDivElement | undefined;
 
     const exportAsImage = async (filename = 'wedding-invitation') => {
@@ -262,7 +217,7 @@ export const WeddingInvitation = (props: WeddingInvitationProps) => {
     };
 
     onMount(() => {
-        local.ref?.({
+        props.ref?.({
             exportAsImage,
             getElement: () => rootRef,
         });
@@ -271,13 +226,13 @@ export const WeddingInvitation = (props: WeddingInvitationProps) => {
     return (
         <div
             ref={rootRef}
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.envelope]: true,
-                [styles.noLottery]: !local.showLotteryNumber,
-                ...local.classList,
+                [styles.noLottery]: props.showLotteryNumber === false,
+                ...props.classList,
             }}
-            style={local.style}
+            style={props.style}
         >
             <Leaf class={`${styles.cornerLeaf} ${styles.tl}`} />
             <Leaf class={`${styles.cornerLeaf} ${styles.tr}`} />
@@ -306,8 +261,10 @@ export const WeddingInvitation = (props: WeddingInvitationProps) => {
                 <span class={styles.bannerLine} />
             </div>
 
-            <div class={styles.titleEn}>{local.title}</div>
-            <div class={styles.titleZh}>{local.subtitle}</div>
+            <div class={styles.titleEn}>{props.title || 'Wedding Invitation'}</div>
+            <div class={styles.titleZh}>
+                {props.subtitle === undefined ? <img src={weddingTitleImg} alt="集合啦 婚礼森友会" /> : props.subtitle}
+            </div>
 
             <div class={styles.brideAndGroom}>
                 <img src={brideAndGroomImg} alt="bride and groom" />
@@ -315,23 +272,23 @@ export const WeddingInvitation = (props: WeddingInvitationProps) => {
 
             <div class={styles.coupleRow}>
                 <div class={styles.mascot}>
-                    <div class={styles.name}>{local.brideName}</div>
+                    <div class={styles.name}>{props.brideName || '小兔'}</div>
                 </div>
                 <div class={styles.heartCol}>
                     <Heart size={30} />
                 </div>
                 <div class={styles.mascot}>
-                    <div class={styles.name}>{local.groomName}</div>
+                    <div class={styles.name}>{props.groomName || '小狸'}</div>
                 </div>
             </div>
 
             <div class={styles.dateCard}>
                 <div class={styles.dateLabel}>婚礼时间</div>
-                <div class={styles.dateValue}>{local.date}</div>
+                <div class={styles.dateValue}>{props.date || '2026.06.15'}</div>
                 <div class={styles.dateMeta}>
-                    <span>{local.weekday}</span>
+                    <span>{props.weekday || '星期六'}</span>
                     <span class={styles.dot}>·</span>
-                    <span>{local.time}</span>
+                    <span>{props.time || '10:00 AM'}</span>
                 </div>
             </div>
 
@@ -340,19 +297,21 @@ export const WeddingInvitation = (props: WeddingInvitationProps) => {
                     <Icon name="icon-map" size={26} />
                 </span>
                 <div class={styles.venueText}>
-                    <div class={styles.venueName}>{local.venue}</div>
-                    <div class={styles.venueAddr}>{local.address}</div>
+                    <div class={styles.venueName}>{props.venue || '彩虹岛 · 樱花广场'}</div>
+                    <div class={styles.venueAddr}>{props.address || '动物之森 · 无人岛 · K.K. 演奏台前'}</div>
                 </div>
             </div>
 
-            <div class={styles.message}>{local.message}</div>
+            <div class={styles.message}>
+                {props.message || '哎呀，恭喜恭喜！我们要在小岛上举办婚礼啦~ 诚挚邀请您一同前来见证这个被花瓣和音符包围的日子！'}
+            </div>
 
-            <Show when={local.showLotteryNumber}>
+            <Show when={props.showLotteryNumber !== false}>
                 <div class={styles.signatureLottery}>
                     <span>抽奖码</span>
                     <span class={styles.signatureLotteryNo}>
                         <span class={styles.lotteryHash}>NO.</span>
-                        {local.lotteryNumber}
+                        {props.lotteryNumber || '0001'}
                     </span>
                 </div>
 
@@ -365,15 +324,15 @@ export const WeddingInvitation = (props: WeddingInvitationProps) => {
                     <div class={styles.lotteryTitle}>婚礼抽奖券</div>
                     <div class={styles.lotteryLabel}>
                         <Star size={12} color="#f7cd67" />
-                        <span>{local.lotteryLabel}</span>
+                        <span>{props.lotteryLabel || 'LUCKY NUMBER'}</span>
                         <Star size={12} color="#f7cd67" />
                     </div>
                     <div class={styles.lotteryNumber}>
                         <span class={styles.lotteryHash}>NO.</span>
-                        {local.lotteryNumber}
+                        {props.lotteryNumber || '0001'}
                     </div>
-                    <Show when={local.lotteryHint}>
-                        <div class={styles.lotteryHint}>{local.lotteryHint}</div>
+                    <Show when={props.lotteryHint !== undefined}>
+                        <div class={styles.lotteryHint}>{props.lotteryHint || '凭此号码参与现场抽奖 · Keep this stub for the lucky draw'}</div>
                     </Show>
                 </div>
             </Show>
@@ -394,22 +353,12 @@ export interface WeddingInvitationExportButtonProps {
 }
 
 export const WeddingInvitationExportButton = (props: WeddingInvitationExportButtonProps) => {
-    const merged = mergeProps({ filename: 'wedding-invitation', children: '保存为图片' }, props);
-    const [local, rest] = splitProps(merged, [
-        'targetRef',
-        'filename',
-        'children',
-        'class',
-        'classList',
-        'style',
-    ]);
-
     const [exporting, setExporting] = createSignal(false);
     const handleClick = async () => {
         if (exporting()) return;
         setExporting(true);
         try {
-            await local.targetRef?.exportAsImage(local.filename);
+            await props.targetRef?.exportAsImage(props.filename || 'wedding-invitation');
         } catch (err) {
             console.error('[WeddingInvitation] 导出图片失败：', err);
             alert(`导出失败：${err instanceof Error ? err.message : String(err)}`);
@@ -420,17 +369,17 @@ export const WeddingInvitationExportButton = (props: WeddingInvitationExportButt
     return (
         <button
             type="button"
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.exportBtn]: true,
-                ...local.classList,
+                ...props.classList,
             }}
-            style={local.style}
+            style={props.style}
             onClick={handleClick}
             disabled={exporting()}
         >
             <DownloadIcon />
-            {exporting() ? '生成中…' : local.children}
+            {exporting() ? '生成中…' : (props.children || '保存为图片')}
         </button>
     );
 };

@@ -1,4 +1,4 @@
-import { JSX, createSignal, splitProps, For, mergeProps, createMemo, createEffect, onCleanup } from 'solid-js';
+import { JSX, createSignal, For, createMemo, createEffect } from 'solid-js';
 import styles from './radio.module.less';
 
 export type RadioSize = 'small' | 'middle' | 'large';
@@ -36,39 +36,25 @@ export interface RadioProps {
 }
 
 export const Radio = (props: RadioProps) => {
-    const merged = mergeProps({ size: 'middle' as RadioSize, disabled: false, direction: 'horizontal' as const }, props);
-    const [local, rest] = splitProps(merged, [
-        'value',
-        'defaultValue',
-        'options',
-        'size',
-        'disabled',
-        'direction',
-        'onChange',
-        'class',
-        'classList',
-        'style'
-    ]);
-
-    const [innerValue, setInnerValue] = createSignal<string | number | undefined>(local.defaultValue);
-    const checkedValue = () => local.value !== undefined ? local.value : innerValue();
+    const [innerValue, setInnerValue] = createSignal<string | number | undefined>(props.defaultValue);
+    const checkedValue = () => props.value !== undefined ? props.value : innerValue();
 
     let groupRef: HTMLDivElement | undefined;
 
     const [focusedIndex, setFocusedIndex] = createSignal<number>(() => {
-        const idx = local.options.findIndex((o) => o.value === checkedValue());
+        const idx = props.options.findIndex((o) => o.value === checkedValue());
         return idx >= 0 ? idx : 0;
     });
 
     createEffect(() => {
-        const idx = local.options.findIndex((o) => o.value === checkedValue());
+        const idx = props.options.findIndex((o) => o.value === checkedValue());
         if (idx >= 0) setFocusedIndex(idx);
     });
 
     const enabledIndices = createMemo(() => {
-        return local.options
+        return props.options
             .map((opt, idx) => ({ opt, idx }))
-            .filter(({ opt }) => !local.disabled && !opt.disabled)
+            .filter(({ opt }) => !props.disabled && !opt.disabled)
             .map(({ idx }) => idx);
     });
 
@@ -77,9 +63,9 @@ export const Radio = (props: RadioProps) => {
     });
 
     const handleChange = (optValue: string | number, optDisabled?: boolean) => {
-        if (local.disabled || optDisabled) return;
-        if (local.value === undefined) setInnerValue(optValue);
-        local.onChange?.(optValue);
+        if (props.disabled || optDisabled) return;
+        if (props.value === undefined) setInnerValue(optValue);
+        props.onChange?.(optValue);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -115,7 +101,7 @@ export const Radio = (props: RadioProps) => {
         if (nextPos >= 0) {
             const nextIdx = indices[nextPos];
             setFocusedIndex(nextIdx);
-            handleChange(local.options[nextIdx].value, local.options[nextIdx].disabled);
+            handleChange(props.options[nextIdx].value, props.options[nextIdx].disabled);
 
             const circles = groupRef?.querySelectorAll('[data-radio-circle]');
             (circles?.[nextIdx] as HTMLElement)?.focus();
@@ -125,28 +111,28 @@ export const Radio = (props: RadioProps) => {
     return (
         <div
             ref={groupRef}
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.radioGroup]: true,
-                [styles[local.direction]]: true,
-                [styles.groupDisabled]: local.disabled,
-                ...local.classList
+                [styles[props.direction || 'horizontal']]: true,
+                [styles.groupDisabled]: props.disabled,
+                ...props.classList
             }}
-            style={local.style}
+            style={props.style}
             role="radiogroup"
             onKeyDown={handleKeyDown}
         >
-            <For each={local.options}>
+            <For each={props.options}>
                 {(opt, idx) => {
                     const isChecked = () => checkedValue() === opt.value;
-                    const isDisabled = () => local.disabled || opt.disabled;
+                    const isDisabled = () => props.disabled || opt.disabled;
                     const isFocusable = () => idx() === focusedIndex() && !isDisabled();
 
                     return (
                         <label
                             class={styles.radioItem}
                             classList={{
-                                [styles[local.size]]: true,
+                                [styles[props.size || 'middle']]: true,
                                 [styles.checked]: isChecked(),
                                 [styles.disabled]: isDisabled(),
                             }}

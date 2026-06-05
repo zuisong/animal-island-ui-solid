@@ -1,4 +1,4 @@
-import { JSX, createSignal, splitProps, mergeProps, For, createEffect, onCleanup, Show } from 'solid-js';
+import { JSX, createSignal, For, createEffect, onCleanup, Show } from 'solid-js';
 import styles from './select.module.less';
 
 export type SelectOption = {
@@ -15,16 +15,13 @@ export interface SelectProps {
 }
 
 export const Select = (props: SelectProps) => {
-    const merged = mergeProps({ placeholder: '请选择', disabled: false }, props);
-    const [local, rest] = splitProps(merged, ['options', 'value', 'onChange', 'placeholder', 'disabled']);
-
     const [open, setOpen] = createSignal(false);
     const [hoveredKey, setHoveredKey] = createSignal<string | null>(null);
     const [dropdownStyle, setDropdownStyle] = createSignal<JSX.CSSProperties>({});
     const [mounted, setMounted] = createSignal(false);
     
     let wrapperRef: HTMLDivElement | undefined;
-    const currentLabel = () => local.options.find((o) => o.key === local.value)?.label || local.placeholder;
+    const currentLabel = () => props.options.find((o) => o.key === props.value)?.label || (props.placeholder || '请选择');
 
     createEffect(() => {
         if (!open()) return;
@@ -43,7 +40,7 @@ export const Select = (props: SelectProps) => {
             const rect = wrapperRef.getBoundingClientRect();
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
-            const dropdownHeight = local.options.length * 44 + 24;
+            const dropdownHeight = props.options.length * 44 + 24;
 
             const newStyle: JSX.CSSProperties = {
                 position: 'absolute',
@@ -86,7 +83,7 @@ export const Select = (props: SelectProps) => {
     });
 
     const handleSelect = (key: string) => {
-        local.onChange(key);
+        props.onChange(key);
         setOpen(false);
         setMounted(false);
     };
@@ -95,14 +92,14 @@ export const Select = (props: SelectProps) => {
         <div
             ref={wrapperRef}
             class={styles.wrapper}
-            classList={{ [styles.disabled]: local.disabled }}
+            classList={{ [styles.disabled]: props.disabled }}
         >
             <div
                 class={styles.trigger}
                 classList={{ [styles.open]: open() }}
-                onClick={() => !local.disabled && setOpen(!open())}
+                onClick={() => !props.disabled && setOpen(!open())}
             >
-                <span class={local.value ? styles.value : styles.placeholder}>
+                <span class={props.value ? styles.value : styles.placeholder}>
                     {currentLabel()}
                 </span>
                 <span class={styles.arrow}>
@@ -113,12 +110,12 @@ export const Select = (props: SelectProps) => {
             </div>
             <Show when={open() && mounted()}>
                 <div class={styles.dropdown} style={dropdownStyle()}>
-                    <For each={local.options}>
+                    <For each={props.options}>
                         {(option) => (
                             <div
                                 class={styles.option}
                                 classList={{
-                                    [styles.active]: local.value === option.key,
+                                    [styles.active]: props.value === option.key,
                                     [styles.hovered]: hoveredKey() === option.key
                                 }}
                                 onClick={() => handleSelect(option.key)}
@@ -127,7 +124,7 @@ export const Select = (props: SelectProps) => {
                             >
                                 <span class={styles.optionDot} />
                                 {option.label}
-                                {local.value === option.key && <div class={styles.pillBar} />}
+                                {props.value === option.key && <div class={styles.pillBar} />}
                             </div>
                         )}
                     </For>

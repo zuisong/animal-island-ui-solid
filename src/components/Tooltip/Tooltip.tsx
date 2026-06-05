@@ -1,4 +1,4 @@
-import { JSX, createSignal, splitProps, mergeProps, Show, onCleanup, createUniqueId } from 'solid-js';
+import { JSX, createSignal, Show, onCleanup, createUniqueId } from 'solid-js';
 import styles from './tooltip.module.less';
 
 export type TooltipPlacement =
@@ -75,27 +75,6 @@ export interface TooltipProps {
 }
 
 export const Tooltip = (props: TooltipProps) => {
-    const merged = mergeProps(
-        {
-            placement: 'top' as TooltipPlacement,
-            trigger: 'hover' as TooltipTrigger,
-            variant: 'default' as TooltipVariant,
-            bordered: true,
-        },
-        props
-    );
-    const [local, rest] = splitProps(merged, [
-        'title',
-        'placement',
-        'trigger',
-        'variant',
-        'bordered',
-        'children',
-        'class',
-        'classList',
-        'style',
-    ]);
-
     const [visible, setVisible] = createSignal(false);
     let timer: any;
     const clipId = `animal-tooltip-clip-${createUniqueId().replace(/-/g, '')}`;
@@ -111,53 +90,53 @@ export const Tooltip = (props: TooltipProps) => {
 
     onCleanup(() => clearTimeout(timer));
 
-    const placementClass = () => styles[local.placement.replace(/-/g, '_')];
-    const isIsland = () => local.variant === 'island';
+    const placementClass = () => styles[(props.placement || 'top').replace(/-/g, '_')];
+    const isIsland = () => props.variant === 'island';
 
     return (
         <div
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.tooltipWrapper]: true,
-                ...local.classList,
+                ...props.classList,
             }}
-            style={local.style}
+            style={props.style}
         >
             <div
                 class={styles.triggerWrapper}
-                onMouseEnter={local.trigger === 'hover' ? show : undefined}
-                onMouseLeave={local.trigger === 'hover' ? hide : undefined}
-                onFocusIn={local.trigger === 'focus' ? show : undefined}
-                onFocusOut={local.trigger === 'focus' ? hide : undefined}
-                onClick={local.trigger === 'click' ? () => setVisible(!visible()) : undefined}
+                onMouseEnter={props.trigger !== 'click' && props.trigger !== 'focus' ? show : undefined}
+                onMouseLeave={props.trigger !== 'click' && props.trigger !== 'focus' ? hide : undefined}
+                onFocusIn={props.trigger === 'focus' ? show : undefined}
+                onFocusOut={props.trigger === 'focus' ? hide : undefined}
+                onClick={props.trigger === 'click' ? () => setVisible(!visible()) : undefined}
             >
-                {local.children}
+                {props.children}
             </div>
             <div
                 class={styles.tooltip}
                 classList={{
                     [placementClass()]: true,
                     [styles.island]: isIsland(),
-                    [styles.bordered]: local.bordered,
-                    [styles.borderless]: !local.bordered,
+                    [styles.bordered]: props.bordered !== false,
+                    [styles.borderless]: props.bordered === false,
                     [styles.visible]: visible(),
                 }}
                 role="tooltip"
                 aria-hidden={!visible()}
-                onMouseEnter={local.trigger === 'hover' ? show : undefined}
-                onMouseLeave={local.trigger === 'hover' ? hide : undefined}
+                onMouseEnter={props.trigger !== 'click' && props.trigger !== 'focus' ? show : undefined}
+                onMouseLeave={props.trigger !== 'click' && props.trigger !== 'focus' ? hide : undefined}
             >
                 <Show
                     when={isIsland()}
-                    fallback={<div class={styles.content}>{local.title}</div>}
+                    fallback={<div class={styles.content}>{props.title}</div>}
                 >
                     <div class={styles.islandBody}>
                         <IslandClipDef id={clipId} />
-                        <Show when={local.bordered}>
+                        <Show when={props.bordered !== false}>
                             <IslandShapeSvg />
                         </Show>
                         <div class={styles.islandContent} style={{ 'clip-path': `url(#${clipId})` }}>
-                            <div class={styles.content}>{local.title}</div>
+                            <div class={styles.content}>{props.title}</div>
                         </div>
                     </div>
                     <span class={styles.tail} aria-hidden="true" />

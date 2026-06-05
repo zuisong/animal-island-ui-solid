@@ -1,4 +1,4 @@
-import { JSX, splitProps, mergeProps, Show } from 'solid-js';
+import { JSX, Show } from 'solid-js';
 import styles from './wallet.module.less';
 import { Icon } from '../Icon';
 
@@ -22,10 +22,10 @@ export interface WalletProps {
 const formatValue = (value: WalletProps['value'], sep: string): string => {
     if (value === undefined || value === null) return '00,000';
     if (typeof value !== 'number') return String(value);
-    if (!sep) return String(value);
+    if (sep === '') return String(value);
     const sign = value < 0 ? '-' : '';
     const [int, frac] = Math.abs(value).toString().split('.');
-    const intWithSep = int.replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+    const intWithSep = int.replace(/\B(?=(\d{3})+(?!\d))/g, sep || ',');
     return frac ? `${sign}${intWithSep}.${frac}` : `${sign}${intWithSep}`;
 };
 
@@ -36,37 +36,23 @@ const SIZE_CLASS: Record<WalletSize, string> = {
 };
 
 export const Wallet = (props: WalletProps) => {
-    const merged = mergeProps(
-        { value: '00,000', size: 'medium' as WalletSize, thousandSeparator: ',' },
-        props
-    );
-    const [local, rest] = splitProps(merged, [
-        'value',
-        'icon',
-        'size',
-        'thousandSeparator',
-        'class',
-        'classList',
-        'style',
-    ]);
-
     return (
         <div
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.wallet]: true,
-                [SIZE_CLASS[local.size]]: !!SIZE_CLASS[local.size],
-                ...local.classList,
+                [SIZE_CLASS[props.size || 'medium']]: !!SIZE_CLASS[props.size || 'medium'],
+                ...props.classList,
             }}
-            style={local.style}
+            style={props.style}
         >
             <div class={styles.bagSlot} aria-hidden="true">
-                <Show when={local.icon} fallback={<Icon item={22} size="80%" />}>
-                    {local.icon}
+                <Show when={props.icon} fallback={<Icon item={22} size="80%" />}>
+                    {props.icon}
                 </Show>
             </div>
             <div class={styles.pill}>
-                <span class={styles.value}>{formatValue(local.value, local.thousandSeparator)}</span>
+                <span class={styles.value}>{formatValue(props.value, props.thousandSeparator ?? ',')}</span>
             </div>
         </div>
     );

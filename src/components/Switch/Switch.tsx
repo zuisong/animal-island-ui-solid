@@ -1,4 +1,4 @@
-import { JSX, createSignal, splitProps, mergeProps, Show } from 'solid-js';
+import { JSX, createSignal, Show } from 'solid-js';
 import styles from './switch.module.less';
 
 export type SwitchSize = 'small' | 'default';
@@ -25,31 +25,14 @@ export interface SwitchProps {
 }
 
 export const Switch = (props: SwitchProps) => {
-    const merged = mergeProps(
-        { defaultChecked: false, size: 'default' as SwitchSize, disabled: false, loading: false },
-        props
-    );
-    const [local, rest] = splitProps(merged, [
-        'checked',
-        'defaultChecked',
-        'size',
-        'disabled',
-        'loading',
-        'checkedChildren',
-        'unCheckedChildren',
-        'onChange',
-        'class',
-        'classList',
-    ]);
-
-    const [innerChecked, setInnerChecked] = createSignal(local.defaultChecked);
-    const isChecked = () => (local.checked !== undefined ? local.checked : innerChecked());
+    const [innerChecked, setInnerChecked] = createSignal(props.defaultChecked || false);
+    const isChecked = () => (props.checked !== undefined ? props.checked : innerChecked());
 
     const handleClick = () => {
-        if (local.disabled || local.loading) return;
+        if (props.disabled || props.loading) return;
         const next = !isChecked();
-        if (local.checked === undefined) setInnerChecked(next);
-        local.onChange?.(next);
+        if (props.checked === undefined) setInnerChecked(next);
+        props.onChange?.(next);
     };
 
     return (
@@ -57,25 +40,25 @@ export const Switch = (props: SwitchProps) => {
             type="button"
             role="switch"
             aria-checked={isChecked()}
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.switch]: true,
-                [styles[`switch-${local.size}`]]: true,
+                [styles[`switch-${props.size || 'default'}`]]: true,
                 [styles['switch-checked']]: isChecked(),
-                [styles['switch-disabled']]: local.disabled,
-                [styles['switch-loading']]: local.loading,
-                ...local.classList
+                [styles['switch-disabled']]: props.disabled,
+                [styles['switch-loading']]: props.loading,
+                ...props.classList
             }}
             onClick={handleClick}
-            disabled={local.disabled}
+            disabled={props.disabled}
         >
             <span class={styles.handle}>
-                <Show when={local.loading}>
+                <Show when={props.loading}>
                     <span class={styles.spinner} />
                 </Show>
             </span>
             <span class={styles.inner}>
-                {isChecked() ? local.checkedChildren : local.unCheckedChildren}
+                {isChecked() ? props.checkedChildren : props.unCheckedChildren}
             </span>
         </button>
     );

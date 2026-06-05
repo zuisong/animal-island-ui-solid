@@ -1,4 +1,4 @@
-import { JSX, createSignal, splitProps, For, mergeProps } from 'solid-js';
+import { JSX, createSignal, For } from 'solid-js';
 import styles from './checkbox.module.less';
 
 export type CheckboxSize = 'small' | 'middle' | 'large';
@@ -36,60 +36,43 @@ export interface CheckboxProps {
 }
 
 export const Checkbox = (props: CheckboxProps) => {
-    const merged = mergeProps(
-        { defaultValue: [] as Array<string | number>, size: 'middle' as CheckboxSize, disabled: false, direction: 'horizontal' as const },
-        props
-    );
-    const [local, rest] = splitProps(merged, [
-        'value',
-        'defaultValue',
-        'options',
-        'size',
-        'disabled',
-        'direction',
-        'onChange',
-        'class',
-        'classList',
-        'style'
-    ]);
-
-    const [innerValue, setInnerValue] = createSignal<Array<string | number>>(local.defaultValue);
+    const [innerValue, setInnerValue] = createSignal<Array<string | number>>(props.defaultValue || []);
     
-    const checkedValues = () => local.value !== undefined ? local.value : innerValue();
+    const checkedValues = () => props.value !== undefined ? props.value : innerValue();
 
     const handleChange = (optValue: string | number, optDisabled?: boolean) => {
-        if (local.disabled || optDisabled) return;
+        if (props.disabled || optDisabled) return;
         const current = checkedValues();
         const next = current.includes(optValue)
             ? current.filter((v) => v !== optValue)
             : [...current, optValue];
         
-        if (local.value === undefined) {
+        if (props.value === undefined) {
             setInnerValue(next);
         }
-        local.onChange?.(next);
+        props.onChange?.(next);
     };
 
     return (
         <div
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.checkboxGroup]: true,
-                [styles[local.direction]]: true,
-                [styles.groupDisabled]: local.disabled,
-                ...local.classList
+                [styles[props.direction || 'horizontal']]: true,
+                [styles.groupDisabled]: props.disabled,
+                ...props.classList
             }}
-            style={local.style}
+            style={props.style}
         >
-            <For each={local.options}>
+            <For each={props.options}>
                 {(opt) => {
                     const isChecked = () => checkedValues().includes(opt.value);
-                    const isDisabled = () => local.disabled || opt.disabled;
+                    const isDisabled = () => props.disabled || opt.disabled;
                     return (
                         <label
                             class={styles.checkboxItem}
                             classList={{
-                                [styles[local.size]]: true,
+                                [styles[props.size || 'middle']]: true,
                                 [styles.checked]: isChecked(),
                                 [styles.disabled]: isDisabled(),
                             }}

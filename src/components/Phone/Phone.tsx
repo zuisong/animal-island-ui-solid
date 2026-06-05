@@ -1,4 +1,4 @@
-import { JSX, createSignal, onMount, onCleanup, splitProps, For } from 'solid-js';
+import { JSX, createSignal, onMount, onCleanup, For } from 'solid-js';
 import styles from './phone.module.less';
 import { Icon, IconName } from '../Icon';
 
@@ -28,7 +28,6 @@ const apps: App[] = [
 ];
 
 export const Phone = (props: PhoneProps) => {
-    const [local, rest] = splitProps(props, ['class']);
     const [time, setTime] = createSignal(new Date());
 
     onMount(() => {
@@ -49,7 +48,7 @@ export const Phone = (props: PhoneProps) => {
     };
 
     return (
-        <div class={`${styles.phoneContainer} ${local.class || ''}`}>
+        <div class={`${styles.phoneContainer} ${props.class || ''}`}>
             <div class={styles.phone}>
                 <div class={styles.screenContent}>
                     <div class={styles.homeScreen}>

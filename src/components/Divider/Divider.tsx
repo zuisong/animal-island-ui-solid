@@ -1,4 +1,4 @@
-import { JSX, splitProps, mergeProps } from 'solid-js';
+import { JSX } from 'solid-js';
 import styles from './divider.module.less';
 
 export type DividerType =
@@ -24,18 +24,15 @@ export interface DividerProps {
 }
 
 export const Divider = (props: DividerProps) => {
-    const merged = mergeProps({ type: 'line-brown' as DividerType }, props);
-    const [local, rest] = splitProps(merged, ['type', 'class', 'classList', 'style']);
-    
     return (
         <div 
-            class={local.class}
+            class={props.class}
             classList={{
                 [styles.divider]: true,
-                [styles[local.type]]: true,
-                ...local.classList
+                [styles[props.type || 'line-brown']]: true,
+                ...props.classList
             }}
-            style={local.style} 
+            style={props.style} 
         />
     );
 };
