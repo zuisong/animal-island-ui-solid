@@ -19,7 +19,6 @@ A SolidJS UI component library inspired by Animal Crossing: New Horizons
     English | <a href="./docs/README.zh-CN.md">简体中文</a>
 </p>
 
-
 ## Introduction
 
 This project is a lightweight UI component library built with SolidJS + TypeScript. The design style is inspired by Nintendo's "Animal Crossing: New Horizons" game interface, created for personal front-end technical practice and component development learning.
@@ -56,25 +55,21 @@ Non-developer and don't want to write code yourself? Use [`PROMPT.md`](./PROMPT.
 npm install animal-island-ui-solid
 ```
 
-
-
 ## Quick Start
 
 > ⚠️ **Important**: Please make sure to import the styles with `import 'animal-island-ui-solid/style'`, otherwise the components will have no styles or fonts!
 
 ```tsx
-import { Button, Card } from 'animal-island-ui-solid';
-import 'animal-island-ui-solid/style';
+import { Button, Card } from "animal-island-ui-solid";
+import "animal-island-ui-solid/style";
 
 function App() {
-    return (
-        <div>
-            <Button type="primary">Start Adventure</Button>
-            <Card color="app-blue">
-                Welcome to the deserted island!
-            </Card>
-        </div>
-    );
+  return (
+    <div>
+      <Button type="primary">Start Adventure</Button>
+      <Card color="app-blue">Welcome to the deserted island!</Card>
+    </div>
+  );
 }
 ```
 
@@ -82,14 +77,13 @@ function App() {
 
 Complete reference for different scenarios:
 
-| Document | Purpose |
-|---|---|
-| [`PROMPT.md`](./PROMPT.md) | 🚀 One-click prompt for non-developers — paste into Cursor / Claude / ChatGPT / v0 / Bolt / Lovable / Windsurf to generate animal-island-ui-solid-styled pages. |
-| [`AI_USAGE.md`](./AI_USAGE.md) | AI code assistant handbook - all component props, types and defaults word-for-word, 19 hard rules and copy-paste boilerplate, no invented APIs. |
-| [`DESIGN_PROMPT.md`](./DESIGN_PROMPT.md) | Visual-style prompts for v0 / Figma AI / Midjourney / DALL-E, including color palette, fonts, size tables, Modal clip-path and prohibition list. |
-| [`skill/SKILL.md`](./skill/SKILL.md) | Pixel-perfect style specification Skill - design tokens, all component CSS, Demo layout values, CSS variable templates and new component development checklist. |
-| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Contributing Guide |
-
+| Document                                 | Purpose                                                                                                                                                         |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`PROMPT.md`](./PROMPT.md)               | 🚀 One-click prompt for non-developers — paste into Cursor / Claude / ChatGPT / v0 / Bolt / Lovable / Windsurf to generate animal-island-ui-solid-styled pages. |
+| [`AI_USAGE.md`](./AI_USAGE.md)           | AI code assistant handbook - all component props, types and defaults word-for-word, 19 hard rules and copy-paste boilerplate, no invented APIs.                 |
+| [`DESIGN_PROMPT.md`](./DESIGN_PROMPT.md) | Visual-style prompts for v0 / Figma AI / Midjourney / DALL-E, including color palette, fonts, size tables, Modal clip-path and prohibition list.                |
+| [`skill/SKILL.md`](./skill/SKILL.md)     | Pixel-perfect style specification Skill - design tokens, all component CSS, Demo layout values, CSS variable templates and new component development checklist. |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md)   | Contributing Guide                                                                                                                                              |
 
 ## Local Development
 
@@ -110,7 +104,6 @@ deno task build
 # Build Demo site
 deno task build:demo
 ```
-
 
 ## Usage Cases
 

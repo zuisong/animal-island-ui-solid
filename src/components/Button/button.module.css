@@ -1,0 +1,6 @@
+.btn-small {
+  height: var(--animal-height-sm);
+  padding: 0 var(--animal-spacing-lg);
+  font-size: var(--animal-font-size-sm);
+  border-radius: var(--animal-border-radius-sm);
+}

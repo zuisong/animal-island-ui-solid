@@ -11,7 +11,7 @@
 
 ---
 
-````markdown
+```markdown
 You are a senior SolidJS engineer. Generate a **single self-contained `index.html` file** that the user can save to disk and double-click to preview in a browser. It must PERFECTLY match the visual style of the npm package "animal-island-ui-solid" (an Animal Crossing-inspired component library, v0.9.5).
 
 ## OUTPUT REQUIREMENTS
@@ -24,4 +24,4 @@ You are a senior SolidJS engineer. Generate a **single self-contained `index.htm
 - The page composition must read like idiomatic SolidJS (using `createSignal`, `Show`, `For`, etc.).
 
 ... (rest of the visual specs same as before) ...
-````
+```

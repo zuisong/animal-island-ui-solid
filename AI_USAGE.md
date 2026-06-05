@@ -12,7 +12,7 @@ npm install animal-island-ui-solid
 
 ```ts
 // app entry (main.tsx / App.tsx)
-import 'animal-island-ui-solid/style';          // MUST import BEFORE any component usage
+import "animal-island-ui-solid/style"; // MUST import BEFORE any component usage
 // Fonts (Nunito / Noto Sans SC) are auto-bundled via @fontsource.
 ```
 
@@ -31,42 +31,82 @@ All named exports from `animal-island-ui-solid`:
 
 ```ts
 import {
-  Button, Input, Switch, Modal, Card, Title,
-  Collapse, Cursor, Time, Phone, Footer, Divider,
-  Typewriter, Tabs, Icon, Select, Checkbox, Radio,
-  Tooltip, Loading, Table, CodeBlock,
-  WeddingInvitation, WeddingInvitationExportButton,
-} from 'animal-island-ui-solid';
+  Button,
+  Input,
+  Switch,
+  Modal,
+  Card,
+  Title,
+  Collapse,
+  Cursor,
+  Time,
+  Phone,
+  Footer,
+  Divider,
+  Typewriter,
+  Tabs,
+  Icon,
+  Select,
+  Checkbox,
+  Radio,
+  Tooltip,
+  Loading,
+  Table,
+  CodeBlock,
+  WeddingInvitation,
+  WeddingInvitationExportButton,
+} from "animal-island-ui-solid";
 
 // Runtime value export (icon catalogue — 10 entries)
-import { ICON_LIST } from 'animal-island-ui-solid';
+import { ICON_LIST } from "animal-island-ui-solid";
 
 import type {
-  ButtonProps, ButtonType, ButtonSize,
-  InputProps, InputSize,
-  SwitchProps, SwitchSize,
+  ButtonProps,
+  ButtonType,
+  ButtonSize,
+  InputProps,
+  InputSize,
+  SwitchProps,
+  SwitchSize,
   ModalProps,
-  CardProps, CardType, CardColor,
-  TitleProps, TitleSize, TitleColor,
+  CardProps,
+  CardType,
+  CardColor,
+  TitleProps,
+  TitleSize,
+  TitleColor,
   CollapseProps,
   CursorProps,
   TimeProps,
   PhoneProps,
-  FooterProps, FooterType,
+  FooterProps,
+  FooterType,
   DividerProps,
   TypewriterProps,
-  TabsProps, TabItem,
-  IconProps, IconName,
-  SelectProps, SelectOption,
-  CheckboxProps, CheckboxOption, CheckboxSize,
-  RadioProps, RadioOption, RadioSize,
-  TooltipProps, TooltipPlacement, TooltipTrigger, TooltipVariant,
+  TabsProps,
+  TabItem,
+  IconProps,
+  IconName,
+  SelectProps,
+  SelectOption,
+  CheckboxProps,
+  CheckboxOption,
+  CheckboxSize,
+  RadioProps,
+  RadioOption,
+  RadioSize,
+  TooltipProps,
+  TooltipPlacement,
+  TooltipTrigger,
+  TooltipVariant,
   LoadingProps,
-  TableProps, TableColumn,
+  TableProps,
+  TableColumn,
   CodeBlockProps,
-  WeddingInvitationProps, WeddingInvitationRef,
+  WeddingInvitationProps,
+  WeddingInvitationRef,
   WeddingInvitationExportButtonProps,
-} from 'animal-island-ui-solid';
+} from "animal-island-ui-solid";
 ```
 
 ---
@@ -74,25 +114,26 @@ import type {
 ### 1.1 Button
 
 ```ts
-type ButtonType     = 'primary' | 'default' | 'dashed' | 'text' | 'link';
-type ButtonSize     = 'small' | 'middle' | 'large';
-type ButtonHTMLType = 'submit' | 'reset' | 'button';
+type ButtonType = "primary" | "default" | "dashed" | "text" | "link";
+type ButtonSize = "small" | "middle" | "large";
+type ButtonHTMLType = "submit" | "reset" | "button";
 
-interface ButtonProps extends Omit<JSX.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
-  type?: ButtonType;          // default 'default'
-  size?: ButtonSize;          // default 'middle'
-  danger?: boolean;           // default false
-  ghost?: boolean;            // default false
-  block?: boolean;            // default false
-  loading?: boolean;          // default false
-  disabled?: boolean;         // default false
+interface ButtonProps extends Omit<JSX.ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
+  type?: ButtonType; // default 'default'
+  size?: ButtonSize; // default 'middle'
+  danger?: boolean; // default false
+  ghost?: boolean; // default false
+  block?: boolean; // default false
+  loading?: boolean; // default false
+  disabled?: boolean; // default false
   icon?: JSX.Element;
-  htmlType?: ButtonHTMLType;  // default 'button'
+  htmlType?: ButtonHTMLType; // default 'button'
   children?: JSX.Element;
 }
 ```
 
 Canonical usage:
+
 ```tsx
 <Button type="primary" onClick={save}>Save</Button>
 <Button type="primary" danger loading>Deleting…</Button>
@@ -104,15 +145,15 @@ Canonical usage:
 ### 1.2 Input
 
 ```ts
-type InputSize = 'small' | 'middle' | 'large';
+type InputSize = "small" | "middle" | "large";
 
-interface InputProps extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
-  size?: InputSize;                  // default 'middle'
+interface InputProps extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "size" | "prefix"> {
+  size?: InputSize; // default 'middle'
   prefix?: JSX.Element;
   suffix?: JSX.Element;
-  allowClear?: boolean;              // default false
-  status?: 'error' | 'warning';
-  shadow?: boolean;                  // default false
+  allowClear?: boolean; // default false
+  status?: "error" | "warning";
+  shadow?: boolean; // default false
   onInput?: JSX.InputEventHandler<HTMLInputElement, InputEvent>;
   onClear?: () => void;
 }
@@ -128,14 +169,14 @@ interface InputProps extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'si
 ### 1.3 Switch
 
 ```ts
-type SwitchSize = 'small' | 'default';
+type SwitchSize = "small" | "default";
 
 interface SwitchProps {
-  checked?: boolean;                  // controlled
-  defaultChecked?: boolean;           // default false
-  size?: SwitchSize;                  // default 'default'
-  disabled?: boolean;                 // default false
-  loading?: boolean;                  // default false
+  checked?: boolean; // controlled
+  defaultChecked?: boolean; // default false
+  size?: SwitchSize; // default 'default'
+  disabled?: boolean; // default false
+  loading?: boolean; // default false
   checkedChildren?: JSX.Element;
   unCheckedChildren?: JSX.Element;
   onChange?: (checked: boolean) => void;
@@ -144,7 +185,7 @@ interface SwitchProps {
 ```
 
 ```tsx
-<Switch defaultChecked onChange={v => console.log(v)} />
+<Switch defaultChecked onChange={(v) => console.log(v)} />
 ```
 
 ---
@@ -153,17 +194,17 @@ interface SwitchProps {
 
 ```ts
 interface ModalProps {
-  open: boolean;                       // REQUIRED
-  title?: JSX.Element;                 // heading text
-  width?: number | string;             // default 520
-  maskClosable?: boolean;              // default true
-  footer?: JSX.Element | null;         // null = hide footer
+  open: boolean; // REQUIRED
+  title?: JSX.Element; // heading text
+  width?: number | string; // default 520
+  maskClosable?: boolean; // default true
+  footer?: JSX.Element | null; // null = hide footer
   onClose?: () => void;
   onOk?: () => void;
   children?: JSX.Element;
   class?: string;
-  typeSpeed?: number;                  // default 80
-  typewriter?: boolean;                // default true
+  typeSpeed?: number; // default 80
+  typewriter?: boolean; // default true
 }
 ```
 
@@ -173,10 +214,13 @@ const [open, setOpen] = createSignal(false);
   open={open()}
   title="Confirm"
   onClose={() => setOpen(false)}
-  onOk={() => { submit(); setOpen(false); }}
+  onOk={() => {
+    submit();
+    setOpen(false);
+  }}
 >
   Proceed to delete this island?
-</Modal>
+</Modal>;
 ```
 
 ---
@@ -184,9 +228,22 @@ const [open, setOpen] = createSignal(false);
 ### 1.5 Card
 
 ```ts
-type CardType  = 'default' | 'dashed';
-type CardColor = 'default' | 'app-pink' | 'purple' | 'app-blue' | 'app-yellow' | 'app-orange' | 'app-teal' | 'app-green' | 'app-red' | 'lime-green' | 'yellow-green' | 'brown' | 'warm-peach-pink';
-type CardPattern = 'none' | CardColor;
+type CardType = "default" | "dashed";
+type CardColor =
+  | "default"
+  | "app-pink"
+  | "purple"
+  | "app-blue"
+  | "app-yellow"
+  | "app-orange"
+  | "app-teal"
+  | "app-green"
+  | "app-red"
+  | "lime-green"
+  | "yellow-green"
+  | "brown"
+  | "warm-peach-pink";
+type CardPattern = "none" | CardColor;
 
 interface CardProps extends JSX.HTMLAttributes<HTMLDivElement> {
   type?: CardType;
@@ -313,7 +370,7 @@ interface CheckboxProps {
   defaultValue?: Array<string | number>;
   size?: CheckboxSize;
   disabled?: boolean;
-  direction?: 'horizontal' | 'vertical';
+  direction?: "horizontal" | "vertical";
   onChange?: (values: Array<string | number>) => void;
   class?: string;
   style?: JSX.CSSProperties;
@@ -331,7 +388,7 @@ interface RadioProps {
   defaultValue?: string | number;
   size?: RadioSize;
   disabled?: boolean;
-  direction?: 'horizontal' | 'vertical';
+  direction?: "horizontal" | "vertical";
   onChange?: (value: string | number) => void;
   class?: string;
   style?: JSX.CSSProperties;
@@ -402,6 +459,6 @@ interface WeddingInvitationProps {
 3. **SolidJS primitives**: Use `createSignal`, `createEffect`, `For`, `Show` instead of React hooks and `map`.
 4. **Props access**: Access props as `props.value` or use `splitProps`/`mergeProps` to maintain reactivity.
 5. **Class attribute**: Use `class` instead of `className`.
-...
-(rest of rules updated for SolidJS)
-...
+   ...
+   (rest of rules updated for SolidJS)
+   ...

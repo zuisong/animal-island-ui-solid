@@ -19,7 +19,6 @@
     <a href="../README.md">English</a> | 简体中文
 </p>
 
-
 ## 简介
 
 本项目是基于 SolidJS + TypeScript 实现的轻量 UI 组件库，设计风格灵感来源于任天堂《集合啦！动物森友会》游戏界面，用于个人前端技术练习与组件化开发学习。
@@ -56,25 +55,21 @@
 npm install animal-island-ui-solid
 ```
 
-
-
 ## 快速上手
 
 > ⚠️ **重要提示**：请务必使用 `import 'animal-island-ui-solid/style'` 导入样式，否则组件将没有样式或字体！
 
 ```tsx
-import { Button, Card } from 'animal-island-ui-solid';
-import 'animal-island-ui-solid/style';
+import { Button, Card } from "animal-island-ui-solid";
+import "animal-island-ui-solid/style";
 
 function App() {
-    return (
-        <div>
-            <Button type="primary">开始冒险</Button>
-            <Card color="app-blue">
-                欢迎来到无人岛！
-            </Card>
-        </div>
-    );
+  return (
+    <div>
+      <Button type="primary">开始冒险</Button>
+      <Card color="app-blue">欢迎来到无人岛！</Card>
+    </div>
+  );
 }
 ```
 
@@ -82,14 +77,13 @@ function App() {
 
 针对不同场景的完整参考：
 
-| 文档 | 用途 |
-|---|---|
-| [`PROMPT.md`](../PROMPT.md) | 🚀 针对非开发者的“一键提示词” — 粘贴到 Cursor / Claude / ChatGPT / v0 / Bolt / Lovable / Windsurf 即可生成 animal-island-ui-solid 风格的页面。 |
-| [`AI_USAGE.md`](../AI_USAGE.md) | AI 编码助手手册 — 逐字逐句列出所有组件属性、类型和默认值，19 条硬性规则和可直接复制的代码模板，杜绝 AI 捏造 API。 |
-| [`DESIGN_PROMPT.md`](../DESIGN_PROMPT.md) | 针对 v0 / Figma AI / Midjourney / DALL-E 的视觉风格提示词，包含配色方案、字体、尺寸表、Modal 裁切路径及禁用清单。 |
-| [`skill/SKILL.md`](../skill/SKILL.md) | 像素级风格规范 Skill — 设计令牌、所有组件 CSS、Demo 布局数值、CSS 变量模板及新组件开发自检表。 |
-| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | 贡献指南 |
-
+| 文档                                      | 用途                                                                                                                                           |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`PROMPT.md`](../PROMPT.md)               | 🚀 针对非开发者的“一键提示词” — 粘贴到 Cursor / Claude / ChatGPT / v0 / Bolt / Lovable / Windsurf 即可生成 animal-island-ui-solid 风格的页面。 |
+| [`AI_USAGE.md`](../AI_USAGE.md)           | AI 编码助手手册 — 逐字逐句列出所有组件属性、类型和默认值，19 条硬性规则和可直接复制的代码模板，杜绝 AI 捏造 API。                              |
+| [`DESIGN_PROMPT.md`](../DESIGN_PROMPT.md) | 针对 v0 / Figma AI / Midjourney / DALL-E 的视觉风格提示词，包含配色方案、字体、尺寸表、Modal 裁切路径及禁用清单。                              |
+| [`skill/SKILL.md`](../skill/SKILL.md)     | 像素级风格规范 Skill — 设计令牌、所有组件 CSS、Demo 布局数值、CSS 变量模板及新组件开发自检表。                                                 |
+| [`CONTRIBUTING.md`](../CONTRIBUTING.md)   | 贡献指南                                                                                                                                       |
 
 ## 本地开发
 
@@ -110,7 +104,6 @@ deno task build
 # 构建 Demo 站点
 deno task build:demo
 ```
-
 
 ## 使用案例
 

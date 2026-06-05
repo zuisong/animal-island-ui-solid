@@ -1,14 +1,14 @@
-import { JSX, onMount, createEffect, onCleanup } from 'solid-js';
-import styles from './Loading.module.less';
-import { gsap } from './island/gsap.min.js';
-import { MotionPathPlugin } from './island/MotionPathPlugin.min.js';
-import { startAnimation } from './island/script.js';
+import { JSX, onMount, createEffect, onCleanup } from "solid-js";
+import styles from "./Loading.module.less";
+import { gsap } from "./island/gsap.min.js";
+import { MotionPathPlugin } from "./island/MotionPathPlugin.min.js";
+import { startAnimation } from "./island/script.js";
 
 export interface LoadingProps {
-    class?: string;
-    classList?: { [key: string]: boolean | undefined };
-    style?: JSX.CSSProperties;
-    active?: boolean;
+  class?: string;
+  classList?: { [key: string]: boolean | undefined };
+  style?: JSX.CSSProperties;
+  active?: boolean;
 }
 
 const SVG_CONTENT = `<svg viewBox="0 0 446 540" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" class="illustration">
@@ -76,55 +76,56 @@ const SVG_CONTENT = `<svg viewBox="0 0 446 540" xmlns="http://www.w3.org/2000/sv
 </g></svg>`;
 
 export const Loading = (props: LoadingProps) => {
-    let containerRef: HTMLDivElement | undefined;
+  let containerRef: HTMLDivElement | undefined;
 
-    onMount(() => {
-        startAnimation(gsap, MotionPathPlugin);
-    });
+  onMount(() => {
+    startAnimation(gsap, MotionPathPlugin);
+  });
 
-    createEffect(() => {
-        if (!containerRef) return;
+  createEffect(() => {
+    if (!containerRef) return;
 
-        const container = containerRef;
-        const rect = container.getBoundingClientRect();
-        // 终态半径需完全覆盖对角线（从中心到最远角），再加余量防止四角残留
-        const finalR = Math.ceil(Math.hypot(rect.width, rect.height) / 2) + 50;
-        const duration = Math.max(0.1, finalR / 1500);
+    const container = containerRef;
+    const rect = container.getBoundingClientRect();
+    // 终态半径需完全覆盖对角线（从中心到最远角），再加余量防止四角残留
+    const finalR = Math.ceil(Math.hypot(rect.width, rect.height) / 2) + 50;
+    const duration = Math.max(0.1, finalR / 1500);
 
-        if (props.active !== false) { // 默认 active 为 true
-            container.classList.remove(styles.closing);
-            container.style.transition = '';
-            container.style.setProperty('--mask-r', '0px');
-            container.style.display = 'flex';
-        } else {
-            container.classList.add(styles.closing);
-            container.style.transition = '';
-            container.style.setProperty('--mask-r', '0px');
-            // 强制 reflow 让初始值生效
-            void container.offsetHeight;
-            container.style.transition = `--mask-r ${duration}s linear`;
-            container.style.setProperty('--mask-r', `${finalR}px`);
-            const timer = setTimeout(() => {
-                if (containerRef) {
-                    containerRef.style.display = 'none';
-                }
-            }, duration * 1000);
-            onCleanup(() => clearTimeout(timer));
+    if (props.active !== false) {
+      // 默认 active 为 true
+      container.classList.remove(styles.closing);
+      container.style.transition = "";
+      container.style.setProperty("--mask-r", "0px");
+      container.style.display = "flex";
+    } else {
+      container.classList.add(styles.closing);
+      container.style.transition = "";
+      container.style.setProperty("--mask-r", "0px");
+      // 强制 reflow 让初始值生效
+      void container.offsetHeight;
+      container.style.transition = `--mask-r ${duration}s linear`;
+      container.style.setProperty("--mask-r", `${finalR}px`);
+      const timer = setTimeout(() => {
+        if (containerRef) {
+          containerRef.style.display = "none";
         }
-    });
+      }, duration * 1000);
+      onCleanup(() => clearTimeout(timer));
+    }
+  });
 
-    return (
-        <div class={styles.wrapper}>
-            <div 
-                ref={containerRef} 
-                class={props.class}
-                classList={{
-                    [styles.container]: true,
-                    ...props.classList
-                }} 
-                style={props.style}
-                innerHTML={SVG_CONTENT}
-            />
-        </div>
-    );
+  return (
+    <div class={styles.wrapper}>
+      <div
+        ref={containerRef}
+        class={props.class}
+        classList={{
+          [styles.container]: true,
+          ...props.classList,
+        }}
+        style={props.style}
+        innerHTML={SVG_CONTENT}
+      />
+    </div>
+  );
 };

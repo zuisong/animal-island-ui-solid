@@ -1,2 +1,2 @@
-export { Wallet } from './Wallet';
-export type { WalletProps, WalletSize } from './Wallet';
+export { Wallet } from "./Wallet";
+export type { WalletProps, WalletSize } from "./Wallet";
