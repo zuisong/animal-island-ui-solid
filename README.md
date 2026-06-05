@@ -8,15 +8,10 @@ A SolidJS UI component library inspired by Animal Crossing: New Horizons
 </div>
 <br/>
 <div align="center">
-    <a href="https://github.com/guokaigdg/animal-island-ui-solid/stargazers"><img src="https://img.shields.io/github/stars/guokaigdg/animal-island-ui-solid?style=flat-square" alt="Stars"></a>
+    <a href="https://github.com/zuisong/animal-island-ui-solid/stargazers"><img src="https://img.shields.io/github/stars/zuisong/animal-island-ui-solid?style=flat-square" alt="Stars"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
     <a href="LICENSE"><img src="https://img.shields.io/npm/dm/animal-island-ui-solid.svg?style=flat-square" alt=""></a>
-    <a href="https://github.com/guokaigdg/animal-island-ui-solid/releases"><img src="https://img.shields.io/github/v/tag/guokaigdg/animal-island-ui-solid?label=version&style=flat-square" alt="Version"></a>
-    <a href="https://gitcode.com/guokaigdg/animal-island-ui-solid"><img src="https://gitcode.com/guokaigdg/animal-island-ui-solid/star/badge.svg" alt="Stars"></a>
-</div>
-<br/>
-<div align="center">
-    <a href="https://hellogithub.com/repository/guokaigdg/animal-island-ui-solid" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=98ecff41d142466d8d72694a6fadf9e9&claim_uid=pyGqTPIRMdo7fBS&theme=neutral" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+    <a href="https://github.com/zuisong/animal-island-ui-solid/releases"><img src="https://img.shields.io/github/v/tag/zuisong/animal-island-ui-solid?label=version&style=flat-square" alt="Version"></a>
 </div>
 
 <br/>
@@ -31,14 +26,18 @@ This project is a lightweight UI component library built with SolidJS + TypeScri
 
 All visual elements, layouts, icons, and animations are independently designed and implemented, without directly using any official Nintendo art materials, code, or resource files.
 
+## Acknowledgements
+
+This SolidJS port is based on and inspired by the original [animal-island-ui](https://github.com/guokaigdg/animal-island-ui) project. Thanks to the original project and its author for the design direction and implementation reference.
+
 ## 🎉 Vue Version
 
 - [animal-island-vue](https://github.com/guokaigdg/animal-island-vue)
 
 ## Preview
 
-- Online Preview (PC) [animal-island-ui-solid-pc](https://guokaigdg.github.io/animal-island-ui-solid/#/)
-- Online Preview (Mobile) [animal-island-ui-solid-mobile](https://guokaigdg.github.io/animal-island-ui-solid/#/)
+- Online Preview (PC) [animal-island-ui-solid-pc](https://zuisong.github.io/animal-island-ui-solid/#/)
+- Online Preview (Mobile) [animal-island-ui-solid-mobile](https://zuisong.github.io/animal-island-ui-solid/#/)
 
 ## 🚀 Use AI to Generate animal-island-ui-solid Pages (No Coding Needed)
 
@@ -96,7 +95,7 @@ Complete reference for different scenarios:
 
 ```bash
 # Clone the repository
-git clone https://github.com/guokaigdg/animal-island-ui-solid.git
+git clone https://github.com/zuisong/animal-island-ui-solid.git
 cd animal-island-ui-solid
 
 # Install dependencies

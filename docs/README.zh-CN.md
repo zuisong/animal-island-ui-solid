@@ -8,15 +8,10 @@
 </div>
 <br/>
 <div align="center">
-    <a href="https://github.com/guokaigdg/animal-island-ui-solid/stargazers"><img src="https://img.shields.io/github/stars/guokaigdg/animal-island-ui-solid?style=flat-square" alt="Stars"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/npm/dm/animal-island-ui-solid.svg?style=flat-square" alt=""></a>
-    <a href="https://github.com/guokaigdg/animal-island-ui-solid/releases"><img src="https://img.shields.io/github/v/tag/guokaigdg/animal-island-ui-solid?label=version&style=flat-square" alt="Version"></a>
-    <a href="https://gitcode.com/guokaigdg/animal-island-ui-solid"><img src="https://gitcode.com/guokaigdg/animal-island-ui-solid/star/badge.svg" alt="Stars"></a>
-</div>
-<br/>
-<div align="center">
-    <a href="https://hellogithub.com/repository/guokaigdg/animal-island-ui-solid" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=98ecff41d142466d8d72694a6fadf9e9&claim_uid=pyGqTPIRMdo7fBS&theme=neutral" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+    <a href="https://github.com/zuisong/animal-island-ui-solid/stargazers"><img src="https://img.shields.io/github/stars/zuisong/animal-island-ui-solid?style=flat-square" alt="Stars"></a>
+    <a href="../LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
+    <a href="../LICENSE"><img src="https://img.shields.io/npm/dm/animal-island-ui-solid.svg?style=flat-square" alt=""></a>
+    <a href="https://github.com/zuisong/animal-island-ui-solid/releases"><img src="https://img.shields.io/github/v/tag/zuisong/animal-island-ui-solid?label=version&style=flat-square" alt="Version"></a>
 </div>
 
 <br/>
@@ -31,14 +26,18 @@
 
 所有视觉元素、布局、图标及动画效果均由独立设计并实现，未直接使用任天堂官方任何美术素材、代码或资源文件。
 
+## 致谢
+
+本 SolidJS 移植版基于并参考了原项目 [animal-island-ui](https://github.com/guokaigdg/animal-island-ui)。感谢原项目及其作者提供的设计方向与实现参考。
+
 ## 🎉 Vue 版本
 
 - [animal-island-vue](https://github.com/guokaigdg/animal-island-vue)
 
 ## 预览
 
-- 在线预览 (PC) [animal-island-ui-solid-pc](https://guokaigdg.github.io/animal-island-ui-solid/#/)
-- 在线预览 (Mobile) [animal-island-ui-solid-mobile](https://guokaigdg.github.io/animal-island-ui-solid/#/)
+- 在线预览 (PC) [animal-island-ui-solid-pc](https://zuisong.github.io/animal-island-ui-solid/#/)
+- 在线预览 (Mobile) [animal-island-ui-solid-mobile](https://zuisong.github.io/animal-island-ui-solid/#/)
 
 ## 🚀 使用 AI 生成 animal-island-ui-solid 页面（无需编码）
 
@@ -96,7 +95,7 @@ function App() {
 
 ```bash
 # 克隆仓库
-git clone https://github.com/guokaigdg/animal-island-ui-solid.git
+git clone https://github.com/zuisong/animal-island-ui-solid.git
 cd animal-island-ui-solid
 
 # 安装依赖

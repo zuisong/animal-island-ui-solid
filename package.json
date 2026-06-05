@@ -25,13 +25,13 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/guokaigdg/animal-island-ui-solid"
+        "url": "https://github.com/zuisong/animal-island-ui-solid"
     },
-    "homepage": "https://github.com/guokaigdg/animal-island-ui-solid#readme",
+    "homepage": "https://zuisong.github.io/animal-island-ui-solid/",
     "bugs": {
-        "url": "https://github.com/guokaigdg/animal-island-ui-solid/issues"
+        "url": "https://github.com/zuisong/animal-island-ui-solid/issues"
     },
-    "author": "guokaigdg",
+    "author": "zuisong",
     "scripts": {
         "dev": "vite",
         "typecheck": "tsc --noEmit",

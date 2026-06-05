@@ -531,7 +531,7 @@ const HomePage = (props: { onNavigate?: (path: string) => void }) => {
                         style={S.footerLink}
                         onClick={() =>
                             window.open(
-                                'https://github.com/guokaigdg/animal-island-ui-solid',
+                                'https://github.com/zuisong/animal-island-ui-solid',
                                 '_blank'
                             )
                         }
