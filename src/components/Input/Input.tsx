@@ -1,4 +1,5 @@
-import { JSX, createSignal, splitProps, mergeProps } from "solid-js";
+import { createSignal, merge, omit } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./input.module.less";
 
 export type InputSize = "small" | "middle" | "large";
@@ -23,14 +24,16 @@ export interface InputProps extends Omit<
   defaultValue?: string | number;
   /** 清除回调 */
   onClear?: () => void;
+  /** 自定义类名列表 */
+  classList?: Record<string, boolean>;
 }
 
 export const Input = (props: InputProps) => {
-  const merged = mergeProps(
+  const merged = merge(
     { size: "middle" as InputSize, allowClear: false, shadow: false, disabled: false },
     props,
   );
-  const [local, rest] = splitProps(merged, [
+  const rest = omit(merged,
     "size",
     "prefix",
     "suffix",
@@ -45,19 +48,19 @@ export const Input = (props: InputProps) => {
     "onInput",
     "onChange",
     "onClear",
-  ]);
+  );
 
-  const [innerValue, setInnerValue] = createSignal(local.defaultValue ?? "");
-  const currentValue = () => (local.value !== undefined ? local.value : innerValue());
+  const [innerValue, setInnerValue] = createSignal(merged.defaultValue ?? "");
+  const currentValue = () => (merged.value !== undefined ? merged.value : innerValue());
   let inputRef: HTMLInputElement | undefined;
 
   const handleChange = (e: Event & { target: HTMLInputElement }) => {
-    if (local.value === undefined) setInnerValue(e.target.value);
-    if (typeof local.onInput === "function") {
-      (local.onInput as any)(e);
+    if (merged.value === undefined) setInnerValue(e.target.value);
+    if (typeof merged.onInput === "function") {
+      (merged.onInput as any)(e);
     }
-    if (typeof local.onChange === "function") {
-      (local.onChange as any)(e);
+    if (typeof merged.onChange === "function") {
+      (merged.onChange as any)(e);
     }
   };
 
@@ -68,37 +71,39 @@ export const Input = (props: InputProps) => {
         new InputEvent("input", { bubbles: true, inputType: "deleteContentBackward" }),
       );
     }
-    if (local.value === undefined) setInnerValue("");
-    local.onClear?.();
+    if (merged.value === undefined) setInnerValue("");
+    merged.onClear?.();
   };
 
   return (
     <span
-      class={local.class}
-      classList={{
-        [styles.wrapper]: true,
-        [styles[`wrapper-${local.size}`]]: true,
-        [styles[`wrapper-${local.status}`]]: !!local.status,
-        [styles["wrapper-disabled"]]: local.disabled,
-        [styles["wrapper-no-shadow"]]: !local.shadow,
-        ...local.classList,
-      }}
+      class={[
+        merged.class,
+        {
+          [styles.wrapper]: true,
+          [styles[`wrapper-${merged.size}`]]: true,
+          [styles[`wrapper-${merged.status}`]]: !!merged.status,
+          [styles["wrapper-disabled"]]: merged.disabled,
+          [styles["wrapper-no-shadow"]]: !merged.shadow,
+        },
+        merged.classList,
+      ].flat() as any}
     >
-      {local.prefix && <span class={styles.prefix}>{local.prefix}</span>}
+      {merged.prefix && <span class={styles.prefix}>{merged.prefix}</span>}
       <input
         ref={inputRef}
         class={styles.input}
-        disabled={local.disabled}
+        disabled={merged.disabled}
         value={currentValue()}
         onInput={handleChange}
         {...rest}
       />
-      {local.allowClear && currentValue() !== "" && !local.disabled && (
-        <span class={styles.clear} onClick={handleClear} role="button" tabIndex={-1}>
+      {merged.allowClear && currentValue() !== "" && !merged.disabled && (
+        <span class={styles.clear} onClick={handleClear} role="button" tabindex="-1">
           ×
         </span>
       )}
-      {local.suffix && <span class={styles.suffix}>{local.suffix}</span>}
+      {merged.suffix && <span class={styles.suffix}>{merged.suffix}</span>}
     </span>
   );
 };

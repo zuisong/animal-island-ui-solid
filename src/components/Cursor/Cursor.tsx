@@ -1,4 +1,4 @@
-import { JSX } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import "./cursor.css";
 
 export interface CursorProps {
@@ -21,13 +21,15 @@ export interface CursorProps {
 export const Cursor = (props: CursorProps) => {
   return (
     <div
-      class={props.class}
-      classList={{
-        "animal-cursor": true,
-        "animal-cursor--force": props.forceAll !== false,
-        "animal-cursor--scoped": props.forceAll === false,
-        ...props.classList,
-      }}
+      class={[
+        props.class,
+        "animal-cursor",
+        props.forceAll !== false ? "animal-cursor--force" : undefined,
+        props.forceAll === false ? "animal-cursor--scoped" : undefined,
+        props.classList,
+      ]
+        .flat()
+        .filter(Boolean) as any}
       style={props.style}
     >
       {props.children}

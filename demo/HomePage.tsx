@@ -1,4 +1,5 @@
-import { JSX, createSignal, Show, For } from "solid-js";
+import { createSignal, Show, For } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import { Card, Divider, Button, Typewriter } from "../src";
 import { useIsMobile } from "./tools";
 

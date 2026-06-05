@@ -1,4 +1,5 @@
-import { JSX, For, Show } from "solid-js";
+import { For, Show } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./table.module.less";
 
 export interface TableColumn<T = any> {
@@ -59,17 +60,20 @@ export const Table = (props: TableProps) => {
 
   return (
     <div
-      class={styles.wrapper}
-      classList={{ [styles.scrollable]: !!props.scroll }}
+      class={[styles.wrapper, props.scroll ? styles.scrollable : undefined]
+        .flat()
+        .filter(Boolean) as any}
       style={props.style}
     >
       <table
-        class={props.class}
-        classList={{
-          [styles.table]: true,
-          [styles.loading]: props.loading,
-          ...props.classList,
-        }}
+        class={[
+          styles.table,
+          props.class,
+          props.loading ? styles.loading : undefined,
+          props.classList,
+        ]
+          .flat()
+          .filter(Boolean) as any}
       >
         <Show when={props.showHeader !== false}>
           <thead class={styles.thead}>
@@ -96,7 +100,7 @@ export const Table = (props: TableProps) => {
             when={dataSource().length > 0}
             fallback={
               <tr>
-                <td colSpan={columns().length} class={styles.emptyCell}>
+                <td colspan={columns().length} class={styles.emptyCell}>
                   <div class={styles.emptyContent}>
                     <svg class={styles.emptyIcon} viewBox="0 0 24 24" width="48" height="48">
                       <path

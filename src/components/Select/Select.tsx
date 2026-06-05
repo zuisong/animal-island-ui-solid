@@ -1,4 +1,5 @@
-import { JSX, createSignal, For, createEffect, onCleanup, Show } from "solid-js";
+import { createSignal, For, createEffect, onCleanup, Show } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./select.module.less";
 
 export type SelectOption = {
@@ -24,10 +25,10 @@ export const Select = (props: SelectProps) => {
   const currentLabel = () =>
     props.options.find((o) => o.key === props.value)?.label || props.placeholder || "请选择";
 
-  createEffect(() => {
-    if (!open()) return;
+  createEffect(() => open(), (isOpen) => {
+    if (!isOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (wrapperRef && !wrapperRef.contains(e.target as Node)) {
+      if (wrapperRef && e.target instanceof Node && !wrapperRef.contains(e.target)) {
         setOpen(false);
         setMounted(false);
       }
@@ -36,9 +37,10 @@ export const Select = (props: SelectProps) => {
     onCleanup(() => document.removeEventListener("mousedown", handleClickOutside));
   });
 
-  createEffect(() => {
-    if (open() && wrapperRef) {
-      const rect = wrapperRef.getBoundingClientRect();
+  createEffect(() => open(), (isOpen) => {
+    const el = wrapperRef;
+    if (isOpen && el) {
+      const rect = el.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
       const dropdownHeight = props.options.length * 44 + 24;
@@ -78,7 +80,7 @@ export const Select = (props: SelectProps) => {
       requestAnimationFrame(() => {
         setMounted(true);
       });
-    } else if (!open()) {
+    } else if (!isOpen) {
       setMounted(false);
     }
   });
@@ -90,10 +92,14 @@ export const Select = (props: SelectProps) => {
   };
 
   return (
-    <div ref={wrapperRef} class={styles.wrapper} classList={{ [styles.disabled]: props.disabled }}>
+    <div
+      ref={wrapperRef}
+      class={[styles.wrapper, props.disabled ? styles.disabled : undefined]
+        .flat()
+        .filter(Boolean) as any}
+    >
       <div
-        class={styles.trigger}
-        classList={{ [styles.open]: open() }}
+        class={[styles.trigger, open() ? styles.open : undefined].flat().filter(Boolean) as any}
         onClick={() => !props.disabled && setOpen(!open())}
       >
         <span class={props.value ? styles.value : styles.placeholder}>{currentLabel()}</span>
@@ -114,11 +120,13 @@ export const Select = (props: SelectProps) => {
           <For each={props.options}>
             {(option) => (
               <div
-                class={styles.option}
-                classList={{
-                  [styles.active]: props.value === option.key,
-                  [styles.hovered]: hoveredKey() === option.key,
-                }}
+                class={[
+                  styles.option,
+                  props.value === option.key ? styles.active : undefined,
+                  hoveredKey() === option.key ? styles.hovered : undefined,
+                ]
+                  .flat()
+                  .filter(Boolean) as any}
                 onClick={() => handleSelect(option.key)}
                 onMouseEnter={() => setHoveredKey(option.key)}
                 onMouseLeave={() => setHoveredKey(null)}

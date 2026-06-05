@@ -1,14 +1,14 @@
 import {
-  JSX,
   createSignal,
   createEffect,
   onCleanup,
   createMemo,
-  Suspense,
+  Loading as SolidLoading,
   lazy,
   Show,
   For,
 } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import { Cursor, Loading } from "../src";
 import "../src/styles/index.less";
 import "@fontsource/nunito/latin-500.css";
@@ -271,12 +271,11 @@ const App = () => {
   );
   const isHomePage = () => activeKey() === "home";
 
-  createEffect(() => {
-    if (!isMobile()) setDrawerOpen(false);
+  createEffect(() => isMobile(), (mobile) => {
+    if (!mobile) setDrawerOpen(false);
   });
 
-  createEffect(() => {
-    activeKey(); // track changes
+  createEffect(() => activeKey(), () => {
     setDrawerOpen(false);
     mainRef?.scrollTo({ top: 0 });
   });
@@ -424,9 +423,9 @@ const App = () => {
               "padding-top": isMobile() ? "68px" : "32px",
             }}
           >
-            <Suspense fallback={null}>
+            <SolidLoading fallback={null}>
               <ComponentPage activeKey={activeKey()} />
-            </Suspense>
+            </SolidLoading>
           </main>
 
           <Show when={!isMobile()}>

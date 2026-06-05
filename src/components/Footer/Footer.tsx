@@ -1,4 +1,5 @@
-import { JSX } from "solid-js";
+
+import type { JSX } from "@solidjs/web";
 import styles from "./footer.module.less";
 
 export type FooterType = "sea" | "tree";
@@ -17,12 +18,14 @@ export interface FooterProps {
 export const Footer = (props: FooterProps) => {
   return (
     <div
-      class={props.class}
-      classList={{
-        [styles.footer]: true,
-        [styles[props.type || "tree"]]: true,
-        ...props.classList,
-      }}
+      class={[
+        props.class,
+        {
+          [styles.footer]: true,
+          [styles[props.type || "tree"]]: true,
+          ...props.classList,
+        },
+      ].flat() as any}
       style={props.style}
     />
   );

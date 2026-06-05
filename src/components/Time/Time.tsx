@@ -1,4 +1,4 @@
-import { createSignal, onMount, onCleanup } from "solid-js";
+import { createSignal, onSettled, onCleanup } from "solid-js";
 import styles from "./time.module.less";
 
 export interface TimeProps {
@@ -11,7 +11,7 @@ const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 export const Time = (props: TimeProps) => {
   const [currentTime, setCurrentTime] = createSignal(new Date());
 
-  onMount(() => {
+  onSettled(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     onCleanup(() => clearInterval(timer));
   });

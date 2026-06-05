@@ -1,5 +1,6 @@
-import { JSX, createSignal, Show, onCleanup, createUniqueId } from "solid-js";
+import { createSignal, Show, onCleanup, createUniqueId } from "solid-js";
 import styles from "./tooltip.module.less";
+import { JSX } from "@solidjs/web/jsx-runtime";
 
 export type TooltipPlacement =
   | "top"
@@ -90,11 +91,7 @@ export const Tooltip = (props: TooltipProps) => {
 
   return (
     <div
-      class={props.class}
-      classList={{
-        [styles.tooltipWrapper]: true,
-        ...props.classList,
-      }}
+      class={[styles.tooltipWrapper, props.class, props.classList].flat().filter(Boolean) as any}
       style={props.style}
     >
       <div
@@ -108,16 +105,18 @@ export const Tooltip = (props: TooltipProps) => {
         {props.children}
       </div>
       <div
-        class={styles.tooltip}
-        classList={{
-          [placementClass()]: true,
-          [styles.island]: isIsland(),
-          [styles.bordered]: props.bordered !== false,
-          [styles.borderless]: props.bordered === false,
-          [styles.visible]: visible(),
-        }}
+        class={[
+          styles.tooltip,
+          placementClass(),
+          isIsland() ? styles.island : undefined,
+          props.bordered !== false ? styles.bordered : undefined,
+          props.bordered === false ? styles.borderless : undefined,
+          visible() ? styles.visible : undefined,
+        ]
+          .flat()
+          .filter(Boolean) as any}
         role="tooltip"
-        aria-hidden={!visible()}
+        aria-hidden={visible() ? "false" : "true"}
         onMouseEnter={props.trigger !== "click" && props.trigger !== "focus" ? show : undefined}
         onMouseLeave={props.trigger !== "click" && props.trigger !== "focus" ? hide : undefined}
       >

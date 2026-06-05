@@ -1,4 +1,4 @@
-import { JSX, createSignal, Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { WeddingInvitation, WeddingInvitationExportButton, Input, Switch } from "../../../src";
 import type { WeddingInvitationRef } from "../../../src";
 import {
@@ -11,6 +11,7 @@ import {
   demoBodyStyle,
   labelStyle,
 } from "../../tools";
+import { JSX } from "@solidjs/web/jsx-runtime";
 
 interface FieldProps {
   label: string;

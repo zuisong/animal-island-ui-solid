@@ -1,5 +1,6 @@
-import { JSX, createSignal, createEffect, onCleanup, Show } from "solid-js";
-import { Portal } from "solid-js/web";
+import { createSignal, createEffect, onCleanup, Show } from "solid-js";
+import { Portal } from "@solidjs/web";
+import type { JSX } from "@solidjs/web";
 import { Button } from "../Button";
 import { Cursor } from "../Cursor";
 import { Typewriter } from "../Typewriter";
@@ -42,13 +43,13 @@ export interface ModalProps {
 export const Modal = (props: ModalProps) => {
   // 每次 open 变为 true 时重启打字机
   const [playKey, setPlayKey] = createSignal(0);
-  createEffect(() => {
-    if (props.open) setPlayKey((k) => k + 1);
+  createEffect(() => props.open, (open) => {
+    if (open) setPlayKey((k) => k + 1);
   });
 
   // ESC 关闭
-  createEffect(() => {
-    if (!props.open) return;
+  createEffect(() => props.open, (open) => {
+    if (!open) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") props.onClose?.();
     };
@@ -57,8 +58,8 @@ export const Modal = (props: ModalProps) => {
   });
 
   // 禁止滚动
-  createEffect(() => {
-    if (props.open) {
+  createEffect(() => props.open, (open) => {
+    if (open) {
       const original = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       onCleanup(() => {
@@ -92,14 +93,11 @@ export const Modal = (props: ModalProps) => {
         <Cursor>
           <div class={styles.mask} onClick={handleMaskClick}>
             <div
-              class={props.class}
-              classList={{
-                [styles.modal]: true,
-                ...props.classList,
-              }}
+              class={[props.class, styles.modal, props.classList].flat().filter(Boolean) as any}
               style={{
-                width:
-                  typeof props.width === "number" ? `${props.width}px` : props.width || "520px",
+                width: (typeof props.width === "number"
+                  ? `${props.width}px`
+                  : props.width || "520px") as any,
               }}
               onClick={handleContentClick}
               role="dialog"

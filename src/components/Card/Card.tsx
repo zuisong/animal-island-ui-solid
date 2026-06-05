@@ -1,4 +1,5 @@
-import { JSX, splitProps } from "solid-js";
+import { merge, omit } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./card.module.less";
 
 export type CardType = "default" | "dashed";
@@ -43,31 +44,29 @@ export interface CardProps extends JSX.HTMLAttributes<HTMLDivElement> {
   pattern?: CardPattern;
   /** 自定义内容 */
   children?: JSX.Element;
+  /** 自定义类名列表 */
+  classList?: Record<string, boolean>;
 }
 
 export const Card = (props: CardProps) => {
-  const [local, rest] = splitProps(props, [
-    "type",
-    "color",
-    "pattern",
-    "children",
-    "class",
-    "classList",
-  ]);
+  const merged = merge({}, props);
+  const rest = omit(merged, "type", "color", "pattern", "children", "class", "classList");
 
   return (
     <div
-      class={local.class}
-      classList={{
-        [styles.card]: true,
-        [styles["card-dashed"]]: local.type === "dashed",
-        [styles[`card-${local.color}`]]: !!local.color && local.color !== "default",
-        [styles[`pattern-${local.pattern}`]]: !!local.pattern && local.pattern !== "none",
-        ...local.classList,
-      }}
+      class={[
+        merged.class,
+        {
+          [styles.card]: true,
+          [styles["card-dashed"]]: merged.type === "dashed",
+          [styles[`card-${merged.color}`]]: !!merged.color && merged.color !== "default",
+          [styles[`pattern-${merged.pattern}`]]: !!merged.pattern && merged.pattern !== "none",
+        },
+        merged.classList,
+      ].flat() as any}
       {...rest}
     >
-      {local.children}
+      {merged.children}
     </div>
   );
 };

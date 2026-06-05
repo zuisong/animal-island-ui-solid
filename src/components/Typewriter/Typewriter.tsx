@@ -1,4 +1,5 @@
-import { JSX, createSignal, createEffect, onCleanup, createMemo } from "solid-js";
+import { JSX } from "@solidjs/web/jsx-runtime";
+import { createSignal, createEffect, onCleanup, createMemo } from "solid-js";
 
 export interface TypewriterProps {
   /** 需要逐字显示的内容，保留原有元素结构/换行/样式 */
@@ -117,32 +118,31 @@ export const Typewriter = (props: TypewriterProps) => {
   const autoPlay = () => props.autoPlay ?? true;
   const [count, setCount] = createSignal(autoPlay() ? 0 : total());
 
-  createEffect(() => {
-    // Track trigger
-    props.trigger;
+  createEffect(
+    () => ({ trigger: props.trigger, autoPlay: autoPlay(), total: total(), speed: speed() }),
+    ({ autoPlay, total, speed }) => {
+      if (!autoPlay) {
+        setCount(total);
+        return;
+      }
 
-    if (!autoPlay()) {
-      setCount(total());
-      return;
-    }
+      setCount(0);
+      if (total === 0) return;
 
-    setCount(0);
-    const t = total();
-    if (t === 0) return;
+      const timer = setInterval(() => {
+        setCount((c) => {
+          if (c >= total) {
+            clearInterval(timer);
+            props.onDone?.();
+            return c;
+          }
+          return c + 1;
+        });
+      }, speed);
 
-    const timer = setInterval(() => {
-      setCount((c) => {
-        if (c >= t) {
-          clearInterval(timer);
-          props.onDone?.();
-          return c;
-        }
-        return c + 1;
-      });
-    }, speed());
-
-    onCleanup(() => clearInterval(timer));
-  });
+      onCleanup(() => clearInterval(timer));
+    },
+  );
 
   return <>{renderTruncated(props.children, { remaining: count(), stopped: false })}</>;
 };

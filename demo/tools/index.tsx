@@ -1,4 +1,5 @@
-import { JSX, createSignal, onCleanup, For } from "solid-js";
+import { createSignal, onCleanup, For } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import { CodeBlock as CodeBlockBase } from "../../src";
 
 export const useIsMobile = (breakpoint = 768) => {

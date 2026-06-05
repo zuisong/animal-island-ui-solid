@@ -1,4 +1,5 @@
-import { JSX, onMount, createEffect, onCleanup } from "solid-js";
+import { onSettled, createEffect, onCleanup } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./Loading.module.less";
 import { gsap } from "./island/gsap.min.js";
 import { MotionPathPlugin } from "./island/MotionPathPlugin.min.js";
@@ -78,11 +79,11 @@ const SVG_CONTENT = `<svg viewBox="0 0 446 540" xmlns="http://www.w3.org/2000/sv
 export const Loading = (props: LoadingProps) => {
   let containerRef: HTMLDivElement | undefined;
 
-  onMount(() => {
+  onSettled(() => {
     startAnimation(gsap, MotionPathPlugin);
   });
 
-  createEffect(() => {
+  createEffect(() => props.active, (active) => {
     if (!containerRef) return;
 
     const container = containerRef;
@@ -91,7 +92,7 @@ export const Loading = (props: LoadingProps) => {
     const finalR = Math.ceil(Math.hypot(rect.width, rect.height) / 2) + 50;
     const duration = Math.max(0.1, finalR / 1500);
 
-    if (props.active !== false) {
+    if (active !== false) {
       // 默认 active 为 true
       container.classList.remove(styles.closing);
       container.style.transition = "";
@@ -118,11 +119,13 @@ export const Loading = (props: LoadingProps) => {
     <div class={styles.wrapper}>
       <div
         ref={containerRef}
-        class={props.class}
-        classList={{
-          [styles.container]: true,
-          ...props.classList,
-        }}
+        class={[
+          props.class,
+          {
+            [styles.container]: true,
+            ...props.classList,
+          },
+        ].flat() as any}
         style={props.style}
         innerHTML={SVG_CONTENT}
       />

@@ -1,4 +1,5 @@
-import { JSX, splitProps } from "solid-js";
+import { merge, omit } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./button.module.less";
 
 export type ButtonType = "primary" | "default" | "dashed" | "text" | "link";
@@ -25,10 +26,13 @@ export interface ButtonProps extends Omit<JSX.ButtonHTMLAttributes<HTMLButtonEle
   /** 原生 button type */
   htmlType?: ButtonHTMLType;
   children?: JSX.Element;
+  /** 自定义类名列表 */
+  classList?: Record<string, boolean>;
 }
 
 export const Button = (props: ButtonProps) => {
-  const [local, rest] = splitProps(props, [
+  const merged = merge({ type: "default" as ButtonType, size: "middle" as ButtonSize }, props);
+  const rest = omit(merged,
     "type",
     "size",
     "danger",
@@ -41,27 +45,29 @@ export const Button = (props: ButtonProps) => {
     "children",
     "class",
     "classList",
-  ]);
+  );
 
   return (
     <button
-      type={local.htmlType || "button"}
-      disabled={local.disabled}
-      class={local.class}
-      classList={{
-        [styles.btn]: true,
-        [styles[`btn-${local.type || "default"}`]]: true,
-        [styles[`btn-${local.size || "middle"}`]]: true,
-        [styles["btn-danger"]]: local.danger,
-        [styles["btn-ghost"]]: local.ghost,
-        [styles["btn-block"]]: local.block,
-        [styles["btn-loading"]]: local.loading,
-        ...local.classList,
-      }}
+      type={merged.htmlType || "button"}
+      disabled={merged.disabled}
+      class={[
+        merged.class,
+        {
+          [styles.btn]: true,
+          [styles[`btn-${merged.type}`]]: true,
+          [styles[`btn-${merged.size}`]]: true,
+          [styles["btn-danger"]]: merged.danger,
+          [styles["btn-ghost"]]: merged.ghost,
+          [styles["btn-block"]]: merged.block,
+          [styles["btn-loading"]]: merged.loading,
+        },
+        merged.classList,
+      ].flat() as any}
       {...rest}
     >
-      {local.icon && !local.loading && <span class={styles["btn-icon"]}>{local.icon}</span>}
-      {local.children && <span>{local.children}</span>}
+      {merged.icon && !merged.loading && <span class={styles["btn-icon"]}>{merged.icon}</span>}
+      {merged.children && <span>{merged.children}</span>}
     </button>
   );
 };

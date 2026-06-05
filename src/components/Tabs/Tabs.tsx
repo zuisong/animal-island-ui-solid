@@ -1,4 +1,5 @@
-import { JSX, createSignal, For, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./tabs.module.less";
 import leafIcon from "../../assets/img/icons/icon-leaf.png";
 
@@ -40,11 +41,7 @@ export const Tabs = (props: TabsProps) => {
 
   return (
     <div
-      class={props.class}
-      classList={{
-        [styles.tabs]: true,
-        ...props.classList,
-      }}
+      class={[styles.tabs, props.class, props.classList].flat().filter(Boolean) as any}
       style={props.style}
     >
       <div class={styles.tabList}>
@@ -53,11 +50,13 @@ export const Tabs = (props: TabsProps) => {
             const isActive = () => item.key === currentActiveKey();
             return (
               <button
-                class={styles.tabItem}
-                classList={{
-                  [styles.active]: isActive(),
-                  [styles["active-shadow"]]: isActive() && props.shadow !== false,
-                }}
+                class={[
+                  styles.tabItem,
+                  isActive() ? styles.active : undefined,
+                  isActive() && props.shadow !== false ? styles["active-shadow"] : undefined,
+                ]
+                  .flat()
+                  .filter(Boolean) as any}
                 onClick={() => handleTabClick(item.key)}
               >
                 <span class={styles.tabIcon}>{isActive() ? "●" : "○"}</span>
@@ -66,8 +65,12 @@ export const Tabs = (props: TabsProps) => {
                   <img
                     src={leafIcon}
                     alt=""
-                    class={styles.tabLeaf}
-                    classList={{ [styles.tabLeafStatic]: props.leafAnimation === false }}
+                    class={[
+                      styles.tabLeaf,
+                      props.leafAnimation === false ? styles.tabLeafStatic : undefined,
+                    ]
+                      .flat()
+                      .filter(Boolean) as any}
                   />
                 </Show>
               </button>

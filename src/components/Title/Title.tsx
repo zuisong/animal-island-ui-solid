@@ -1,4 +1,4 @@
-import { JSX } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./title.module.less";
 
 export type TitleSize = "small" | "middle" | "large";
@@ -41,10 +41,12 @@ const SIZE_MAP: Record<TitleSize, number> = {
 
 const Ribbon = (props: { children: JSX.Element; fontSize: number; color?: TitleColor }) => (
   <span
-    class={styles.ribbon}
-    classList={{
-      [styles[`color-${props.color}`]]: !!props.color && props.color !== "default",
-    }}
+    class={[
+      styles.ribbon,
+      !!props.color && props.color !== "default" ? styles[`color-${props.color}`] : undefined,
+    ]
+      .flat()
+      .filter(Boolean) as any}
     style={{ "font-size": `${props.fontSize}px` }}
   >
     <span class={`${styles.ribbonBack} ${styles.ribbonBackLeft}`} aria-hidden="true" />
@@ -59,11 +61,7 @@ const Ribbon = (props: { children: JSX.Element; fontSize: number; color?: TitleC
 export const Title = (props: TitleProps) => {
   return (
     <span
-      class={props.class}
-      classList={{
-        [styles.title]: true,
-        ...props.classList,
-      }}
+      class={[styles.title, props.class, props.classList].flat().filter(Boolean) as any}
       style={props.style}
     >
       <Ribbon fontSize={SIZE_MAP[props.size || "middle"]} color={props.color || "default"}>

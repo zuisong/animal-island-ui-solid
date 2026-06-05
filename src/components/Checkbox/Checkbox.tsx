@@ -1,4 +1,5 @@
-import { JSX, createSignal, For } from "solid-js";
+import { createSignal, For } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./checkbox.module.less";
 
 export type CheckboxSize = "small" | "middle" | "large";
@@ -57,13 +58,15 @@ export const Checkbox = (props: CheckboxProps) => {
 
   return (
     <div
-      class={props.class}
-      classList={{
-        [styles.checkboxGroup]: true,
-        [styles[props.direction || "horizontal"]]: true,
-        [styles.groupDisabled]: props.disabled,
-        ...props.classList,
-      }}
+      class={[
+        props.class,
+        styles.checkboxGroup,
+        styles[props.direction || "horizontal"],
+        props.disabled ? styles.groupDisabled : undefined,
+        props.classList,
+      ]
+        .flat()
+        .filter(Boolean) as any}
       style={props.style}
     >
       <For each={props.options}>
@@ -72,19 +75,21 @@ export const Checkbox = (props: CheckboxProps) => {
           const isDisabled = () => props.disabled || opt.disabled;
           return (
             <label
-              class={styles.checkboxItem}
-              classList={{
-                [styles[props.size || "middle"]]: true,
-                [styles.checked]: isChecked(),
-                [styles.disabled]: isDisabled(),
-              }}
+              class={[
+                styles.checkboxItem,
+                styles[props.size || "middle"],
+                isChecked() ? styles.checked : undefined,
+                isDisabled() ? styles.disabled : undefined,
+              ]
+                .flat()
+                .filter(Boolean) as any}
               onClick={() => handleChange(opt.value, opt.disabled)}
             >
               <span
                 class={styles.box}
                 role="checkbox"
-                aria-checked={isChecked()}
-                tabIndex={isDisabled() ? -1 : 0}
+                aria-checked={isChecked() ? "true" : "false"}
+                tabindex={isDisabled() ? -1 : 0}
                 onKeyDown={(e) => {
                   if (e.key === " " || e.key === "Enter") {
                     e.preventDefault();

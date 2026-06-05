@@ -1,4 +1,5 @@
-import { JSX, createSignal, For, createMemo, createEffect } from "solid-js";
+import { createSignal, For, createMemo, createEffect } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./radio.module.less";
 
 export type RadioSize = "small" | "middle" | "large";
@@ -46,10 +47,13 @@ export const Radio = (props: RadioProps) => {
     initialFocusedIndex >= 0 ? initialFocusedIndex : 0,
   );
 
-  createEffect(() => {
-    const idx = props.options.findIndex((o) => o.value === checkedValue());
-    if (idx >= 0) setFocusedIndex(idx);
-  });
+  createEffect(
+    () => ({ options: props.options, checked: checkedValue() }),
+    ({ options, checked }) => {
+      const idx = options.findIndex((o) => o.value === checked);
+      if (idx >= 0) setFocusedIndex(idx);
+    },
+  );
 
   const enabledIndices = createMemo(() => {
     return props.options
@@ -111,13 +115,15 @@ export const Radio = (props: RadioProps) => {
   return (
     <div
       ref={groupRef}
-      class={props.class}
-      classList={{
-        [styles.radioGroup]: true,
-        [styles[props.direction || "horizontal"]]: true,
-        [styles.groupDisabled]: props.disabled,
-        ...props.classList,
-      }}
+      class={[
+        props.class,
+        styles.radioGroup,
+        styles[props.direction || "horizontal"],
+        props.disabled ? styles.groupDisabled : undefined,
+        props.classList,
+      ]
+        .flat()
+        .filter(Boolean) as any}
       style={props.style}
       role="radiogroup"
       onKeyDown={handleKeyDown}
@@ -130,12 +136,14 @@ export const Radio = (props: RadioProps) => {
 
           return (
             <label
-              class={styles.radioItem}
-              classList={{
-                [styles[props.size || "middle"]]: true,
-                [styles.checked]: isChecked(),
-                [styles.disabled]: isDisabled(),
-              }}
+              class={[
+                styles.radioItem,
+                styles[props.size || "middle"],
+                isChecked() ? styles.checked : undefined,
+                isDisabled() ? styles.disabled : undefined,
+              ]
+                .flat()
+                .filter(Boolean) as any}
               onClick={() => {
                 if (!isDisabled()) {
                   setFocusedIndex(idx());
@@ -147,9 +155,9 @@ export const Radio = (props: RadioProps) => {
                 class={styles.circle}
                 data-radio-circle
                 role="radio"
-                aria-checked={isChecked()}
-                aria-disabled={isDisabled() || undefined}
-                tabIndex={isFocusable() ? 0 : -1}
+                aria-checked={isChecked() ? "true" : "false"}
+                aria-disabled={isDisabled() ? "true" : "false"}
+                tabindex={isFocusable() ? 0 : -1}
                 onFocus={() => {
                   if (!isDisabled()) setFocusedIndex(idx());
                 }}

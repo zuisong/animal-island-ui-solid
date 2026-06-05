@@ -1,4 +1,5 @@
-import { JSX, Show } from "solid-js";
+import { Show } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./wallet.module.less";
 import { Icon } from "../Icon";
 
@@ -38,12 +39,14 @@ const SIZE_CLASS: Record<WalletSize, string> = {
 export const Wallet = (props: WalletProps) => {
   return (
     <div
-      class={props.class}
-      classList={{
-        [styles.wallet]: true,
-        [SIZE_CLASS[props.size || "medium"]]: !!SIZE_CLASS[props.size || "medium"],
-        ...props.classList,
-      }}
+      class={[
+        styles.wallet,
+        props.class,
+        SIZE_CLASS[props.size || "medium"] ? SIZE_CLASS[props.size || "medium"] : undefined,
+        props.classList,
+      ]
+        .flat()
+        .filter(Boolean) as any}
       style={props.style}
     >
       <div class={styles.bagSlot} aria-hidden="true">

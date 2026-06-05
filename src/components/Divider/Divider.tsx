@@ -1,4 +1,4 @@
-import { JSX } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./divider.module.less";
 
 export type DividerType =
@@ -26,12 +26,9 @@ export interface DividerProps {
 export const Divider = (props: DividerProps) => {
   return (
     <div
-      class={props.class}
-      classList={{
-        [styles.divider]: true,
-        [styles[props.type || "line-brown"]]: true,
-        ...props.classList,
-      }}
+      class={[props.class, styles.divider, styles[props.type || "line-brown"], props.classList]
+        .flat()
+        .filter(Boolean) as any}
       style={props.style}
     />
   );

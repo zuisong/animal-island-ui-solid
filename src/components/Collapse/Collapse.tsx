@@ -1,5 +1,6 @@
-import { JSX, createSignal } from "solid-js";
+import { createSignal } from "solid-js";
 import styles from "./collapse.module.less";
+import { JSX } from "@solidjs/web/jsx-runtime";
 
 export interface CollapseProps {
   /** 问题标题 */
@@ -21,7 +22,7 @@ export interface CollapseProps {
 export const Collapse = (props: CollapseProps) => {
   const [expanded, setExpanded] = createSignal(props.defaultExpanded ?? false);
 
-  const handleClick = () => {
+  const handleClick = (e: MouseEvent) => {
     if (!props.disabled) {
       setExpanded(!expanded());
     }
@@ -29,20 +30,22 @@ export const Collapse = (props: CollapseProps) => {
 
   return (
     <div
-      class={props.class}
-      classList={{
-        [styles.faqCard]: true,
-        [styles.expanded]: expanded(),
-        [styles.disabled]: props.disabled,
-        ...props.classList,
-      }}
+      class={[
+        props.class,
+        styles.faqCard,
+        expanded() ? styles.expanded : undefined,
+        props.disabled ? styles.disabled : undefined,
+        props.classList,
+      ]
+        .flat()
+        .filter(Boolean) as any}
       style={props.style}
     >
       <button
         class={styles.questionHeader}
         onClick={handleClick}
         disabled={props.disabled}
-        aria-expanded={expanded()}
+        aria-expanded={expanded() ? "true" : "false"}
       >
         <span class={styles.questionIcon}>{expanded() ? "−" : "+"}</span>
         <span class={styles.questionText}>{props.question}</span>

@@ -1,4 +1,5 @@
-import { JSX, createSignal, Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./switch.module.less";
 
 export type SwitchSize = "small" | "default";
@@ -39,16 +40,18 @@ export const Switch = (props: SwitchProps) => {
     <button
       type="button"
       role="switch"
-      aria-checked={isChecked()}
-      class={props.class}
-      classList={{
-        [styles.switch]: true,
-        [styles[`switch-${props.size || "default"}`]]: true,
-        [styles["switch-checked"]]: isChecked(),
-        [styles["switch-disabled"]]: props.disabled,
-        [styles["switch-loading"]]: props.loading,
-        ...props.classList,
-      }}
+      aria-checked={isChecked() ? "true" : "false"}
+      class={[
+        props.class,
+        styles.switch,
+        styles[`switch-${props.size || "default"}`],
+        isChecked() ? styles["switch-checked"] : undefined,
+        props.disabled ? styles["switch-disabled"] : undefined,
+        props.loading ? styles["switch-loading"] : undefined,
+        props.classList,
+      ]
+        .flat()
+        .filter(Boolean) as any}
       onClick={handleClick}
       disabled={props.disabled}
     >

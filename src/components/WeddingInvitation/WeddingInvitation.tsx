@@ -1,10 +1,11 @@
-import { JSX, createSignal, Show, onMount, For } from "solid-js";
+import { createSignal, Show, onSettled, For } from "solid-js";
 import { domToCanvas } from "modern-screenshot";
 import styles from "./weddingInvitation.module.less";
 import weddingTitleImg from "./img/wedding.PNG";
 import brideAndGroomImg from "./img/brideandgroom.PNG";
 import { injectWeddingFonts, prepareWeddingFontsForExport } from "./fonts";
 import { Icon } from "../Icon";
+import { JSX } from "@solidjs/web/jsx-runtime";
 
 // 模块加载即注入 @font-face —— 网页本身就用这套字体；
 // 导出 PNG 时同一批字体会被转成 data URL 注入 SVG，确保渲染一致。
@@ -245,7 +246,7 @@ export const WeddingInvitation = (props: WeddingInvitationProps) => {
     if (rootRef) await exportNodeAsPng(rootRef, filename);
   };
 
-  onMount(() => {
+  onSettled(() => {
     props.ref?.({
       exportAsImage,
       getElement: () => rootRef,
@@ -255,32 +256,34 @@ export const WeddingInvitation = (props: WeddingInvitationProps) => {
   return (
     <div
       ref={rootRef}
-      class={props.class}
-      classList={{
-        [styles.envelope]: true,
-        [styles.noLottery]: props.showLotteryNumber === false,
-        ...props.classList,
-      }}
+      class={[
+        props.class,
+        styles.envelope,
+        props.showLotteryNumber === false ? styles.noLottery : undefined,
+        props.classList,
+      ]
+        .flat()
+        .filter(Boolean) as any}
       style={props.style}
     >
-      <Leaf class={`${styles.cornerLeaf} ${styles.tl}`} />
-      <Leaf class={`${styles.cornerLeaf} ${styles.tr}`} />
-      <Leaf class={`${styles.cornerLeaf} ${styles.bl}`} />
-      <Leaf class={`${styles.cornerLeaf} ${styles.br}`} />
+      <Leaf class={[styles.cornerLeaf, styles.tl].flat().filter(Boolean) as any} />
+      <Leaf class={[styles.cornerLeaf, styles.tr].flat().filter(Boolean) as any} />
+      <Leaf class={[styles.cornerLeaf, styles.bl].flat().filter(Boolean) as any} />
+      <Leaf class={[styles.cornerLeaf, styles.br].flat().filter(Boolean) as any} />
 
-      <span class={`${styles.floatItem} ${styles.f1}`}>
+      <span class={[styles.floatItem, styles.f1].flat().filter(Boolean) as any}>
         <Flower color="#f8a6b2" />
       </span>
-      <span class={`${styles.floatItem} ${styles.f2}`}>
+      <span class={[styles.floatItem, styles.f2].flat().filter(Boolean) as any}>
         <Flower color="#ecdf52" center="#e59266" size={22} />
       </span>
-      <span class={`${styles.floatItem} ${styles.f3}`}>
+      <span class={[styles.floatItem, styles.f3].flat().filter(Boolean) as any}>
         <Flower color="#b77dee" size={20} />
       </span>
-      <span class={`${styles.floatItem} ${styles.s1}`}>
+      <span class={[styles.floatItem, styles.s1].flat().filter(Boolean) as any}>
         <Star color="#f7cd67" />
       </span>
-      <span class={`${styles.floatItem} ${styles.s2}`}>
+      <span class={[styles.floatItem, styles.s2].flat().filter(Boolean) as any}>
         <Star color="#82d5bb" size={14} />
       </span>
 
@@ -412,11 +415,7 @@ export const WeddingInvitationExportButton = (props: WeddingInvitationExportButt
   return (
     <button
       type="button"
-      class={props.class}
-      classList={{
-        [styles.exportBtn]: true,
-        ...props.classList,
-      }}
+      class={[styles.exportBtn, props.class, props.classList].flat().filter(Boolean) as any}
       style={props.style}
       onClick={handleClick}
       disabled={exporting()}

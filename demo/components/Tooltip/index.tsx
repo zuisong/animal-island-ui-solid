@@ -1,4 +1,5 @@
-import { JSX } from "solid-js";
+
+import type { JSX } from "@solidjs/web";
 import { Tooltip, Button } from "../../../src";
 import {
   labelStyle,

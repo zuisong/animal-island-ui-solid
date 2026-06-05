@@ -1,4 +1,5 @@
-import { JSX, createSignal, onMount, onCleanup, For } from "solid-js";
+import { createSignal, onSettled, onCleanup, For } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./phone.module.less";
 import { Icon, IconName } from "../Icon";
 
@@ -41,7 +42,7 @@ const apps: App[] = [
 export const Phone = (props: PhoneProps) => {
   const [time, setTime] = createSignal(new Date());
 
-  onMount(() => {
+  onSettled(() => {
     const timer = setInterval(() => {
       setTime(new Date());
     }, 1000);
@@ -80,16 +81,18 @@ export const Phone = (props: PhoneProps) => {
               <For each={apps}>
                 {(app) => (
                   <div
-                    class={styles.appItem}
-                    classList={{ [styles.appItemOffset]: app.offset }}
+                    class={[styles.appItem, app.offset ? styles.appItemOffset : undefined]
+                      .flat()
+                      .filter(Boolean) as any}
                     style={{ "background-color": app.color }}
                   >
                     {app.hasNewMessage && <span class={styles.badge} />}
                     <Icon
                       name={app.iconName}
                       size="100%"
-                      class={styles.appIcon}
-                      classList={{ [styles.appIconOffset]: app.offset }}
+                      class={[styles.appIcon, app.offset ? styles.appIconOffset : undefined]
+                        .flat()
+                        .filter(Boolean) as any}
                       style={{ "background-size": "70% auto", ...app.iconStyle }}
                     />
                   </div>

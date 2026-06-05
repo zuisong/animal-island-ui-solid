@@ -1,4 +1,4 @@
-import { JSX, createSignal, createMemo, Show, For } from "solid-js";
+import { createSignal, createMemo, Show, For } from "solid-js";
 import {
   Button,
   Input,
@@ -38,6 +38,7 @@ import LoadingDemo from "./components/Loading/LoadingDemo";
 import TableDemo from "./components/Table/TableDemo";
 import WeddingInvitationDemo from "./components/WeddingInvitation/WeddingInvitationDemo";
 import WalletDemo from "./components/Wallet/WalletDemo";
+import { JSX } from "@solidjs/web/jsx-runtime";
 
 // ============================================
 // Styles

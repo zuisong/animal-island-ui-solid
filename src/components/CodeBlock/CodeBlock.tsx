@@ -1,4 +1,5 @@
-import { JSX, splitProps, mergeProps } from "solid-js";
+import { merge, omit } from "solid-js";
+import type { JSX } from "@solidjs/web";
 
 const COLORS = {
   comment: "#6b5e50",
@@ -56,7 +57,7 @@ const highlightJSX = (code: string): JSX.Element[] => {
   addPattern(/<\/?[a-z][\w-]*/g, COLORS.jsx);
   addPattern(/\/?>/g, COLORS.jsx);
   addPattern(
-    /\b(Solid|createSignal|createEffect|onMount|onCleanup|createMemo|createUniqueId|useContext|splitProps|mergeProps|Show|For|Index|Switch|Match|Portal|Dynamic|ErrorBoundary|lazy|Suspense|Component|JSX|CSSProperties)\b/g,
+    /\b(Solid|createSignal|createEffect|onSettled|onCleanup|createMemo|createUniqueId|useContext|splitProps|mergeProps|Show|For|Index|Switch|Match|Portal|Dynamic|Errored|lazy|Loading|Component|JSX|CSSProperties)\b/g,
     COLORS.solid,
   );
   addPattern(/\b(true|false)\b/g, COLORS.keyword);
@@ -103,21 +104,20 @@ export interface CodeBlockProps {
   /** 自定义类名 */
   class?: string;
   /** 自定义类名列表 */
-  classList?: { [key: string]: boolean | undefined };
+  classList?: Record<string, boolean>;
 }
 
 export const CodeBlock = (props: CodeBlockProps) => {
-  const merged = mergeProps({}, props);
-  const [local, rest] = splitProps(merged, ["code", "style", "class", "classList"]);
+  const merged = merge({}, props);
+  const rest = omit(merged, "code", "style", "class", "classList");
 
   return (
     <pre
-      style={{ ...codeBlockStyle, ...local.style }}
-      class={local.class}
-      classList={local.classList}
+      style={{ ...codeBlockStyle, ...merged.style }}
+      class={[merged.class, merged.classList]}
       {...rest}
     >
-      {highlightJSX(local.code)}
+      {highlightJSX(merged.code)}
     </pre>
   );
 };

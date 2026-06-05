@@ -1,4 +1,5 @@
-import { JSX, splitProps, mergeProps } from "solid-js";
+import { merge, omit } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import styles from "./icon.module.less";
 
 export type IconName =
@@ -26,7 +27,7 @@ const ITEM_URL_MAP: Record<number, string> = (() => {
   for (const path in itemModules) {
     const match = /item-(\d+)\.png$/.exec(path);
     if (match) {
-      map[Number(match[1])] = itemModules[path];
+      map[match[1] as any] = itemModules[path];
     }
   }
   return map;
@@ -46,14 +47,14 @@ export interface IconProps {
   item?: number;
   size?: number | string;
   class?: string;
-  classList?: { [key: string]: boolean | undefined };
+  classList?: Record<string, boolean>;
   style?: JSX.CSSProperties;
   bounce?: boolean;
 }
 
 export const Icon = (props: IconProps) => {
-  const merged = mergeProps({ size: 24, bounce: false }, props);
-  const [local, rest] = splitProps(merged, [
+  const merged = merge({ size: 24, bounce: false }, props);
+  const rest = omit(merged,
     "name",
     "item",
     "size",
@@ -61,24 +62,26 @@ export const Icon = (props: IconProps) => {
     "classList",
     "style",
     "bounce",
-  ]);
+  );
 
-  const itemUrl = () => (typeof local.item === "number" ? ITEM_URL_MAP[local.item] : undefined);
+  const itemUrl = () => (merged.item !== undefined ? ITEM_URL_MAP[merged.item] : undefined);
 
   return (
     <span
-      class={local.class}
-      classList={{
-        [styles.icon]: true,
-        [styles[local.name!]]: !!local.name,
-        [styles["icon-bounce"]]: local.bounce,
-        ...local.classList,
-      }}
+      class={[
+        merged.class,
+        {
+          [styles.icon]: true,
+          [styles[merged.name!]]: !!merged.name,
+          [styles["icon-bounce"]]: merged.bounce,
+        },
+        merged.classList,
+      ].flat() as any}
       style={{
-        width: typeof local.size === "number" ? `${local.size}px` : local.size,
-        height: typeof local.size === "number" ? `${local.size}px` : local.size,
+        width: typeof merged.size === "number" ? `${merged.size}px` : merged.size,
+        height: typeof merged.size === "number" ? `${merged.size}px` : merged.size,
         ...(itemUrl() ? { "background-image": `url(${itemUrl()})` } : null),
-        ...local.style,
+        ...merged.style,
       }}
       {...rest}
     />
