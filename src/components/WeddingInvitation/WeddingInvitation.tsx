@@ -1,8 +1,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import { domToCanvas } from 'modern-screenshot';
 import styles from './weddingInvitation.module.less';
-import weddingTitleImg from './img/wedding.PNG';
-import brideAndGroomImg from './img/brideandgroom.PNG';
+import weddingTitleImg from './img/wedding.png';
+import brideAndGroomImg from './img/brideandgroom.png';
 import { injectWeddingFonts, prepareWeddingFontsForExport } from './fonts';
 import { Icon } from '../Icon';
 
@@ -157,7 +156,11 @@ const exportNodeAsPng = async (
     scale = 2,
 ): Promise<void> => {
     // 字体抓取 + FontFace 注册 + 生成内嵌 cssText（首次会慢，结果缓存）
-    const fontCssText = await prepareWeddingFontsForExport();
+    const [fontCssText, { domToCanvas }] = await Promise.all([
+        prepareWeddingFontsForExport(),
+        // 懒加载 modern-screenshot —— 仅在用户触发导出时才拉取
+        import('modern-screenshot'),
+    ]);
 
     // 临时关掉 mask-image —— 用动态 calc 定位的 mask 在导出管线里位置会偏，
     // 改成下面用 canvas globalCompositeOperation 手动打孔
