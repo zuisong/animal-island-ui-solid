@@ -1,7 +1,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import styles from './weddingInvitation.module.less';
-import weddingTitleImg from './img/wedding.png';
-import brideAndGroomImg from './img/brideandgroom.png';
+import weddingTitleImg from './img/wedding.webp';
+import brideAndGroomImg from './img/brideandgroom.webp';
 import { injectWeddingFonts, prepareWeddingFontsForExport } from './fonts';
 import { Icon } from '../Icon';
 
