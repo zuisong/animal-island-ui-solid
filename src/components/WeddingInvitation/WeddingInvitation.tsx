@@ -407,7 +407,6 @@ export const WeddingInvitationExportButton: React.FC<WeddingInvitationExportButt
             await targetRef.current?.exportAsImage(filename);
         } catch (err) {
             console.error('[WeddingInvitation] 导出图片失败：', err);
-            // eslint-disable-next-line no-alert
             alert(`导出失败：${err instanceof Error ? err.message : String(err)}`);
         } finally {
             setExporting(false);
