@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { WeddingInvitation, WeddingInvitationExportButton, Input, Switch } from '../../../src';
-import type { WeddingInvitationRef } from '../../../src';
+import { WeddingInvitation, WeddingInvitationExportButton } from './Wedding';
+import type { WeddingInvitationRef } from './Wedding';
+import { Input, Switch } from '../../../src';
 import {
     CodeBlock,
     ApiTable,
@@ -46,7 +47,7 @@ const WeddingInvitationDemo: React.FC = () => {
     return (
         <div style={sectionStyle}>
             <div style={sectionTitleStyle}>
-                WeddingInvitation <span style={tagStyle}>婚礼请柬</span>
+                WeddingInvitation（仅展示，组件库暂不包含此组件） <span style={tagStyle}>婚礼请柬</span>
             </div>
             <div style={labelStyle}>
                 动森风格婚礼请柬，定位为「设计 → 导出图片 → 分享 / 打印」。组件本身只渲染卡面，导出按钮通过 ref

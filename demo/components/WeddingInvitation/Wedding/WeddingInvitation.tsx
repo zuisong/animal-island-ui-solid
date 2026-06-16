@@ -3,7 +3,7 @@ import styles from './weddingInvitation.module.less';
 import weddingTitleImg from './img/wedding.webp';
 import brideAndGroomImg from './img/brideandgroom.webp';
 import { injectWeddingFonts, prepareWeddingFontsForExport } from './fonts';
-import { Icon } from '../Icon';
+import { Icon } from '../../../../src';
 
 export interface WeddingInvitationProps {
     /** 新郎名 */
@@ -239,7 +239,7 @@ export const WeddingInvitation = forwardRef<WeddingInvitationRef, WeddingInvitat
         const rootRef = useRef<HTMLDivElement>(null);
 
         useEffect(() => {
-            injectWeddingFonts();
+            void injectWeddingFonts();
         }, []);
 
         const exportAsImage = React.useCallback(async (filename = 'wedding-invitation') => {
