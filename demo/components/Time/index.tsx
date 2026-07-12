@@ -16,9 +16,7 @@ const TimeDemo: React.FC = () => (
         <div style={sectionTitleStyle}>
             Time <span style={tagStyle}>时间</span>
         </div>
-        <div style={labelStyle}>
-            Time 组件 — 经典 HUD 风格的时间显示组件，实时更新时间，支持星期、日期和时间显示。
-        </div>
+        <div style={labelStyle}>Time 组件 — 经典 HUD 风格的时间显示组件，实时更新时间，支持星期、日期和时间显示。</div>
         <div style={demoBodyStyle}>
             <TimeComponent />
         </div>

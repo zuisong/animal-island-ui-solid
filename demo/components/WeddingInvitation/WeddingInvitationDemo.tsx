@@ -59,7 +59,7 @@ const WeddingInvitationDemo: React.FC = () => {
         <div style={sectionStyle}>
             <div style={sectionTitleStyle}>
                 WeddingInvitation（仅展示，组件库暂不包含此组件） <span style={tagStyle}>婚礼请柬</span>
-                </div>
+            </div>
             <div style={labelStyle}>
                 动物主题婚礼请柬，定位为「设计 → 导出图片 → 分享 / 打印」。组件本身只渲染卡面，导出按钮通过 ref
                 在外部触发。
